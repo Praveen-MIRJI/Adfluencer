@@ -22,8 +22,13 @@ export default function Register() {
   );
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
-  
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterForm>();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterForm>();
   const password = watch('password');
 
   const onSubmit = async (data: RegisterForm) => {
@@ -37,7 +42,7 @@ export default function Register() {
       const { user, token } = response.data.data;
       setAuth(user, token);
       toast.success('Account created successfully!');
-      
+
       navigate(selectedRole === 'CLIENT' ? '/client/dashboard' : '/influencer/dashboard');
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Registration failed');
@@ -47,48 +52,54 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <Megaphone className="mx-auto h-12 w-12 text-primary-600" />
-          <h2 className="mt-4 text-3xl font-bold text-gray-900">Create an account</h2>
-          <p className="mt-2 text-gray-600">Join our marketplace today</p>
+          <div className="mx-auto w-14 h-14 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center mb-4">
+            <Megaphone className="h-7 w-7 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-white">Create an account</h2>
+          <p className="mt-2 text-slate-400">Join our marketplace today</p>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg p-8">
           {/* Role Selection */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">I am a...</label>
+            <label className="block text-sm font-medium text-slate-300 mb-3">I am a...</label>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setSelectedRole('CLIENT')}
-                className={`p-4 rounded-lg border-2 transition-colors ${
+                className={`p-4 rounded-lg border-2 transition-all ${
                   selectedRole === 'CLIENT'
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-rose-500 bg-rose-500/10'
+                    : 'border-slate-600 hover:border-slate-500 bg-slate-800/50'
                 }`}
               >
-                <Building2 className={`mx-auto h-8 w-8 ${selectedRole === 'CLIENT' ? 'text-primary-600' : 'text-gray-400'}`} />
-                <p className={`mt-2 font-medium ${selectedRole === 'CLIENT' ? 'text-primary-700' : 'text-gray-700'}`}>
+                <Building2
+                  className={`mx-auto h-8 w-8 ${selectedRole === 'CLIENT' ? 'text-rose-400' : 'text-slate-400'}`}
+                />
+                <p className={`mt-2 font-medium ${selectedRole === 'CLIENT' ? 'text-rose-400' : 'text-slate-300'}`}>
                   Brand / Client
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Post campaigns</p>
+                <p className="text-xs text-slate-500 mt-1">Post campaigns</p>
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedRole('INFLUENCER')}
-                className={`p-4 rounded-lg border-2 transition-colors ${
+                className={`p-4 rounded-lg border-2 transition-all ${
                   selectedRole === 'INFLUENCER'
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-rose-500 bg-rose-500/10'
+                    : 'border-slate-600 hover:border-slate-500 bg-slate-800/50'
                 }`}
               >
-                <User className={`mx-auto h-8 w-8 ${selectedRole === 'INFLUENCER' ? 'text-primary-600' : 'text-gray-400'}`} />
-                <p className={`mt-2 font-medium ${selectedRole === 'INFLUENCER' ? 'text-primary-700' : 'text-gray-700'}`}>
+                <User
+                  className={`mx-auto h-8 w-8 ${selectedRole === 'INFLUENCER' ? 'text-rose-400' : 'text-slate-400'}`}
+                />
+                <p className={`mt-2 font-medium ${selectedRole === 'INFLUENCER' ? 'text-rose-400' : 'text-slate-300'}`}>
                   Influencer
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Find campaigns</p>
+                <p className="text-xs text-slate-500 mt-1">Find campaigns</p>
               </button>
             </div>
           </div>
@@ -97,9 +108,9 @@ export default function Register() {
             <Input
               label="Email"
               type="email"
-              {...register('email', { 
+              {...register('email', {
                 required: 'Email is required',
-                pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' }
+                pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' },
               })}
               error={errors.email?.message}
             />
@@ -107,13 +118,13 @@ export default function Register() {
             <Input
               label="Password"
               type="password"
-              {...register('password', { 
+              {...register('password', {
                 required: 'Password is required',
                 minLength: { value: 8, message: 'Password must be at least 8 characters' },
                 pattern: {
                   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                  message: 'Password must contain uppercase, lowercase, and number'
-                }
+                  message: 'Password must contain uppercase, lowercase, and number',
+                },
               })}
               error={errors.password?.message}
             />
@@ -121,9 +132,9 @@ export default function Register() {
             <Input
               label="Confirm Password"
               type="password"
-              {...register('confirmPassword', { 
+              {...register('confirmPassword', {
                 required: 'Please confirm your password',
-                validate: value => value === password || 'Passwords do not match'
+                validate: (value) => value === password || 'Passwords do not match',
               })}
               error={errors.confirmPassword?.message}
             />
@@ -133,9 +144,9 @@ export default function Register() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm text-slate-400">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link to="/login" className="text-rose-400 hover:text-rose-300 font-medium">
               Sign in
             </Link>
           </p>

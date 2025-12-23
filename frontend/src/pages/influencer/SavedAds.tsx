@@ -48,21 +48,21 @@ export default function SavedAds() {
 
   const getPlatformColor = (platform: string) => {
     const colors: Record<string, string> = {
-      INSTAGRAM: 'bg-pink-100 text-pink-800',
-      YOUTUBE: 'bg-red-100 text-red-800',
-      TWITTER: 'bg-blue-100 text-blue-800',
-      TIKTOK: 'bg-gray-800 text-white',
-      FACEBOOK: 'bg-blue-600 text-white',
-      LINKEDIN: 'bg-blue-700 text-white',
+      INSTAGRAM: 'bg-pink-500/20 text-pink-400 border border-pink-500/30',
+      YOUTUBE: 'bg-red-500/20 text-red-400 border border-red-500/30',
+      TWITTER: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+      TIKTOK: 'bg-slate-700 text-white border border-slate-600',
+      FACEBOOK: 'bg-blue-600/20 text-blue-400 border border-blue-500/30',
+      LINKEDIN: 'bg-blue-700/20 text-blue-400 border border-blue-600/30',
     };
-    return colors[platform] || 'bg-gray-100 text-gray-800';
+    return colors[platform] || 'bg-slate-700 text-slate-300 border border-slate-600';
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Saved Advertisements</h1>
-        <p className="text-gray-600 mt-1">Campaigns you've bookmarked for later</p>
+        <h1 className="text-2xl font-bold text-white">Saved Advertisements</h1>
+        <p className="text-slate-400 mt-1">Campaigns you've bookmarked for later</p>
       </div>
 
       {loading ? (
@@ -99,17 +99,17 @@ export default function SavedAds() {
                           </Badge>
                         </div>
                         <Link to={`/influencer/ads/${ad.id}`}>
-                          <h3 className="font-semibold text-gray-900 hover:text-primary-600">
+                          <h3 className="font-semibold text-white hover:text-rose-400">
                             {ad.title}
                           </h3>
                         </Link>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-slate-400 mt-1">
                           {ad.client?.clientProfile?.companyName || 'Client'}
                         </p>
-                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                        <p className="text-sm text-slate-300 mt-2 line-clamp-2">
                           {ad.description}
                         </p>
-                        <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-4 mt-3 text-sm text-slate-400">
                           <div className="flex items-center gap-1">
                             <DollarSign className="w-4 h-4" />
                             <span>${ad.budgetMin.toLocaleString()} - ${ad.budgetMax.toLocaleString()}</span>
@@ -123,7 +123,7 @@ export default function SavedAds() {
                       <div className="flex items-center gap-2 ml-4">
                         <button
                           onClick={() => handleUnsave(ad.id)}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                          className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"
                           title="Remove from saved"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -135,7 +135,7 @@ export default function SavedAds() {
                         )}
                       </div>
                     </div>
-                    <p className="text-xs text-gray-400 mt-3">
+                    <p className="text-xs text-slate-500 mt-3">
                       Saved on {format(new Date(saved.createdAt), 'MMM d, yyyy')}
                     </p>
                   </CardContent>

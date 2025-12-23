@@ -93,7 +93,7 @@ export default function ClientAdDetails() {
 
   return (
     <div>
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6">
         <ArrowLeft className="h-4 w-4" />
         Back to My Ads
       </button>
@@ -104,27 +104,27 @@ export default function ClientAdDetails() {
           <Card>
             <CardHeader className="flex flex-row items-start justify-between">
               <div>
-                <h1 className="text-xl font-bold text-gray-900">{ad.title}</h1>
-                <p className="text-gray-500 mt-1">{ad.category?.name}</p>
+                <h1 className="text-xl font-bold text-white">{ad.title}</h1>
+                <p className="text-slate-400 mt-1">{ad.category?.name}</p>
               </div>
               <Badge variant={ad.status === 'OPEN' ? 'success' : 'gray'}>
                 {ad.status}
               </Badge>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700 whitespace-pre-wrap">{ad.description}</p>
+              <p className="text-slate-300 whitespace-pre-wrap">{ad.description}</p>
               
               {ad.requirements && (
                 <div className="mt-6">
-                  <h3 className="font-medium text-gray-900 mb-2">Requirements</h3>
-                  <p className="text-gray-600">{ad.requirements}</p>
+                  <h3 className="font-medium text-white mb-2">Requirements</h3>
+                  <p className="text-slate-300">{ad.requirements}</p>
                 </div>
               )}
 
               {ad.targetAudience && (
                 <div className="mt-4">
-                  <h3 className="font-medium text-gray-900 mb-2">Target Audience</h3>
-                  <p className="text-gray-600">{ad.targetAudience}</p>
+                  <h3 className="font-medium text-white mb-2">Target Audience</h3>
+                  <p className="text-slate-300">{ad.targetAudience}</p>
                 </div>
               )}
             </CardContent>
@@ -133,30 +133,30 @@ export default function ClientAdDetails() {
           {/* Bids Section */}
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                 <Users className="h-5 w-5" />
                 Bids ({ad.bids?.length || 0})
               </h2>
             </CardHeader>
             <CardContent>
               {!ad.bids?.length ? (
-                <p className="text-gray-500 text-center py-8">No bids received yet</p>
+                <p className="text-slate-400 text-center py-8">No bids received yet</p>
               ) : (
                 <div className="space-y-4">
                   {ad.bids.map((bid: Bid) => (
-                    <div key={bid.id} className="border border-gray-200 rounded-lg p-4">
+                    <div key={bid.id} className="border border-slate-600/50 rounded-lg p-4 bg-slate-900/50">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                            <span className="text-primary-600 font-medium">
+                          <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center">
+                            <span className="text-rose-400 font-medium">
                               {bid.influencer?.influencerProfile?.displayName?.[0] || 'I'}
                             </span>
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-white">
                               {bid.influencer?.influencerProfile?.displayName || 'Influencer'}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-slate-400">
                               {bid.influencer?.influencerProfile?.primaryNiche}
                             </p>
                           </div>
@@ -166,16 +166,16 @@ export default function ClientAdDetails() {
 
                       <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
                         <div>
-                          <span className="text-gray-500">Proposed Price:</span>
-                          <span className="ml-2 font-medium text-gray-900">${bid.proposedPrice}</span>
+                          <span className="text-slate-400">Proposed Price:</span>
+                          <span className="ml-2 font-medium text-white">${bid.proposedPrice}</span>
                         </div>
                         <div>
-                          <span className="text-gray-500">Delivery:</span>
-                          <span className="ml-2 font-medium text-gray-900">{bid.deliveryDays} days</span>
+                          <span className="text-slate-400">Delivery:</span>
+                          <span className="ml-2 font-medium text-white">{bid.deliveryDays} days</span>
                         </div>
                       </div>
 
-                      <p className="text-gray-600 text-sm mb-4">{bid.proposal}</p>
+                      <p className="text-slate-300 text-sm mb-4">{bid.proposal}</p>
 
                       {bid.status === 'PENDING' && ad.status === 'OPEN' && (
                         <div className="flex flex-wrap gap-2">
@@ -257,32 +257,32 @@ export default function ClientAdDetails() {
           <Card>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
-                <DollarSign className="h-5 w-5 text-gray-400" />
+                <DollarSign className="h-5 w-5 text-slate-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Budget</p>
-                  <p className="font-medium">${ad.budgetMin} - ${ad.budgetMax}</p>
+                  <p className="text-sm text-slate-400">Budget</p>
+                  <p className="font-medium text-white">${ad.budgetMin} - ${ad.budgetMax}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-gray-400" />
+                <Calendar className="h-5 w-5 text-slate-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Deadline</p>
-                  <p className="font-medium">{format(new Date(ad.deadline), 'MMM d, yyyy')}</p>
+                  <p className="text-sm text-slate-400">Deadline</p>
+                  <p className="font-medium text-white">{format(new Date(ad.deadline), 'MMM d, yyyy')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-gray-400" />
+                <Clock className="h-5 w-5 text-slate-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Duration</p>
-                  <p className="font-medium">{ad.duration}</p>
+                  <p className="text-sm text-slate-400">Duration</p>
+                  <p className="font-medium text-white">{ad.duration}</p>
                 </div>
               </div>
-              <div className="pt-4 border-t">
-                <p className="text-sm text-gray-500 mb-1">Platform</p>
+              <div className="pt-4 border-t border-slate-600/50">
+                <p className="text-sm text-slate-400 mb-1">Platform</p>
                 <Badge variant="info">{ad.platform}</Badge>
               </div>
               <div>
-                <p className="text-sm text-gray-500 mb-1">Content Type</p>
+                <p className="text-sm text-slate-400 mb-1">Content Type</p>
                 <Badge>{ad.contentType}</Badge>
               </div>
             </CardContent>
@@ -307,7 +307,7 @@ export default function ClientAdDetails() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Write your message..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+            className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none text-white placeholder-slate-500"
             rows={4}
           />
           <div className="flex justify-end gap-3">

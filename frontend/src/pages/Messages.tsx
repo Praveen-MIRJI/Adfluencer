@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Send, MessageSquare, User } from 'lucide-react';
@@ -11,19 +12,61 @@ import EmptyState from '../components/ui/EmptyState';
 
 export default function Messages() {
   const { user } = useAuthStore();
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [newPartner, setNewPartner] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         const response = await api.get('/messages/conversations');
-        setConversations(response.data.data);
+        setConversations(response.data.data || []);
+        
+        // Check if we need to start a new conversation from URL param
+        const targetUserId = searchParams.get('user');
+        if (targetUserId) {
+          // Check if conversation already exists
+          const existingConv = (response.data.data || []).find((c: Conversation) => c.partnerId === targetUserId);
+          if (existingConv) {
+            setSelectedConversation(targetUserId);
+          } else {
+            // Fetch the user info to start a new conversation
+            try {
+              // Try influencer endpoint first
+              const userRes = await api.get(`/influencers/${targetUserId}`);
+              if (userRes.data.data) {
+                setNewPartner({
+                  id: targetUserId,
+                  email: userRes.data.data.user?.email || '',
+                  role: 'INFLUENCER',
+                  influencerProfile: { displayName: userRes.data.data.displayName, avatar: userRes.data.data.avatar }
+                });
+                setSelectedConversation(targetUserId);
+              }
+            } catch (e) {
+              // Try to get user from a different source (e.g., from ad client info)
+              try {
+                // For clients, we might need to get info differently
+                // Just set basic info for now
+                setNewPartner({
+                  id: targetUserId,
+                  email: '',
+                  role: 'CLIENT',
+                  clientProfile: { companyName: 'Client' }
+                });
+                setSelectedConversation(targetUserId);
+              } catch (e2) {
+                console.error('Failed to fetch user for new conversation:', e2);
+              }
+            }
+          }
+        }
       } catch (error) {
         console.error('Failed to fetch conversations:', error);
       } finally {
@@ -31,7 +74,7 @@ export default function Messages() {
       }
     };
     fetchConversations();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -64,6 +107,13 @@ export default function Messages() {
       });
       setNewMessage('');
       fetchMessages(selectedConversation);
+      
+      // If this was a new conversation, refresh the conversations list
+      if (newPartner) {
+        const response = await api.get('/messages/conversations');
+        setConversations(response.data.data || []);
+        setNewPartner(null);
+      }
     } catch (error) {
       toast.error('Failed to send message');
     } finally {
@@ -78,61 +128,107 @@ export default function Messages() {
     return conv.partner.influencerProfile?.displayName || conv.partner.email;
   };
 
+  const getSelectedPartnerName = () => {
+    if (newPartner) {
+      return newPartner.influencerProfile?.displayName || newPartner.clientProfile?.companyName || newPartner.email;
+    }
+    const conv = conversations.find(c => c.partnerId === selectedConversation);
+    return conv ? getPartnerName(conv) : 'Unknown';
+  };
+
   if (loading) return <PageLoader />;
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-        <p className="text-gray-600 mt-1">Communicate with clients and influencers</p>
+        <h1 className="text-2xl font-bold text-white">Messages</h1>
+        <p className="text-slate-400 mt-1">Communicate with clients and influencers</p>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-slate-800/50 rounded-lg border border-slate-600/50 overflow-hidden">
         <div className="grid md:grid-cols-3 h-[600px]">
           {/* Conversations List */}
-          <div className="border-r border-gray-200 overflow-y-auto">
-            {conversations.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
+          <div className="border-r border-slate-600/50 overflow-y-auto">
+            {conversations.length === 0 && !newPartner ? (
+              <div className="p-4 text-center text-slate-400">
                 No conversations yet
               </div>
             ) : (
-              conversations.map((conv) => (
-                <button
-                  key={conv.partnerId}
-                  onClick={() => setSelectedConversation(conv.partnerId)}
-                  className={`w-full p-4 text-left border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                    selectedConversation === conv.partnerId ? 'bg-primary-50' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                      <User className="h-5 w-5 text-primary-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-gray-900 truncate">
-                          {getPartnerName(conv)}
-                        </p>
-                        {conv.unreadCount > 0 && (
-                          <span className="bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full">
-                            {conv.unreadCount}
-                          </span>
-                        )}
+              <>
+                {/* Show new partner at top if starting new conversation */}
+                {newPartner && !conversations.find(c => c.partnerId === newPartner.id) && (
+                  <button
+                    onClick={() => setSelectedConversation(newPartner.id)}
+                    className={`w-full p-4 text-left border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors ${
+                      selectedConversation === newPartner.id ? 'bg-slate-700/50' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center flex-shrink-0 text-white font-semibold">
+                        {newPartner.influencerProfile?.displayName?.charAt(0) || newPartner.clientProfile?.companyName?.charAt(0) || 'U'}
                       </div>
-                      <p className="text-sm text-gray-500 truncate">
-                        {conv.lastMessage.content}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-white truncate">
+                          {newPartner.influencerProfile?.displayName || newPartner.clientProfile?.companyName || newPartner.email}
+                        </p>
+                        <p className="text-sm text-slate-400">New conversation</p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))
+                  </button>
+                )}
+                {conversations.map((conv) => (
+                  <button
+                    key={conv.partnerId}
+                    onClick={() => setSelectedConversation(conv.partnerId)}
+                    className={`w-full p-4 text-left border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors ${
+                      selectedConversation === conv.partnerId ? 'bg-slate-700/50' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+                        <User className="h-5 w-5 text-slate-300" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-white truncate">
+                            {getPartnerName(conv)}
+                          </p>
+                          {conv.unreadCount > 0 && (
+                            <span className="bg-rose-600 text-white text-xs px-2 py-0.5 rounded-full">
+                              {conv.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-400 truncate">
+                          {conv.lastMessage.content}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </>
             )}
           </div>
 
           {/* Messages Area */}
-          <div className="md:col-span-2 flex flex-col">
+          <div className="md:col-span-2 flex flex-col bg-slate-900/30">
             {selectedConversation ? (
               <>
+                {/* Chat Header */}
+                <div className="p-4 border-b border-slate-600/50 bg-slate-800/30">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                      {getSelectedPartnerName().charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">{getSelectedPartnerName()}</p>
+                      <p className="text-xs text-slate-400">
+                        {messages.length > 0 ? `${messages.length} messages` : 'Start a conversation'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {messages.map((msg) => (
@@ -143,13 +239,13 @@ export default function Messages() {
                       <div
                         className={`max-w-[70%] rounded-lg px-4 py-2 ${
                           msg.senderId === user?.id
-                            ? 'bg-primary-600 text-white'
-                            : 'bg-gray-100 text-gray-900'
+                            ? 'bg-rose-600 text-white'
+                            : 'bg-slate-700 text-white'
                         }`}
                       >
                         <p>{msg.content}</p>
                         <p className={`text-xs mt-1 ${
-                          msg.senderId === user?.id ? 'text-primary-200' : 'text-gray-500'
+                          msg.senderId === user?.id ? 'text-rose-200' : 'text-slate-400'
                         }`}>
                           {format(new Date(msg.createdAt), 'h:mm a')}
                         </p>
@@ -160,14 +256,14 @@ export default function Messages() {
                 </div>
 
                 {/* Input */}
-                <form onSubmit={handleSend} className="p-4 border-t border-gray-200">
+                <form onSubmit={handleSend} className="p-4 border-t border-slate-600/50">
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="flex-1 px-4 py-2.5 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
                     />
                     <Button type="submit" loading={sending} disabled={!newMessage.trim()}>
                       <Send className="h-4 w-4" />

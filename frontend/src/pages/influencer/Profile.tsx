@@ -135,20 +135,20 @@ export default function Profile() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-600 mt-1">Manage your influencer profile</p>
+        <h1 className="text-2xl font-bold text-white">My Profile</h1>
+        <p className="text-slate-400 mt-1">Manage your influencer profile</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Profile Photo */}
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold">Profile Photo</h2>
+            <h2 className="text-lg font-semibold text-white">Profile Photo</h2>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-6">
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -172,13 +172,13 @@ export default function Profile() {
                     {uploadingImage ? 'Uploading...' : 'Upload Photo'}
                   </Button>
                   {avatarUrl && (
-                    <Button type="button" variant="ghost" onClick={handleRemoveImage} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                    <Button type="button" variant="ghost" onClick={handleRemoveImage} className="text-red-400 hover:text-red-300 hover:bg-red-500/20">
                       <X className="w-4 h-4 mr-2" />
                       Remove
                     </Button>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF. Max size 5MB.</p>
+                <p className="text-xs text-slate-400 mt-2">JPG, PNG or GIF. Max size 5MB.</p>
               </div>
             </div>
           </CardContent>
@@ -187,8 +187,8 @@ export default function Profile() {
         {/* Basic Info */}
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              <User className="h-5 w-5 text-gray-500" />
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <User className="h-5 w-5 text-slate-400" />
               Basic Information
             </h2>
           </CardHeader>
@@ -205,46 +205,46 @@ export default function Profile() {
         {/* Social Media */}
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Globe className="h-5 w-5 text-gray-500" />
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Globe className="h-5 w-5 text-slate-400" />
               Social Media Accounts
             </h2>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-500/30">
               <div className="flex items-center gap-2 mb-4">
-                <Instagram className="w-5 h-5 text-pink-600" />
-                <span className="font-medium text-gray-900">Instagram</span>
+                <Instagram className="w-5 h-5 text-pink-400" />
+                <span className="font-medium text-white">Instagram</span>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input label="Handle" placeholder="@username" {...register('instagramHandle')} />
                 <Input label="Followers" type="number" min="0" {...register('instagramFollowers', { min: 0 })} />
               </div>
             </div>
-            <div className="p-4 bg-red-50 rounded-lg">
+            <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/30">
               <div className="flex items-center gap-2 mb-4">
-                <Youtube className="w-5 h-5 text-red-600" />
-                <span className="font-medium text-gray-900">YouTube</span>
+                <Youtube className="w-5 h-5 text-red-400" />
+                <span className="font-medium text-white">YouTube</span>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input label="Channel Name" placeholder="Channel name" {...register('youtubeHandle')} />
                 <Input label="Subscribers" type="number" min="0" {...register('youtubeSubscribers', { min: 0 })} />
               </div>
             </div>
-            <div className="p-4 bg-blue-50 rounded-lg">
+            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
               <div className="flex items-center gap-2 mb-4">
-                <Twitter className="w-5 h-5 text-blue-500" />
-                <span className="font-medium text-gray-900">Twitter / X</span>
+                <Twitter className="w-5 h-5 text-blue-400" />
+                <span className="font-medium text-white">Twitter / X</span>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input label="Handle" placeholder="@username" {...register('twitterHandle')} />
                 <Input label="Followers" type="number" min="0" {...register('twitterFollowers', { min: 0 })} />
               </div>
             </div>
-            <div className="p-4 bg-gray-100 rounded-lg">
+            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
               <div className="flex items-center gap-2 mb-4">
-                <Play className="w-5 h-5 text-gray-800" />
-                <span className="font-medium text-gray-900">TikTok</span>
+                <Play className="w-5 h-5 text-slate-300" />
+                <span className="font-medium text-white">TikTok</span>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input label="Handle" placeholder="@username" {...register('tiktokHandle')} />

@@ -84,8 +84,8 @@ export default function DiscoverInfluencers() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Discover Influencers</h1>
-        <p className="text-gray-600 mt-1">Find the perfect influencer for your campaign</p>
+        <h1 className="text-2xl font-bold text-white">Discover Influencers</h1>
+        <p className="text-slate-400 mt-1">Find the perfect influencer for your campaign</p>
       </div>
 
       {/* Filters */}
@@ -93,7 +93,7 @@ export default function DiscoverInfluencers() {
         <CardContent className="py-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
               <Input
                 placeholder="Search influencers..."
                 value={filters.search}
@@ -143,10 +143,10 @@ export default function DiscoverInfluencers() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {influencers.map((influencer) => (
-              <Card key={influencer.id} className="hover:shadow-md transition-shadow">
+              <Card key={influencer.id} className="hover:border-rose-500/30 transition-all">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-xl font-bold">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white text-xl font-bold overflow-hidden">
                       {influencer.avatar ? (
                         <img src={influencer.avatar} alt="" className="w-full h-full rounded-full object-cover" />
                       ) : (
@@ -154,23 +154,23 @@ export default function DiscoverInfluencers() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate">{influencer.displayName}</h3>
+                      <h3 className="font-semibold text-white truncate">{influencer.displayName}</h3>
                       {influencer.primaryNiche && (
-                        <p className="text-sm text-primary-600">{influencer.primaryNiche}</p>
+                        <p className="text-sm text-rose-400">{influencer.primaryNiche}</p>
                       )}
                       <div className="flex items-center gap-1 mt-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-medium">{influencer.averageRating?.toFixed(1) || '0.0'}</span>
-                        <span className="text-sm text-gray-500">({influencer.totalReviews || 0} reviews)</span>
+                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                        <span className="text-sm font-medium text-white">{influencer.averageRating?.toFixed(1) || '0.0'}</span>
+                        <span className="text-sm text-slate-400">({influencer.totalReviews || 0} reviews)</span>
                       </div>
                     </div>
                   </div>
 
                   {influencer.bio && (
-                    <p className="text-sm text-gray-600 mt-4 line-clamp-2">{influencer.bio}</p>
+                    <p className="text-sm text-slate-300 mt-4 line-clamp-2">{influencer.bio}</p>
                   )}
 
-                  <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-4 mt-4 text-sm text-slate-400">
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
                       <span>{formatFollowers(getTotalFollowers(influencer))} total</span>
@@ -181,26 +181,26 @@ export default function DiscoverInfluencers() {
 
                   <div className="flex items-center gap-3 mt-4">
                     {influencer.instagramFollowers && (
-                      <div className="flex items-center gap-1 text-pink-600">
+                      <div className="flex items-center gap-1 text-pink-400">
                         <Instagram className="w-4 h-4" />
                         <span className="text-xs">{formatFollowers(influencer.instagramFollowers)}</span>
                       </div>
                     )}
                     {influencer.youtubeSubscribers && (
-                      <div className="flex items-center gap-1 text-red-600">
+                      <div className="flex items-center gap-1 text-red-400">
                         <Youtube className="w-4 h-4" />
                         <span className="text-xs">{formatFollowers(influencer.youtubeSubscribers)}</span>
                       </div>
                     )}
                     {influencer.twitterFollowers && (
-                      <div className="flex items-center gap-1 text-blue-400">
+                      <div className="flex items-center gap-1 text-sky-400">
                         <Twitter className="w-4 h-4" />
                         <span className="text-xs">{formatFollowers(influencer.twitterFollowers)}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="mt-4 pt-4 border-t border-slate-600/50">
                     <Link to={`/client/influencers/${influencer.userId}`}>
                       <Button variant="secondary" className="w-full">View Profile</Button>
                     </Link>

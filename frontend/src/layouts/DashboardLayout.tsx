@@ -34,6 +34,10 @@ const adminNav = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Advertisements', href: '/admin/advertisements', icon: Megaphone },
+  { name: 'Contracts', href: '/admin/contracts', icon: FileCheck },
+  { name: 'Bids', href: '/admin/bids', icon: FileText },
+  { name: 'Categories', href: '/admin/categories', icon: Settings },
+  { name: 'Reviews', href: '/admin/reviews', icon: Star },
 ];
 
 export default function DashboardLayout() {
@@ -97,31 +101,33 @@ export default function DashboardLayout() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-gray-600 bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 z-30 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-200
+        fixed top-0 left-0 z-30 h-full w-64 bg-slate-900 border-r border-slate-700 transform transition-transform duration-200
         lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-800">
           <Link to="/" className="flex items-center gap-2">
-            <Megaphone className="h-7 w-7 text-primary-600" />
-            <span className="text-lg font-semibold text-gray-900">InfluenceHub</span>
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center">
+              <Megaphone className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-semibold text-white">InfluenceHub</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
-            <X className="h-6 w-6 text-gray-500" />
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-slate-400 hover:text-white">
+            <X className="h-6 w-6" />
           </button>
         </div>
 
-        <nav className="p-4 space-y-1 h-[calc(100%-4rem)] overflow-y-auto">
+        <nav className="p-4 space-y-1 h-[calc(100%-8rem)] overflow-y-auto">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href;
             return (
@@ -129,10 +135,10 @@ export default function DashboardLayout() {
                 key={item.href}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                   isActive 
-                    ? 'bg-primary-50 text-primary-700' 
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' 
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                 }`}
               >
                 <item.icon className="h-5 w-5" />
@@ -141,16 +147,27 @@ export default function DashboardLayout() {
             );
           })}
         </nav>
+
+        {/* Logout at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-800">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-10 bg-white border-b border-gray-200">
+        <header className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800">
           <div className="flex items-center justify-between h-16 px-4">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
+              className="lg:hidden p-2 text-slate-400 hover:text-white"
             >
               <Menu className="h-6 w-6" />
             </button>
@@ -164,10 +181,10 @@ export default function DashboardLayout() {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
                 >
                   {/* Avatar */}
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold overflow-hidden">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white font-semibold overflow-hidden">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -175,21 +192,21 @@ export default function DashboardLayout() {
                     )}
                   </div>
                   <div className="hidden sm:block text-left">
-                    <p className="text-sm font-medium text-gray-900 max-w-[120px] truncate">
+                    <p className="text-sm font-medium text-white max-w-[120px] truncate">
                       {displayName}
                     </p>
-                    <p className="text-xs text-gray-500 capitalize">{user?.role?.toLowerCase()}</p>
+                    <p className="text-xs text-slate-400 capitalize">{user?.role?.toLowerCase()}</p>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-500 hidden sm:block transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-slate-400 hidden sm:block transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown Menu */}
                 {profileOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-xl shadow-lg border border-slate-700 py-2 z-50">
                     {/* User Info */}
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    <div className="px-4 py-3 border-b border-slate-700">
+                      <p className="text-sm font-medium text-white truncate">{displayName}</p>
+                      <p className="text-xs text-slate-400 truncate">{user?.email}</p>
                     </div>
 
                     {/* Menu Items */}
@@ -197,29 +214,29 @@ export default function DashboardLayout() {
                       <Link
                         to={profileHref}
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                       >
-                        <User className="w-4 h-4 text-gray-500" />
+                        <User className="w-4 h-4" />
                         View Profile
                       </Link>
                       <Link
                         to={profileHref}
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                       >
-                        <Settings className="w-4 h-4 text-gray-500" />
+                        <Settings className="w-4 h-4" />
                         Edit Profile
                       </Link>
                     </div>
 
                     {/* Logout */}
-                    <div className="border-t border-gray-100 pt-1">
+                    <div className="border-t border-slate-700 pt-1">
                       <button
                         onClick={() => {
                           setProfileOpen(false);
                           handleLogout();
                         }}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-rose-400 hover:bg-slate-700 hover:text-rose-300 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out

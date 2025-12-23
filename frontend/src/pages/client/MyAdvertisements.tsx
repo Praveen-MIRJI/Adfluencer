@@ -72,8 +72,8 @@ export default function MyAdvertisements() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Campaigns</h1>
-          <p className="text-gray-600 mt-1">Manage and track your advertisement campaigns</p>
+          <h1 className="text-2xl font-bold text-white">My Campaigns</h1>
+          <p className="text-slate-400 mt-1">Manage and track your advertisement campaigns</p>
         </div>
         <Link to="/client/post-ad">
           <Button>
@@ -88,12 +88,12 @@ export default function MyAdvertisements() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-primary-600" />
+              <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-slate-300" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                <p className="text-sm text-gray-500">Total Campaigns</p>
+                <p className="text-2xl font-bold text-white">{stats.total}</p>
+                <p className="text-sm text-slate-400">Total Campaigns</p>
               </div>
             </div>
           </CardContent>
@@ -101,12 +101,12 @@ export default function MyAdvertisements() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.open}</p>
-                <p className="text-sm text-gray-500">Active Campaigns</p>
+                <p className="text-2xl font-bold text-white">{stats.open}</p>
+                <p className="text-sm text-slate-400">Active Campaigns</p>
               </div>
             </div>
           </CardContent>
@@ -114,12 +114,12 @@ export default function MyAdvertisements() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Users className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalBids}</p>
-                <p className="text-sm text-gray-500">Total Bids Received</p>
+                <p className="text-2xl font-bold text-white">{stats.totalBids}</p>
+                <p className="text-sm text-slate-400">Total Bids Received</p>
               </div>
             </div>
           </CardContent>
@@ -132,13 +132,13 @@ export default function MyAdvertisements() {
           <div className="flex flex-col sm:flex-row gap-4">
             <form onSubmit={handleSearch} className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search campaigns..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                 />
               </div>
             </form>
@@ -146,23 +146,23 @@ export default function MyAdvertisements() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                className="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
               >
                 <option value="">All Status</option>
                 <option value="OPEN">Open</option>
                 <option value="CLOSED">Closed</option>
                 <option value="PENDING_APPROVAL">Pending</option>
               </select>
-              <div className="hidden sm:flex items-center border border-gray-300 rounded-lg overflow-hidden">
+              <div className="hidden sm:flex items-center border border-slate-600 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 ${viewMode === 'grid' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50'}`}
+                  className={`p-2 ${viewMode === 'grid' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
                 >
                   <BarChart3 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 ${viewMode === 'list' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50'}`}
+                  className={`p-2 ${viewMode === 'list' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
                 >
                   <FileText className="w-4 h-4" />
                 </button>
@@ -200,10 +200,10 @@ export default function MyAdvertisements() {
               <Link
                 key={ad.id}
                 to={`/client/advertisements/${ad.id}`}
-                className="group bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-lg transition-all overflow-hidden"
+                className="group bg-slate-800 rounded-xl border border-slate-700 hover:border-rose-500/50 hover:shadow-lg transition-all overflow-hidden"
               >
                 {/* Header */}
-                <div className="h-1.5 bg-primary-500" />
+                <div className="h-1.5 bg-rose-500" />
 
                 <div className="p-5">
                   {/* Status & Platform */}
@@ -216,7 +216,7 @@ export default function MyAdvertisements() {
                       <Badge variant="secondary">{ad.platform}</Badge>
                     </div>
                     {ad._count?.bids ? (
-                      <span className="flex items-center gap-1 text-sm text-gray-500">
+                      <span className="flex items-center gap-1 text-sm text-slate-400">
                         <Users className="w-4 h-4" />
                         {ad._count.bids}
                       </span>
@@ -224,42 +224,42 @@ export default function MyAdvertisements() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-primary-600 transition-colors">
+                  <h3 className="font-semibold text-white mb-1 line-clamp-2 group-hover:text-rose-400 transition-colors">
                     {ad.title}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-3">{ad.category?.name}</p>
+                  <p className="text-sm text-slate-400 mb-3">{ad.category?.name}</p>
 
                   {/* Description */}
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-4">{ad.description}</p>
+                  <p className="text-sm text-slate-300 line-clamp-2 mb-4">{ad.description}</p>
 
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-gray-50 rounded-lg p-2.5">
-                      <div className="flex items-center gap-1.5 text-gray-600">
+                    <div className="bg-slate-700/50 rounded-lg p-2.5">
+                      <div className="flex items-center gap-1.5 text-slate-400">
                         <DollarSign className="w-4 h-4" />
                         <span className="text-xs font-medium">Budget</span>
                       </div>
-                      <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                      <p className="text-sm font-semibold text-white mt-0.5">
                         ${ad.budgetMin.toLocaleString()} - ${ad.budgetMax.toLocaleString()}
                       </p>
                     </div>
-                    <div className={`rounded-lg p-2.5 ${isExpired ? 'bg-gray-100' : isUrgent ? 'bg-amber-50' : 'bg-gray-50'}`}>
-                      <div className={`flex items-center gap-1.5 ${isExpired ? 'text-gray-500' : isUrgent ? 'text-amber-600' : 'text-gray-600'}`}>
+                    <div className={`rounded-lg p-2.5 ${isExpired ? 'bg-slate-700/50' : isUrgent ? 'bg-amber-500/20' : 'bg-slate-700/50'}`}>
+                      <div className={`flex items-center gap-1.5 ${isExpired ? 'text-slate-500' : isUrgent ? 'text-amber-400' : 'text-slate-400'}`}>
                         <Clock className="w-4 h-4" />
                         <span className="text-xs font-medium">Deadline</span>
                       </div>
-                      <p className={`text-sm font-semibold mt-0.5 ${isExpired ? 'text-gray-500' : isUrgent ? 'text-amber-700' : 'text-gray-900'}`}>
+                      <p className={`text-sm font-semibold mt-0.5 ${isExpired ? 'text-slate-500' : isUrgent ? 'text-amber-300' : 'text-white'}`}>
                         {isExpired ? 'Expired' : daysLeft === 0 ? 'Due today' : `${daysLeft} days left`}
                       </p>
                     </div>
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-500">
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                    <span className="text-xs text-slate-500">
                       Created {formatDistanceToNow(new Date(ad.createdAt), { addSuffix: true })}
                     </span>
-                    <span className="text-sm text-primary-600 font-medium group-hover:underline">
+                    <span className="text-sm text-rose-400 font-medium group-hover:underline">
                       View Details →
                     </span>
                   </div>
@@ -272,66 +272,66 @@ export default function MyAdvertisements() {
         /* List View */
         <Card>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-700">
+              <thead className="bg-slate-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                     Campaign
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                     Budget
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                     Bids
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                     Deadline
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-700">
                 {ads.map((ad) => {
                   const status = statusConfig[ad.status] || statusConfig.OPEN;
                   const StatusIcon = status.icon;
 
                   return (
-                    <tr key={ad.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={ad.id} className="hover:bg-slate-700/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                            <FileText className="w-5 h-5 text-primary-600" />
+                          <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0">
+                            <FileText className="w-5 h-5 text-slate-300" />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                            <p className="text-sm font-medium text-white truncate max-w-[200px]">
                               {ad.title}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs text-gray-500">{ad.platform}</span>
-                              <span className="text-gray-300">•</span>
-                              <span className="text-xs text-gray-500">{ad.category?.name}</span>
+                              <span className="text-xs text-slate-400">{ad.platform}</span>
+                              <span className="text-slate-600">•</span>
+                              <span className="text-xs text-slate-400">{ad.category?.name}</span>
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-white">
                           ${ad.budgetMin.toLocaleString()} - ${ad.budgetMax.toLocaleString()}
                         </p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
-                          <Users className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-900">{ad._count?.bids || 0}</span>
+                          <Users className="w-4 h-4 text-slate-400" />
+                          <span className="text-sm text-white">{ad._count?.bids || 0}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <p className="text-sm text-gray-900">{format(new Date(ad.deadline), 'MMM d, yyyy')}</p>
+                        <p className="text-sm text-slate-300">{format(new Date(ad.deadline), 'MMM d, yyyy')}</p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Badge variant={status.variant}>
@@ -342,7 +342,7 @@ export default function MyAdvertisements() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <Link
                           to={`/client/advertisements/${ad.id}`}
-                          className="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium"
+                          className="inline-flex items-center gap-1 text-sm text-rose-400 hover:text-rose-300 font-medium"
                         >
                           <Eye className="h-4 w-4" />
                           View

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Calendar, DollarSign, Clock, Building2, Users, Bookmark, BookmarkCheck } from 'lucide-react';
+import { ArrowLeft, Calendar, DollarSign, Clock, Building2, Users, Bookmark, BookmarkCheck, MessageCircle } from 'lucide-react';
 import api from '../../lib/api';
 import { Advertisement } from '../../types';
 import { useAuthStore } from '../../store/authStore';
@@ -101,7 +101,7 @@ export default function AdDetails() {
 
   return (
     <div>
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6">
         <ArrowLeft className="h-4 w-4" />
         Back to Browse
       </button>
@@ -116,8 +116,8 @@ export default function AdDetails() {
                   <Badge variant="info">{ad.platform}</Badge>
                   <Badge>{ad.contentType}</Badge>
                 </div>
-                <h1 className="text-xl font-bold text-gray-900">{ad.title}</h1>
-                <p className="text-gray-500 mt-1">{ad.category?.name}</p>
+                <h1 className="text-xl font-bold text-white">{ad.title}</h1>
+                <p className="text-slate-400 mt-1">{ad.category?.name}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -125,8 +125,8 @@ export default function AdDetails() {
                   disabled={savingAd}
                   className={`p-2 rounded-lg transition-colors ${
                     isSaved 
-                      ? 'bg-primary-100 text-primary-600' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-rose-500/20 text-rose-400' 
+                      : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                   }`}
                   title={isSaved ? 'Remove from saved' : 'Save for later'}
                 >
@@ -138,19 +138,19 @@ export default function AdDetails() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700 whitespace-pre-wrap">{ad.description}</p>
+              <p className="text-slate-300 whitespace-pre-wrap">{ad.description}</p>
               
               {ad.requirements && (
                 <div className="mt-6">
-                  <h3 className="font-medium text-gray-900 mb-2">Requirements</h3>
-                  <p className="text-gray-600">{ad.requirements}</p>
+                  <h3 className="font-medium text-white mb-2">Requirements</h3>
+                  <p className="text-slate-300">{ad.requirements}</p>
                 </div>
               )}
 
               {ad.targetAudience && (
                 <div className="mt-4">
-                  <h3 className="font-medium text-gray-900 mb-2">Target Audience</h3>
-                  <p className="text-gray-600">{ad.targetAudience}</p>
+                  <h3 className="font-medium text-white mb-2">Target Audience</h3>
+                  <p className="text-slate-300">{ad.targetAudience}</p>
                 </div>
               )}
             </CardContent>
@@ -160,7 +160,7 @@ export default function AdDetails() {
           {canApply && (
             <Card>
               <CardHeader>
-                <h2 className="text-lg font-semibold">Submit Your Bid</h2>
+                <h2 className="text-lg font-semibold text-white">Submit Your Bid</h2>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -209,15 +209,15 @@ export default function AdDetails() {
           )}
 
           {hasApplied && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-green-800 font-medium">You have already submitted a bid for this advertisement.</p>
-              <p className="text-green-600 text-sm mt-1">Check your bids page to track its status.</p>
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <p className="text-green-400 font-medium">You have already submitted a bid for this advertisement.</p>
+              <p className="text-green-400/70 text-sm mt-1">Check your bids page to track its status.</p>
             </div>
           )}
 
           {isDeadlinePassed && !hasApplied && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-yellow-800 font-medium">The deadline for this advertisement has passed.</p>
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+              <p className="text-yellow-400 font-medium">The deadline for this advertisement has passed.</p>
             </div>
           )}
         </div>
@@ -227,34 +227,34 @@ export default function AdDetails() {
           <Card>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
-                <DollarSign className="h-5 w-5 text-gray-400" />
+                <DollarSign className="h-5 w-5 text-slate-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Budget</p>
-                  <p className="font-medium">${ad.budgetMin} - ${ad.budgetMax}</p>
+                  <p className="text-sm text-slate-400">Budget</p>
+                  <p className="font-medium text-white">${ad.budgetMin} - ${ad.budgetMax}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-gray-400" />
+                <Calendar className="h-5 w-5 text-slate-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Deadline</p>
-                  <p className={`font-medium ${isDeadlinePassed ? 'text-red-600' : ''}`}>
+                  <p className="text-sm text-slate-400">Deadline</p>
+                  <p className={`font-medium ${isDeadlinePassed ? 'text-red-400' : 'text-white'}`}>
                     {format(new Date(ad.deadline), 'MMM d, yyyy')}
                     {isDeadlinePassed && ' (Passed)'}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-gray-400" />
+                <Clock className="h-5 w-5 text-slate-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Duration</p>
-                  <p className="font-medium">{ad.duration}</p>
+                  <p className="text-sm text-slate-400">Duration</p>
+                  <p className="font-medium text-white">{ad.duration}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-gray-400" />
+                <Users className="h-5 w-5 text-slate-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Bids Received</p>
-                  <p className="font-medium">{ad.bids?.length || 0}</p>
+                  <p className="text-sm text-slate-400">Bids Received</p>
+                  <p className="font-medium text-white">{ad.bids?.length || 0}</p>
                 </div>
               </div>
             </CardContent>
@@ -262,22 +262,28 @@ export default function AdDetails() {
 
           <Card>
             <CardHeader>
-              <h3 className="font-semibold">Posted By</h3>
+              <h3 className="font-semibold text-white">Posted By</h3>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
-                  <Building2 className="h-6 w-6 text-primary-600" />
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
+                  <Building2 className="h-6 w-6 text-rose-400" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-white">
                     {ad.client?.clientProfile?.companyName || 'Client'}
                   </p>
                   {ad.client?.clientProfile?.industry && (
-                    <p className="text-sm text-gray-500">{ad.client.clientProfile.industry}</p>
+                    <p className="text-sm text-slate-400">{ad.client.clientProfile.industry}</p>
                   )}
                 </div>
               </div>
+              <Link to={`/influencer/messages?user=${ad.clientId}`}>
+                <Button variant="secondary" className="w-full">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Message Client
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>

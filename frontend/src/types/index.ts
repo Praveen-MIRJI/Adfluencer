@@ -135,6 +135,8 @@ export interface Review {
   comment?: string;
   createdAt: string;
   client?: {
+    id: string;
+    email: string;
     clientProfile?: { companyName?: string; avatar?: string };
   };
   advertisement?: { title: string };

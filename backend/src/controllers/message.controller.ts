@@ -7,14 +7,23 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
   try {
     const userId = req.user!.userId;
 
+    // Get all messages where user is sender or receiver
     const { data: messages, error } = await supabase
       .from('Message')
-      .select('*, sender:User!senderId(id, email, role, clientProfile:ClientProfile(companyName, avatar), influencerProfile:InfluencerProfile(displayName, avatar)), receiver:User!receiverId(id, email, role, clientProfile:ClientProfile(companyName, avatar), influencerProfile:InfluencerProfile(displayName, avatar))')
+      .select(`
+        *,
+        sender:User!Message_senderId_fkey(id, email, role, clientProfile:ClientProfile(companyName, avatar), influencerProfile:InfluencerProfile(displayName, avatar)),
+        receiver:User!Message_receiverId_fkey(id, email, role, clientProfile:ClientProfile(companyName, avatar), influencerProfile:InfluencerProfile(displayName, avatar))
+      `)
       .or(`senderId.eq.${userId},receiverId.eq.${userId}`)
       .order('createdAt', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
 
+    // Build conversations map
     const conversationsMap = new Map();
     for (const msg of messages || []) {
       const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
@@ -24,6 +33,7 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
       }
     }
 
+    // Get unread counts
     const { data: unreadData } = await supabase
       .from('Message')
       .select('senderId')

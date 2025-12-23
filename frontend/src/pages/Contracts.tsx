@@ -108,8 +108,8 @@ export default function Contracts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Contracts</h1>
-          <p className="text-gray-600 mt-1">Manage your active and past contracts</p>
+          <h1 className="text-2xl font-bold text-white">My Contracts</h1>
+          <p className="text-slate-400 mt-1">Manage your active and past contracts</p>
         </div>
         <Select
           value={statusFilter}
@@ -141,17 +141,17 @@ export default function Contracts() {
                     <div className="flex items-start gap-4">
                       {getStatusIcon(contract.status)}
                       <div>
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-white">
                           {contract.advertisement?.title || 'Campaign'}
                         </h3>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-slate-400 mt-1">
                           {isClient ? (
                             <>With: {contract.influencer?.influencerProfile?.displayName || contract.influencer?.email}</>
                           ) : (
                             <>Client: {contract.client?.clientProfile?.companyName || contract.client?.email}</>
                           )}
                         </p>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-4 mt-2 text-sm text-slate-400">
                           <span>Agreed: ${contract.agreedPrice.toLocaleString()}</span>
                           <span>•</span>
                           <span>Due: {format(new Date(contract.deliveryDeadline), 'MMM d, yyyy')}</span>
@@ -217,7 +217,7 @@ export default function Contracts() {
         title={actionModal?.type === 'complete' ? 'Complete Contract' : 'Cancel Contract'}
       >
         <div className="space-y-4">
-          <p className="text-gray-600">
+          <p className="text-slate-300">
             {actionModal?.type === 'complete'
               ? 'Are you sure you want to mark this contract as completed? This will allow you to leave a review.'
               : 'Are you sure you want to cancel this contract? This action cannot be undone.'}

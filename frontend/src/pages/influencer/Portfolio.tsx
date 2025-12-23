@@ -103,8 +103,8 @@ export default function Portfolio() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Portfolio</h1>
-          <p className="text-gray-600 mt-1">Showcase your best work to attract clients</p>
+          <h1 className="text-2xl font-bold text-white">My Portfolio</h1>
+          <p className="text-slate-400 mt-1">Showcase your best work to attract clients</p>
         </div>
         <Button onClick={() => openModal()}>
           <Plus className="w-4 h-4 mr-2" />
@@ -125,26 +125,26 @@ export default function Portfolio() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
             <Card key={item.id} className="overflow-hidden group">
-              <div className="relative h-48 bg-gray-100">
+              <div className="relative h-48 bg-slate-900/50">
                 {item.mediaType === 'IMAGE' ? (
                   <img src={item.mediaUrl} alt={item.title} className="w-full h-full object-cover" />
                 ) : item.mediaType === 'VIDEO' ? (
                   <video src={item.mediaUrl} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <ExternalLink className="w-12 h-12 text-gray-300" />
+                    <ExternalLink className="w-12 h-12 text-slate-500" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
                     onClick={() => openModal(item)}
-                    className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100"
+                    className="p-2 bg-slate-800 rounded-full text-white hover:bg-slate-700"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="p-2 bg-white rounded-full text-red-600 hover:bg-red-50"
+                    className="p-2 bg-slate-800 rounded-full text-red-400 hover:bg-red-500/20"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -153,7 +153,7 @@ export default function Portfolio() {
                       href={item.mediaUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 bg-white rounded-full text-primary-600 hover:bg-primary-50"
+                      className="p-2 bg-slate-800 rounded-full text-rose-400 hover:bg-rose-500/20"
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
@@ -161,15 +161,15 @@ export default function Portfolio() {
                 </div>
               </div>
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-2 text-slate-400">
                   {getMediaIcon(item.mediaType)}
                   {item.platform && (
-                    <span className="text-xs text-gray-500">{item.platform}</span>
+                    <span className="text-xs text-slate-500">{item.platform}</span>
                   )}
                 </div>
-                <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                <h3 className="font-semibold text-white">{item.title}</h3>
                 {item.description && (
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.description}</p>
+                  <p className="text-sm text-slate-300 mt-1 line-clamp-2">{item.description}</p>
                 )}
               </CardContent>
             </Card>

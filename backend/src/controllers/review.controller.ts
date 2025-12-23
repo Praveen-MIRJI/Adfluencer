@@ -90,14 +90,17 @@ export const getInfluencerReviews = async (req: AuthRequest, res: Response): Pro
       .from('Review')
       .select(`
         *,
-        client:User!clientId(clientProfile:ClientProfile(companyName, avatar)),
+        client:User!Review_clientId_fkey(id, email, clientProfile:ClientProfile(companyName, avatar)),
         advertisement:Advertisement(title)
       `, { count: 'exact' })
       .eq('influencerId', influencerId)
       .order('createdAt', { ascending: false })
       .range(skip, skip + limit - 1);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
 
     res.json({
       success: true,
@@ -118,14 +121,17 @@ export const getMyReviews = async (req: AuthRequest, res: Response): Promise<voi
       .from('Review')
       .select(`
         *,
-        client:User!clientId(clientProfile:ClientProfile(companyName, avatar)),
+        client:User!Review_clientId_fkey(id, email, clientProfile:ClientProfile(companyName, avatar)),
         advertisement:Advertisement(title)
       `, { count: 'exact' })
       .eq('influencerId', req.user!.userId)
       .order('createdAt', { ascending: false })
       .range(skip, skip + limit - 1);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
 
     res.json({
       success: true,

@@ -50,8 +50,8 @@ export default function Reviews() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Reviews</h1>
-        <p className="text-gray-600 mt-1">See what clients are saying about your work</p>
+        <h1 className="text-2xl font-bold text-white">My Reviews</h1>
+        <p className="text-slate-400 mt-1">See what clients are saying about your work</p>
       </div>
 
       {loading ? (
@@ -69,29 +69,29 @@ export default function Reviews() {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center gap-8">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-gray-900">{stats.average.toFixed(1)}</div>
+                  <div className="text-5xl font-bold text-white">{stats.average.toFixed(1)}</div>
                   <div className="flex items-center justify-center gap-1 mt-2">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-5 h-5 ${i < Math.round(stats.average) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`}
+                        className={`w-5 h-5 ${i < Math.round(stats.average) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}`}
                       />
                     ))}
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">{stats.total} reviews</p>
+                  <p className="text-sm text-slate-400 mt-1">{stats.total} reviews</p>
                 </div>
                 <div className="flex-1 w-full">
                   {[5, 4, 3, 2, 1].map((rating) => (
                     <div key={rating} className="flex items-center gap-2 mb-2">
-                      <span className="text-sm text-gray-600 w-3">{rating}</span>
+                      <span className="text-sm text-slate-300 w-3">{rating}</span>
                       <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-yellow-400 rounded-full"
                           style={{ width: `${stats.total > 0 ? (stats.distribution[rating - 1] / stats.total) * 100 : 0}%` }}
                         />
                       </div>
-                      <span className="text-sm text-gray-500 w-8">{stats.distribution[rating - 1]}</span>
+                      <span className="text-sm text-slate-400 w-8">{stats.distribution[rating - 1]}</span>
                     </div>
                   ))}
                 </div>
@@ -106,7 +106,7 @@ export default function Reviews() {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                      <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-300 font-medium">
                         {review.client?.clientProfile?.avatar ? (
                           <img src={review.client.clientProfile.avatar} alt="" className="w-full h-full rounded-full object-cover" />
                         ) : (
@@ -114,10 +114,10 @@ export default function Reviews() {
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-white">
                           {review.client?.clientProfile?.companyName || 'Client'}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-slate-400">
                           {review.advertisement?.title}
                         </p>
                       </div>
@@ -126,18 +126,18 @@ export default function Reviews() {
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`}
+                          className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}`}
                         />
                       ))}
                     </div>
                   </div>
                   {review.comment && (
                     <div className="mt-4 flex gap-3">
-                      <MessageSquare className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-gray-600">{review.comment}</p>
+                      <MessageSquare className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-slate-300">{review.comment}</p>
                     </div>
                   )}
-                  <p className="text-sm text-gray-400 mt-4">
+                  <p className="text-sm text-slate-500 mt-4">
                     {format(new Date(review.createdAt), 'MMMM d, yyyy')}
                   </p>
                 </CardContent>

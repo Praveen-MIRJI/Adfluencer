@@ -8,7 +8,6 @@ import { format } from 'date-fns';
 import api from '../../lib/api';
 import { Advertisement, Bid } from '../../types';
 import { useAuthStore } from '../../store/authStore';
-import StatsCard from '../../components/ui/StatsCard';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
@@ -29,6 +28,14 @@ export default function InfluencerDashboard() {
   const [loading, setLoading] = useState(true);
 
   const profile = user?.influencerProfile;
+  const displayName = profile?.displayName || user?.email?.split('@')[0] || 'Creator';
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,28 +86,86 @@ export default function InfluencerDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Welcome back, {profile?.displayName || 'Creator'}!
-          </h1>
-          <p className="text-gray-600 mt-1">Here's what's happening with your campaigns.</p>
+      {/* Welcome Header Card */}
+      <div className="bg-gradient-to-r from-slate-800 via-slate-800 to-slate-700 rounded-2xl p-6 text-white">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
+              <Calendar className="w-4 h-4" />
+              {format(new Date(), 'EEEE, d MMMM yyyy')}
+            </div>
+            <h1 className="text-2xl lg:text-3xl font-bold mb-1">
+              {getGreeting()}, {displayName}! 👋
+            </h1>
+            <p className="text-slate-300">Here's what's happening with your campaigns today.</p>
+          </div>
+          <div className="flex gap-4">
+            <div className="bg-slate-700/50 backdrop-blur rounded-xl px-6 py-4 text-center min-w-[120px]">
+              <p className="text-3xl font-bold">{stats?.activeBids || 0}</p>
+              <p className="text-slate-400 text-sm">Active Bids</p>
+            </div>
+            <div className="bg-slate-700/50 backdrop-blur rounded-xl px-6 py-4 text-center min-w-[120px]">
+              <p className="text-3xl font-bold">{stats?.shortlistedBids || 0}</p>
+              <p className="text-slate-400 text-sm">Shortlisted</p>
+            </div>
+          </div>
         </div>
-        <Link to="/influencer/browse" className="mt-4 sm:mt-0">
-          <Button>
-            <Search className="h-4 w-4 mr-2" />
-            Find Campaigns
-          </Button>
-        </Link>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title="Total Bids" value={stats?.totalBids || 0} icon={FileText} />
-        <StatsCard title="Active Bids" value={stats?.activeBids || 0} icon={TrendingUp} />
-        <StatsCard title="Shortlisted" value={stats?.shortlistedBids || 0} icon={Star} />
-        <StatsCard title="Won Campaigns" value={stats?.acceptedBids || 0} icon={CheckCircle} />
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-slate-300" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats?.totalBids || 0}</p>
+                <p className="text-sm text-slate-400">Total Bids</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats?.activeBids || 0}</p>
+                <p className="text-sm text-slate-400">Active</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                <Star className="w-5 h-5 text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats?.shortlistedBids || 0}</p>
+                <p className="text-sm text-slate-400">Shortlisted</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats?.acceptedBids || 0}</p>
+                <p className="text-sm text-slate-400">Won</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content Grid */}
@@ -109,72 +174,70 @@ export default function InfluencerDashboard() {
         <div className="lg:col-span-2 space-y-6">
           {/* Profile Completeness Alert */}
           {completeness < 80 && (
-            <Card className="border-yellow-200 bg-yellow-50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-yellow-100 rounded-lg">
-                      <User className="w-5 h-5 text-yellow-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-yellow-900">Complete your profile</p>
-                      <p className="text-sm text-yellow-700">
-                        Profiles with complete info get 3x more responses
-                      </p>
-                    </div>
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-500/20 rounded-lg">
+                    <User className="w-5 h-5 text-amber-400" />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-yellow-900">{completeness}%</p>
-                      <p className="text-xs text-yellow-600">complete</p>
-                    </div>
-                    <Link to="/influencer/profile">
-                      <Button size="sm" variant="secondary">Complete</Button>
-                    </Link>
+                  <div>
+                    <p className="font-medium text-amber-200">Complete your profile</p>
+                    <p className="text-sm text-amber-300/70">
+                      Profiles with complete info get 3x more responses
+                    </p>
                   </div>
                 </div>
-                <div className="mt-3 h-2 bg-yellow-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-yellow-500 rounded-full transition-all"
-                    style={{ width: `${completeness}%` }}
-                  />
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-amber-200">{completeness}%</p>
+                    <p className="text-xs text-amber-400">complete</p>
+                  </div>
+                  <Link to="/influencer/profile">
+                    <Button size="sm">Complete</Button>
+                  </Link>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="mt-3 h-2 bg-amber-500/20 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-amber-500 rounded-full transition-all"
+                  style={{ width: `${completeness}%` }}
+                />
+              </div>
+            </div>
           )}
 
           {/* Recent Bids */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <h2 className="text-lg font-semibold">Your Recent Bids</h2>
-              <Link to="/influencer/my-bids" className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1">
+              <h2 className="text-lg font-semibold text-white">Your Recent Bids</h2>
+              <Link to="/influencer/my-bids" className="text-sm text-slate-400 hover:text-white flex items-center gap-1">
                 View All <ArrowRight className="w-4 h-4" />
               </Link>
             </CardHeader>
             <CardContent className="p-0">
               {recentBids.length === 0 ? (
                 <div className="p-6 text-center">
-                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 mb-4">No bids yet</p>
+                  <FileText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                  <p className="text-slate-400 mb-4">No bids yet</p>
                   <Link to="/influencer/browse">
                     <Button size="sm">Browse Campaigns</Button>
                   </Link>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-slate-700">
                   {recentBids.map((bid) => (
                     <div
                       key={bid.id}
-                      className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between p-4 hover:bg-slate-700/50 transition-colors"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-gray-900 truncate">
+                          <p className="font-medium text-white truncate">
                             {bid.advertisement?.title || 'Campaign'}
                           </p>
                           {getBidStatusBadge(bid.status)}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-4 text-sm text-slate-400">
                           <span className="flex items-center gap-1">
                             <DollarSign className="w-3 h-3" />
                             ${bid.proposedPrice}
@@ -189,7 +252,7 @@ export default function InfluencerDashboard() {
                         </div>
                       </div>
                       <Link to={`/influencer/ads/${bid.advertisementId}`}>
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white">
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                       </Link>
@@ -203,35 +266,35 @@ export default function InfluencerDashboard() {
           {/* Recommended Campaigns */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <h2 className="text-lg font-semibold">Recommended for You</h2>
-              <Link to="/influencer/browse" className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1">
+              <h2 className="text-lg font-semibold text-white">Recommended for You</h2>
+              <Link to="/influencer/browse" className="text-sm text-slate-400 hover:text-white flex items-center gap-1">
                 Browse All <ArrowRight className="w-4 h-4" />
               </Link>
             </CardHeader>
             <CardContent>
               {recommendedAds.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No campaigns available right now</p>
+                <p className="text-slate-400 text-center py-4">No campaigns available right now</p>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-4">
                   {recommendedAds.map((ad) => (
                     <Link
                       key={ad.id}
                       to={`/influencer/ads/${ad.id}`}
-                      className="block p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:shadow-sm transition-all"
+                      className="block p-4 bg-slate-700/50 border border-slate-600 rounded-lg hover:border-rose-500/50 hover:bg-slate-700 transition-all"
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant="info">{ad.platform}</Badge>
-                        <Badge>{ad.contentType}</Badge>
+                        <Badge variant="secondary">{ad.contentType}</Badge>
                       </div>
-                      <h3 className="font-medium text-gray-900 mb-1 line-clamp-1">{ad.title}</h3>
-                      <p className="text-sm text-gray-500 mb-2">
+                      <h3 className="font-medium text-white mb-1 line-clamp-1">{ad.title}</h3>
+                      <p className="text-sm text-slate-400 mb-2">
                         {ad.client?.clientProfile?.companyName || 'Client'}
                       </p>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-green-600 font-medium">
+                        <span className="text-green-400 font-medium">
                           ${ad.budgetMin} - ${ad.budgetMax}
                         </span>
-                        <span className="text-gray-400">
+                        <span className="text-slate-500">
                           Due {format(new Date(ad.deadline), 'MMM d')}
                         </span>
                       </div>
@@ -248,43 +311,43 @@ export default function InfluencerDashboard() {
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold">Quick Actions</h2>
+              <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
             </CardHeader>
             <CardContent className="space-y-2">
               <Link
                 to="/influencer/browse"
-                className="flex items-center gap-3 p-3 rounded-lg bg-primary-50 hover:bg-primary-100 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg bg-rose-600 hover:bg-rose-500 transition-colors"
               >
-                <div className="p-2 bg-primary-600 rounded-lg">
+                <div className="p-2 bg-rose-500 rounded-lg">
                   <Search className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="font-medium text-primary-900">Find Work</p>
-                  <p className="text-xs text-primary-600">Browse campaigns</p>
+                  <p className="font-medium text-white">Find Work</p>
+                  <p className="text-xs text-rose-200">Browse campaigns</p>
                 </div>
               </Link>
               <Link
                 to="/influencer/portfolio"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700 transition-colors"
               >
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Image className="h-4 w-4 text-gray-600" />
+                <div className="p-2 bg-slate-700 rounded-lg">
+                  <Image className="h-4 w-4 text-slate-300" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Portfolio</p>
-                  <p className="text-xs text-gray-500">Showcase work</p>
+                  <p className="font-medium text-white">Portfolio</p>
+                  <p className="text-xs text-slate-400">Showcase work</p>
                 </div>
               </Link>
               <Link
                 to="/influencer/saved"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700 transition-colors"
               >
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Bookmark className="h-4 w-4 text-gray-600" />
+                <div className="p-2 bg-slate-700 rounded-lg">
+                  <Bookmark className="h-4 w-4 text-slate-300" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Saved Ads</p>
-                  <p className="text-xs text-gray-500">View later</p>
+                  <p className="font-medium text-white">Saved Ads</p>
+                  <p className="text-xs text-slate-400">View later</p>
                 </div>
               </Link>
             </CardContent>
@@ -293,40 +356,40 @@ export default function InfluencerDashboard() {
           {/* Your Stats */}
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold">Your Profile Stats</h2>
+              <h2 className="text-lg font-semibold text-white">Your Profile Stats</h2>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-yellow-500" />
-                  <span className="text-sm text-gray-600">Rating</span>
+                  <Star className="w-4 h-4 text-yellow-400" />
+                  <span className="text-sm text-slate-400">Rating</span>
                 </div>
-                <span className="font-semibold">
+                <span className="font-semibold text-white">
                   {profile?.averageRating?.toFixed(1) || '0.0'} ({profile?.totalReviews || 0})
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-gray-600">Completed</span>
+                  <Award className="w-4 h-4 text-green-400" />
+                  <span className="text-sm text-slate-400">Completed</span>
                 </div>
-                <span className="font-semibold">{profile?.completedCampaigns || 0} campaigns</span>
+                <span className="font-semibold text-white">{profile?.completedCampaigns || 0} campaigns</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm text-gray-600">Success Rate</span>
+                  <Target className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm text-slate-400">Success Rate</span>
                 </div>
-                <span className="font-semibold">
+                <span className="font-semibold text-white">
                   {stats?.totalBids ? Math.round((stats.acceptedBids / stats.totalBids) * 100) : 0}%
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm text-gray-600">Engagement</span>
+                  <Zap className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm text-slate-400">Engagement</span>
                 </div>
-                <span className="font-semibold">{profile?.engagementRate?.toFixed(1) || '0'}%</span>
+                <span className="font-semibold text-white">{profile?.engagementRate?.toFixed(1) || '0'}%</span>
               </div>
             </CardContent>
           </Card>
@@ -334,21 +397,21 @@ export default function InfluencerDashboard() {
           {/* Tips */}
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold">Pro Tips</h2>
+              <h2 className="text-lg font-semibold text-white">Pro Tips</h2>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-gray-600">Write personalized proposals for each campaign</p>
+                  <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-slate-300">Write personalized proposals for each campaign</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-gray-600">Keep your portfolio updated with recent work</p>
+                  <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-slate-300">Keep your portfolio updated with recent work</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-gray-600">Respond to messages within 24 hours</p>
+                  <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-slate-300">Respond to messages within 24 hours</p>
                 </div>
               </div>
             </CardContent>

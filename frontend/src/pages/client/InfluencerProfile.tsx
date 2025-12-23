@@ -48,7 +48,7 @@ export default function InfluencerProfilePage() {
   }
 
   if (!profile) {
-    return <div className="text-center py-12 text-gray-500">Influencer not found</div>;
+    return <div className="text-center py-12 text-slate-400">Influencer not found</div>;
   }
 
   return (
@@ -67,17 +67,17 @@ export default function InfluencerProfilePage() {
             <div className="flex-1">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{profile.displayName}</h1>
+                  <h1 className="text-2xl font-bold text-white">{profile.displayName}</h1>
                   {profile.primaryNiche && (
                     <Badge variant="info" className="mt-2">{profile.primaryNiche}</Badge>
                   )}
                   <div className="flex items-center gap-4 mt-3">
                     <div className="flex items-center gap-1">
                       <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                      <span className="font-semibold">{profile.stats.averageRating.toFixed(1)}</span>
-                      <span className="text-gray-500">({profile.stats.totalReviews} reviews)</span>
+                      <span className="font-semibold text-white">{profile.stats.averageRating.toFixed(1)}</span>
+                      <span className="text-slate-400">({profile.stats.totalReviews} reviews)</span>
                     </div>
-                    <div className="flex items-center gap-1 text-gray-500">
+                    <div className="flex items-center gap-1 text-slate-400">
                       <Award className="w-5 h-5" />
                       <span>{profile.stats.completedCampaigns} campaigns</span>
                     </div>
@@ -91,7 +91,7 @@ export default function InfluencerProfilePage() {
                 </Link>
               </div>
               {profile.bio && (
-                <p className="text-gray-600 mt-4">{profile.bio}</p>
+                <p className="text-slate-300 mt-4">{profile.bio}</p>
               )}
             </div>
           </div>
@@ -103,11 +103,11 @@ export default function InfluencerProfilePage() {
         {profile.instagramFollowers && (
           <Card>
             <CardContent className="p-4 text-center">
-              <Instagram className="w-6 h-6 mx-auto text-pink-600" />
-              <p className="text-2xl font-bold mt-2">{formatFollowers(profile.instagramFollowers)}</p>
-              <p className="text-sm text-gray-500">Instagram</p>
+              <Instagram className="w-6 h-6 mx-auto text-pink-500" />
+              <p className="text-2xl font-bold mt-2 text-white">{formatFollowers(profile.instagramFollowers)}</p>
+              <p className="text-sm text-slate-400">Instagram</p>
               {profile.instagramHandle && (
-                <a href={`https://instagram.com/${profile.instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-600 hover:underline">
+                <a href={`https://instagram.com/${profile.instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-xs text-rose-400 hover:underline">
                   @{profile.instagramHandle}
                 </a>
               )}
@@ -117,9 +117,9 @@ export default function InfluencerProfilePage() {
         {profile.youtubeSubscribers && (
           <Card>
             <CardContent className="p-4 text-center">
-              <Youtube className="w-6 h-6 mx-auto text-red-600" />
-              <p className="text-2xl font-bold mt-2">{formatFollowers(profile.youtubeSubscribers)}</p>
-              <p className="text-sm text-gray-500">YouTube</p>
+              <Youtube className="w-6 h-6 mx-auto text-red-500" />
+              <p className="text-2xl font-bold mt-2 text-white">{formatFollowers(profile.youtubeSubscribers)}</p>
+              <p className="text-sm text-slate-400">YouTube</p>
             </CardContent>
           </Card>
         )}
@@ -127,17 +127,17 @@ export default function InfluencerProfilePage() {
           <Card>
             <CardContent className="p-4 text-center">
               <Twitter className="w-6 h-6 mx-auto text-blue-400" />
-              <p className="text-2xl font-bold mt-2">{formatFollowers(profile.twitterFollowers)}</p>
-              <p className="text-sm text-gray-500">Twitter</p>
+              <p className="text-2xl font-bold mt-2 text-white">{formatFollowers(profile.twitterFollowers)}</p>
+              <p className="text-sm text-slate-400">Twitter</p>
             </CardContent>
           </Card>
         )}
         {profile.engagementRate && (
           <Card>
             <CardContent className="p-4 text-center">
-              <Users className="w-6 h-6 mx-auto text-green-600" />
-              <p className="text-2xl font-bold mt-2">{profile.engagementRate.toFixed(1)}%</p>
-              <p className="text-sm text-gray-500">Engagement</p>
+              <Users className="w-6 h-6 mx-auto text-green-500" />
+              <p className="text-2xl font-bold mt-2 text-white">{profile.engagementRate.toFixed(1)}%</p>
+              <p className="text-sm text-slate-400">Engagement</p>
             </CardContent>
           </Card>
         )}
@@ -147,11 +147,11 @@ export default function InfluencerProfilePage() {
         {/* Portfolio */}
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold">Portfolio</h2>
+            <h2 className="text-lg font-semibold text-white">Portfolio</h2>
           </CardHeader>
           <CardContent>
             {profile.portfolio.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No portfolio items yet</p>
+              <p className="text-slate-400 text-center py-4">No portfolio items yet</p>
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 {profile.portfolio.map((item) => (
@@ -161,11 +161,11 @@ export default function InfluencerProfilePage() {
                     ) : item.mediaType === 'VIDEO' ? (
                       <video src={item.mediaUrl} className="w-full h-32 object-cover rounded-lg" />
                     ) : (
-                      <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <ExternalLink className="w-8 h-8 text-gray-400" />
+                      <div className="w-full h-32 bg-slate-800 rounded-lg flex items-center justify-center">
+                        <ExternalLink className="w-8 h-8 text-slate-500" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                       <p className="text-white text-sm font-medium px-2 text-center">{item.title}</p>
                     </div>
                   </div>
@@ -178,35 +178,35 @@ export default function InfluencerProfilePage() {
         {/* Reviews */}
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold">Reviews</h2>
+            <h2 className="text-lg font-semibold text-white">Reviews</h2>
           </CardHeader>
           <CardContent>
             {profile.reviews.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No reviews yet</p>
+              <p className="text-slate-400 text-center py-4">No reviews yet</p>
             ) : (
               <div className="space-y-4">
                 {profile.reviews.map((review) => (
-                  <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0">
+                  <div key={review.id} className="border-b border-slate-600/50 pb-4 last:border-0">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-medium text-slate-300">
                           {review.client?.clientProfile?.companyName?.charAt(0) || 'C'}
                         </div>
-                        <span className="font-medium text-sm">{review.client?.clientProfile?.companyName || 'Client'}</span>
+                        <span className="font-medium text-sm text-white">{review.client?.clientProfile?.companyName || 'Client'}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`}
+                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}`}
                           />
                         ))}
                       </div>
                     </div>
                     {review.comment && (
-                      <p className="text-sm text-gray-600 mt-2">{review.comment}</p>
+                      <p className="text-sm text-slate-300 mt-2">{review.comment}</p>
                     )}
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-slate-500 mt-2">
                       {format(new Date(review.createdAt), 'MMM d, yyyy')} • {review.advertisement?.title}
                     </p>
                   </div>

@@ -103,8 +103,8 @@ export default function BrowseAds() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Browse Campaigns</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-white">Browse Campaigns</h1>
+          <p className="text-slate-400 mt-1">
             {totalCount > 0 ? `${totalCount} open opportunities` : 'Find your next campaign'}
           </p>
         </div>
@@ -113,14 +113,14 @@ export default function BrowseAds() {
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
               showFilters || activeFiltersCount > 0
-                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                : 'border-gray-300 hover:bg-gray-50'
+                ? 'border-rose-500 bg-rose-500/20 text-rose-400'
+                : 'border-slate-600 text-slate-300 hover:bg-slate-700'
             }`}
           >
             <Filter className="w-4 h-4" />
             Filters
             {activeFiltersCount > 0 && (
-              <span className="w-5 h-5 bg-primary-600 text-white text-xs rounded-full flex items-center justify-center">
+              <span className="w-5 h-5 bg-rose-600 text-white text-xs rounded-full flex items-center justify-center">
                 {activeFiltersCount}
               </span>
             )}
@@ -133,13 +133,13 @@ export default function BrowseAds() {
         <CardContent className="p-4">
           <form onSubmit={handleSearch} className="flex gap-3">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by title, description, or company..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
               />
             </div>
             <Button type="submit">Search</Button>
@@ -147,14 +147,14 @@ export default function BrowseAds() {
 
           {/* Filters Panel */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-slate-700">
               <div className="flex flex-wrap gap-4">
                 <div className="flex-1 min-w-[150px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Category</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   >
                     <option value="">All Categories</option>
                     {categories.map((cat) => (
@@ -164,11 +164,11 @@ export default function BrowseAds() {
                 </div>
 
                 <div className="flex-1 min-w-[150px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Platform</label>
                   <select
                     value={platform}
                     onChange={(e) => setPlatform(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   >
                     {platforms.map((p) => (
                       <option key={p.value} value={p.value}>{p.label}</option>
@@ -177,24 +177,24 @@ export default function BrowseAds() {
                 </div>
 
                 <div className="flex-1 min-w-[120px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Budget</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Min Budget</label>
                   <input
                     type="number"
                     value={minBudget}
                     onChange={(e) => setMinBudget(e.target.value)}
                     placeholder="$0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
                   />
                 </div>
 
                 <div className="flex-1 min-w-[120px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Budget</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Max Budget</label>
                   <input
                     type="number"
                     value={maxBudget}
                     onChange={(e) => setMaxBudget(e.target.value)}
                     placeholder="$10,000"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
                   />
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function BrowseAds() {
               {activeFiltersCount > 0 && (
                 <button
                   onClick={clearFilters}
-                  className="mt-3 text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                  className="mt-3 text-sm text-rose-400 hover:text-rose-300 flex items-center gap-1"
                 >
                   <X className="w-4 h-4" />
                   Clear all filters
@@ -238,10 +238,10 @@ export default function BrowseAds() {
                 <Link
                   key={ad.id}
                   to={`/influencer/ads/${ad.id}`}
-                  className="group bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-lg transition-all overflow-hidden"
+                  className="group bg-slate-800 rounded-xl border border-slate-700 hover:border-rose-500/50 hover:shadow-lg transition-all overflow-hidden"
                 >
                   {/* Header */}
-                  <div className="h-1.5 bg-primary-500" />
+                  <div className="h-1.5 bg-rose-500" />
 
                   <div className="p-5">
                     {/* Tags */}
@@ -254,47 +254,47 @@ export default function BrowseAds() {
                     </div>
 
                     {/* Title & Category */}
-                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-primary-600 transition-colors">
+                    <h3 className="font-semibold text-white mb-1 line-clamp-2 group-hover:text-rose-400 transition-colors">
                       {ad.title}
                     </h3>
-                    <p className="text-sm text-gray-500 mb-3">{ad.category?.name}</p>
+                    <p className="text-sm text-slate-400 mb-3">{ad.category?.name}</p>
 
                     {/* Description */}
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">{ad.description}</p>
+                    <p className="text-sm text-slate-300 line-clamp-2 mb-4">{ad.description}</p>
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-gray-50 rounded-lg p-2.5">
-                        <div className="flex items-center gap-1.5 text-gray-600">
+                      <div className="bg-slate-700/50 rounded-lg p-2.5">
+                        <div className="flex items-center gap-1.5 text-slate-400">
                           <DollarSign className="w-4 h-4" />
                           <span className="text-xs font-medium">Budget</span>
                         </div>
-                        <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                        <p className="text-sm font-semibold text-white mt-0.5">
                           ${ad.budgetMin.toLocaleString()} - ${ad.budgetMax.toLocaleString()}
                         </p>
                       </div>
-                      <div className={`rounded-lg p-2.5 ${isUrgent ? 'bg-amber-50' : 'bg-gray-50'}`}>
-                        <div className={`flex items-center gap-1.5 ${isUrgent ? 'text-amber-600' : 'text-gray-600'}`}>
+                      <div className={`rounded-lg p-2.5 ${isUrgent ? 'bg-amber-500/20' : 'bg-slate-700/50'}`}>
+                        <div className={`flex items-center gap-1.5 ${isUrgent ? 'text-amber-400' : 'text-slate-400'}`}>
                           <Clock className="w-4 h-4" />
                           <span className="text-xs font-medium">Deadline</span>
                         </div>
-                        <p className={`text-sm font-semibold mt-0.5 ${isUrgent ? 'text-amber-700' : 'text-gray-900'}`}>
+                        <p className={`text-sm font-semibold mt-0.5 ${isUrgent ? 'text-amber-300' : 'text-white'}`}>
                           {daysLeft > 0 ? `${daysLeft} days left` : 'Due today'}
                         </p>
                       </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                          <Building2 className="w-4 h-4 text-gray-500" />
+                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
+                          <Building2 className="w-4 h-4 text-slate-400" />
                         </div>
-                        <span className="text-sm text-gray-600 truncate max-w-[120px]">
+                        <span className="text-sm text-slate-300 truncate max-w-[120px]">
                           {ad.client?.clientProfile?.companyName || 'Client'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-500">
+                      <div className="flex items-center gap-1 text-slate-400">
                         <Users className="w-4 h-4" />
                         <span className="text-sm">{ad._count?.bids || 0} bids</span>
                       </div>

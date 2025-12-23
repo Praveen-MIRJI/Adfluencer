@@ -33,6 +33,10 @@ import InfluencerReviews from './pages/influencer/Reviews';
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageAds from './pages/admin/ManageAds';
+import AdminContracts from './pages/admin/Contracts';
+import AdminBids from './pages/admin/Bids';
+import AdminCategories from './pages/admin/Categories';
+import AdminReviews from './pages/admin/Reviews';
 
 // Common pages
 import Messages from './pages/Messages';
@@ -106,6 +110,10 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/advertisements" element={<ManageAds />} />
+        <Route path="/admin/contracts" element={<AdminContracts />} />
+        <Route path="/admin/bids" element={<AdminBids />} />
+        <Route path="/admin/categories" element={<AdminCategories />} />
+        <Route path="/admin/reviews" element={<AdminReviews />} />
       </Route>
 
       {/* Catch all */}

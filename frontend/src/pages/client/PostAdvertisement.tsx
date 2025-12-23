@@ -115,13 +115,13 @@ export default function PostAdvertisement() {
       <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          className="flex items-center gap-2 text-slate-400 hover:text-white mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
-        <h1 className="text-2xl font-bold text-gray-900">Create New Campaign</h1>
-        <p className="text-gray-600 mt-1">Fill in the details to find the perfect influencer for your brand</p>
+        <h1 className="text-2xl font-bold text-white">Create New Campaign</h1>
+        <p className="text-slate-400 mt-1">Fill in the details to find the perfect influencer for your brand</p>
       </div>
 
       {/* Progress Steps */}
@@ -133,8 +133,8 @@ export default function PostAdvertisement() {
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                     currentStep >= step.id
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-400'
+                      ? 'bg-rose-600 text-white'
+                      : 'bg-slate-700 text-slate-400'
                   }`}
                 >
                   {currentStep > step.id ? (
@@ -144,14 +144,14 @@ export default function PostAdvertisement() {
                   )}
                 </div>
                 <span className={`text-xs mt-2 font-medium ${
-                  currentStep >= step.id ? 'text-primary-600' : 'text-gray-400'
+                  currentStep >= step.id ? 'text-rose-400' : 'text-slate-500'
                 }`}>
                   {step.title}
                 </span>
               </div>
               {index < steps.length - 1 && (
                 <div className={`flex-1 h-0.5 mx-4 mt-[-20px] ${
-                  currentStep > step.id ? 'bg-primary-600' : 'bg-gray-200'
+                  currentStep > step.id ? 'bg-rose-600' : 'bg-slate-700'
                 }`} />
               )}
             </div>
@@ -165,12 +165,12 @@ export default function PostAdvertisement() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-primary-600" />
+                <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-slate-300" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
-                  <p className="text-sm text-gray-500">Tell us about your campaign</p>
+                  <h2 className="text-lg font-semibold text-white">Basic Information</h2>
+                  <p className="text-sm text-slate-400">Tell us about your campaign</p>
                 </div>
               </div>
 
@@ -185,7 +185,7 @@ export default function PostAdvertisement() {
                     })}
                     error={errors.title?.message}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Make it catchy and descriptive to attract the right influencers</p>
+                  <p className="text-xs text-slate-500 mt-1">Make it catchy and descriptive to attract the right influencers</p>
                 </div>
 
                 <div>
@@ -199,19 +199,19 @@ export default function PostAdvertisement() {
                     })}
                     error={errors.description?.message}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Be detailed - this helps influencers understand if they're a good fit</p>
+                  <p className="text-xs text-slate-500 mt-1">Be detailed - this helps influencers understand if they're a good fit</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-slate-200 mb-2">Category</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {categories.map((cat) => (
                       <label
                         key={cat.id}
-                        className={`relative flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                        className={`relative flex items-center justify-center p-3 rounded-lg border cursor-pointer transition-all ${
                           watch('categoryId') === cat.id
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-rose-500/50 bg-rose-500/10 shadow-lg shadow-rose-500/10'
+                            : 'border-slate-600/50 hover:border-slate-500/50 bg-slate-900/30'
                         }`}
                       >
                         <input
@@ -221,7 +221,7 @@ export default function PostAdvertisement() {
                           className="sr-only"
                         />
                         <span className={`text-sm font-medium ${
-                          watch('categoryId') === cat.id ? 'text-primary-700' : 'text-gray-700'
+                          watch('categoryId') === cat.id ? 'text-rose-400' : 'text-slate-300'
                         }`}>
                           {cat.name}
                         </span>
@@ -229,7 +229,7 @@ export default function PostAdvertisement() {
                     ))}
                   </div>
                   {errors.categoryId && (
-                    <p className="text-sm text-red-600 mt-1">{errors.categoryId.message}</p>
+                    <p className="text-sm text-red-400 mt-1.5">{errors.categoryId.message}</p>
                   )}
                 </div>
               </div>
@@ -242,26 +242,26 @@ export default function PostAdvertisement() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-                  <Megaphone className="w-5 h-5 text-primary-600" />
+                <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center">
+                  <Megaphone className="w-5 h-5 text-slate-300" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Platform & Content Type</h2>
-                  <p className="text-sm text-gray-500">Where do you want your campaign to run?</p>
+                  <h2 className="text-lg font-semibold text-white">Platform & Content Type</h2>
+                  <p className="text-sm text-slate-400">Where do you want your campaign to run?</p>
                 </div>
               </div>
 
               <div className="space-y-8">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Select Platform</label>
+                  <label className="block text-sm font-medium text-slate-200 mb-3">Select Platform</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {platforms.map((p) => (
                       <label
                         key={p.value}
-                        className={`relative flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        className={`relative flex flex-col items-center p-4 rounded-xl border cursor-pointer transition-all ${
                           watchedPlatform === p.value
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'border-rose-500/50 bg-rose-500/10 shadow-lg shadow-rose-500/10'
+                            : 'border-slate-600/50 hover:border-slate-500/50 bg-slate-900/30'
                         }`}
                       >
                         <input
@@ -274,7 +274,7 @@ export default function PostAdvertisement() {
                           <p.icon className="w-6 h-6 text-white" />
                         </div>
                         <span className={`text-sm font-medium ${
-                          watchedPlatform === p.value ? 'text-primary-700' : 'text-gray-700'
+                          watchedPlatform === p.value ? 'text-rose-400' : 'text-slate-300'
                         }`}>
                           {p.label}
                         </span>
@@ -282,20 +282,20 @@ export default function PostAdvertisement() {
                     ))}
                   </div>
                   {errors.platform && (
-                    <p className="text-sm text-red-600 mt-2">{errors.platform.message}</p>
+                    <p className="text-sm text-red-400 mt-2">{errors.platform.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Content Type</label>
+                  <label className="block text-sm font-medium text-slate-200 mb-3">Content Type</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {contentTypes.map((ct) => (
                       <label
                         key={ct.value}
-                        className={`relative flex flex-col p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        className={`relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all ${
                           watchedContentType === ct.value
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'border-rose-500/50 bg-rose-500/10 shadow-lg shadow-rose-500/10'
+                            : 'border-slate-600/50 hover:border-slate-500/50 bg-slate-900/30'
                         }`}
                       >
                         <input
@@ -306,26 +306,26 @@ export default function PostAdvertisement() {
                         />
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            watchedContentType === ct.value ? 'bg-primary-100' : 'bg-gray-100'
+                            watchedContentType === ct.value ? 'bg-rose-500/20' : 'bg-slate-700/50'
                           }`}>
                             <ct.icon className={`w-5 h-5 ${
-                              watchedContentType === ct.value ? 'text-primary-600' : 'text-gray-500'
+                              watchedContentType === ct.value ? 'text-rose-400' : 'text-slate-400'
                             }`} />
                           </div>
                           <div>
                             <span className={`text-sm font-medium block ${
-                              watchedContentType === ct.value ? 'text-primary-700' : 'text-gray-700'
+                              watchedContentType === ct.value ? 'text-rose-400' : 'text-slate-300'
                             }`}>
                               {ct.label}
                             </span>
-                            <span className="text-xs text-gray-500">{ct.desc}</span>
+                            <span className="text-xs text-slate-500">{ct.desc}</span>
                           </div>
                         </div>
                       </label>
                     ))}
                   </div>
                   {errors.contentType && (
-                    <p className="text-sm text-red-600 mt-2">{errors.contentType.message}</p>
+                    <p className="text-sm text-red-400 mt-2">{errors.contentType.message}</p>
                   )}
                 </div>
               </div>
@@ -338,24 +338,24 @@ export default function PostAdvertisement() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-primary-600" />
+                <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-slate-300" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Budget & Timeline</h2>
-                  <p className="text-sm text-gray-500">Set your budget range and deadline</p>
+                  <h2 className="text-lg font-semibold text-white">Budget & Timeline</h2>
+                  <p className="text-sm text-slate-400">Set your budget range and deadline</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 {/* Budget Range */}
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-4">Budget Range (USD)</label>
+                <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-600/50">
+                  <label className="block text-sm font-medium text-slate-200 mb-4">Budget Range (USD)</label>
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Minimum</label>
+                      <label className="block text-xs text-slate-400 mb-1.5">Minimum</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
                         <input
                           type="number"
                           min="1"
@@ -364,17 +364,17 @@ export default function PostAdvertisement() {
                             required: 'Minimum budget is required',
                             min: { value: 1, message: 'Budget must be at least $1' }
                           })}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full pl-8 pr-4 py-2.5 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 transition-all"
                         />
                       </div>
                       {errors.budgetMin && (
-                        <p className="text-sm text-red-600 mt-1">{errors.budgetMin.message}</p>
+                        <p className="text-sm text-red-400 mt-1.5">{errors.budgetMin.message}</p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Maximum</label>
+                      <label className="block text-xs text-slate-400 mb-1.5">Maximum</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
                         <input
                           type="number"
                           min="1"
@@ -383,17 +383,17 @@ export default function PostAdvertisement() {
                             required: 'Maximum budget is required',
                             min: { value: 1, message: 'Budget must be at least $1' }
                           })}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full pl-8 pr-4 py-2.5 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 transition-all"
                         />
                       </div>
                       {errors.budgetMax && (
-                        <p className="text-sm text-red-600 mt-1">{errors.budgetMax.message}</p>
+                        <p className="text-sm text-red-400 mt-1.5">{errors.budgetMax.message}</p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 mt-4 p-3 bg-blue-50 rounded-lg">
-                    <Lightbulb className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-blue-700">
+                  <div className="flex items-start gap-2 mt-4 p-3 bg-sky-500/10 rounded-lg border border-sky-500/20">
+                    <Lightbulb className="w-4 h-4 text-sky-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-sky-300">
                       Tip: A wider budget range attracts more diverse influencers. The average campaign budget is $200-$500.
                     </p>
                   </div>
@@ -402,7 +402,7 @@ export default function PostAdvertisement() {
                 {/* Timeline */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-200 mb-1.5">
                       <Calendar className="w-4 h-4 inline mr-1" />
                       Bid Deadline
                     </label>
@@ -410,15 +410,15 @@ export default function PostAdvertisement() {
                       type="date"
                       min={minDate}
                       {...register('deadline', { required: 'Deadline is required' })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 transition-all"
                     />
                     {errors.deadline && (
-                      <p className="text-sm text-red-600 mt-1">{errors.deadline.message}</p>
+                      <p className="text-sm text-red-400 mt-1.5">{errors.deadline.message}</p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">Last date for influencers to submit bids</p>
+                    <p className="text-xs text-slate-500 mt-1.5">Last date for influencers to submit bids</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-200 mb-1.5">
                       <Clock className="w-4 h-4 inline mr-1" />
                       Content Duration
                     </label>
@@ -426,12 +426,12 @@ export default function PostAdvertisement() {
                       type="text"
                       placeholder="e.g., 24 hours, 3 days, 1 week"
                       {...register('duration', { required: 'Duration is required' })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 transition-all"
                     />
                     {errors.duration && (
-                      <p className="text-sm text-red-600 mt-1">{errors.duration.message}</p>
+                      <p className="text-sm text-red-400 mt-1.5">{errors.duration.message}</p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">How long should the content stay live?</p>
+                    <p className="text-xs text-slate-500 mt-1.5">How long should the content stay live?</p>
                   </div>
                 </div>
               </div>
@@ -444,18 +444,18 @@ export default function PostAdvertisement() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-                  <Target className="w-5 h-5 text-primary-600" />
+                <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center">
+                  <Target className="w-5 h-5 text-slate-300" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Additional Details</h2>
-                  <p className="text-sm text-gray-500">Help influencers understand your needs better</p>
+                  <h2 className="text-lg font-semibold text-white">Additional Details</h2>
+                  <p className="text-sm text-slate-400">Help influencers understand your needs better</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-200 mb-1.5">
                     <Users className="w-4 h-4 inline mr-1" />
                     Target Audience
                   </label>
@@ -463,13 +463,13 @@ export default function PostAdvertisement() {
                     type="text"
                     placeholder="e.g., Tech enthusiasts aged 18-35, fitness lovers, young professionals"
                     {...register('targetAudience')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 transition-all"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Describe your ideal audience demographics and interests</p>
+                  <p className="text-xs text-slate-500 mt-1.5">Describe your ideal audience demographics and interests</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-200 mb-1.5">
                     <FileText className="w-4 h-4 inline mr-1" />
                     Specific Requirements
                   </label>
@@ -478,33 +478,33 @@ export default function PostAdvertisement() {
                     placeholder="Any specific requirements, dos and don'ts, hashtags to use, mentions required, content guidelines..."
                     {...register('requirements')}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Include any brand guidelines, required hashtags, or content restrictions</p>
+                  <p className="text-xs text-slate-500 mt-1.5">Include any brand guidelines, required hashtags, or content restrictions</p>
                 </div>
 
                 {/* Summary Preview */}
-                <div className="bg-gray-50 rounded-xl p-6 mt-8">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary-600" />
+                <div className="bg-slate-900/50 rounded-xl p-6 mt-8 border border-slate-600/50">
+                  <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-rose-400" />
                     Campaign Summary
                   </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-500">Platform:</span>
-                      <span className="ml-2 font-medium text-gray-900">{watchedPlatform || '-'}</span>
+                      <span className="text-slate-400">Platform:</span>
+                      <span className="ml-2 font-medium text-white">{watchedPlatform || '-'}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Content:</span>
-                      <span className="ml-2 font-medium text-gray-900">{watchedContentType || '-'}</span>
+                      <span className="text-slate-400">Content:</span>
+                      <span className="ml-2 font-medium text-white">{watchedContentType || '-'}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Budget:</span>
-                      <span className="ml-2 font-medium text-gray-900">
+                      <span className="text-slate-400">Budget:</span>
+                      <span className="ml-2 font-medium text-white">
                         ${watch('budgetMin') || '0'} - ${watch('budgetMax') || '0'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Deadline:</span>
-                      <span className="ml-2 font-medium text-gray-900">{watch('deadline') || '-'}</span>
+                      <span className="text-slate-400">Deadline:</span>
+                      <span className="ml-2 font-medium text-white">{watch('deadline') || '-'}</span>
                     </div>
                   </div>
                 </div>

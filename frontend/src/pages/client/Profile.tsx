@@ -134,21 +134,21 @@ export default function ClientProfilePage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Company Profile</h1>
-        <p className="text-gray-600 mt-1">Manage your company information</p>
+        <h1 className="text-2xl font-bold text-white">Company Profile</h1>
+        <p className="text-slate-400 mt-1">Manage your company information</p>
       </div>
 
       <form onSubmit={handleSubmit}>
         {/* Avatar Section */}
         <Card className="mb-6">
           <CardHeader>
-            <h2 className="text-lg font-semibold">Profile Photo</h2>
+            <h2 className="text-lg font-semibold text-white">Profile Photo</h2>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-6">
               {/* Avatar Preview */}
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                   {formData.avatar ? (
                     <img 
                       src={formData.avatar} 
@@ -199,14 +199,14 @@ export default function ClientProfilePage() {
                       type="button"
                       variant="ghost"
                       onClick={handleRemoveImage}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
                     >
                       <X className="w-4 h-4 mr-2" />
                       Remove
                     </Button>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-slate-400 mt-2">
                   JPG, PNG or GIF. Max size 5MB.
                 </p>
               </div>
@@ -217,8 +217,8 @@ export default function ClientProfilePage() {
         {/* Company Information */}
         <Card className="mb-6">
           <CardHeader>
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-gray-500" />
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-slate-400" />
               Company Information
             </h2>
           </CardHeader>
@@ -231,11 +231,11 @@ export default function ClientProfilePage() {
                 placeholder="Your company name"
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Industry</label>
                 <select
                   value={formData.industry}
                   onChange={(e) => setFormData(prev => ({ ...prev, industry: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                 >
                   <option value="">Select industry</option>
                   {INDUSTRIES.map(industry => (
@@ -247,7 +247,7 @@ export default function ClientProfilePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   <Globe className="w-4 h-4 inline mr-1" />
                   Website
                 </label>
@@ -259,7 +259,7 @@ export default function ClientProfilePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-300 mb-1">
                   <Phone className="w-4 h-4 inline mr-1" />
                   Phone
                 </label>
@@ -273,7 +273,7 @@ export default function ClientProfilePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 <FileText className="w-4 h-4 inline mr-1" />
                 Company Description
               </label>
@@ -290,14 +290,14 @@ export default function ClientProfilePage() {
         {/* Account Info */}
         <Card className="mb-6">
           <CardHeader>
-            <h2 className="text-lg font-semibold">Account Information</h2>
+            <h2 className="text-lg font-semibold text-white">Account Information</h2>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-3 text-gray-600">
+            <div className="flex items-center gap-3 text-slate-300">
               <Mail className="w-5 h-5" />
               <span>{user?.email}</span>
             </div>
-            <p className="text-sm text-gray-500 mt-4">
+            <p className="text-sm text-slate-400 mt-4">
               Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
             </p>
           </CardContent>
