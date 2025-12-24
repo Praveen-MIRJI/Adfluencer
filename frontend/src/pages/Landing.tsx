@@ -258,7 +258,7 @@ export default function Landing() {
       </div>
 
       {/* Live Ticker */}
-      <div className="absolute top-[64px] z-40 w-full pointer-events-none opacity-90">
+      <div className="absolute top-[80px] z-40 w-full pointer-events-none opacity-90">
         <LiveTicker />
       </div>
 

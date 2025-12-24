@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Users, Megaphone,
-  DollarSign, FileCheck,
-  ArrowUpRight, ArrowDownRight, Activity,
+  FileCheck, FileText,
+  Activity,
 } from 'lucide-react';
 import api from '../../lib/api';
-import { Card, CardContent } from '../../components/ui/Card';
 import { PageLoader } from '../../components/ui/Spinner';
 import AnalyticsCharts from '../../components/charts/AnalyticsCharts';
+import SummaryCard from '../../components/ui/SummaryCard';
 
 interface EnhancedStats {
   users: { total: number; clients: number; influencers: number; pending: number; active: number; blocked: number };
@@ -24,37 +23,11 @@ interface EnhancedStats {
   recentAds: Array<{ id: string; title: string; status: string; createdAt: string }>;
 }
 
-function StatCard({ title, value, icon: Icon, trend, trendUp, color = 'rose', href }: any) {
-  return (
-    <Link to={href || '#'}>
-      <motion.div whileHover={{ y: -2, scale: 1.01 }} transition={{ duration: 0.2 }}>
-        <Card className="hover:border-rose-500/30 transition-colors cursor-pointer">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-400 text-sm font-medium">{title}</p>
-                <p className="text-3xl font-bold text-white mt-2">{typeof value === 'number' ? value.toLocaleString() : value}</p>
-                {trend && (
-                  <div className={`flex items-center gap-1 mt-2 text-sm ${trendUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {trendUp ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                    <span>{trend}</span>
-                  </div>
-                )}
-              </div>
-              <div className={`p-3 rounded-xl bg-${color}-500/10`}>
-                <Icon className={`w-6 h-6 text-${color}-400`} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </Link>
-  );
-}
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<EnhancedStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -88,10 +61,34 @@ export default function AdminDashboard() {
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Users" value={stats?.users.total || 0} icon={Users} href="/admin/users" color="blue" />
-        <StatCard title="Total Revenue" value={`$${(stats?.revenue || 0).toLocaleString()}`} icon={DollarSign} href="/admin/contracts" color="emerald" />
-        <StatCard title="Active Campaigns" value={stats?.advertisements.open || 0} icon={Megaphone} href="/admin/advertisements" color="rose" />
-        <StatCard title="Active Contracts" value={stats?.contracts.active || 0} icon={FileCheck} href="/admin/contracts" color="purple" />
+        <SummaryCard
+          title="Total Users"
+          value={stats?.users.total || 0}
+          icon={Users}
+          color="blue"
+          onClick={() => navigate('/admin/users')}
+        />
+        <SummaryCard
+          title="Total Campaigns"
+          value={stats?.advertisements.total || 0}
+          icon={Megaphone}
+          color="rose"
+          onClick={() => navigate('/admin/advertisements')}
+        />
+        <SummaryCard
+          title="Total Bids"
+          value={stats?.bids.total || 0}
+          icon={FileText}
+          color="amber"
+          onClick={() => navigate('/admin/bids')}
+        />
+        <SummaryCard
+          title="Active Contracts"
+          value={stats?.contracts.active || 0}
+          icon={FileCheck}
+          color="purple"
+          onClick={() => navigate('/admin/contracts')}
+        />
       </div>
 
       {/* Analytics & Charts Section */}
