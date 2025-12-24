@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { Mail, Lock, CheckCircle2, TrendingUp, Activity, Building2, User as UserIcon, X } from 'lucide-react';
@@ -338,8 +338,8 @@ export default function Login() {
                       type="button"
                       onClick={() => setSelectedRole('CLIENT')}
                       className={`p-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-2 ${selectedRole === 'CLIENT'
-                          ? 'border-rose-500 bg-rose-500/10'
-                          : 'border-slate-700 hover:border-slate-600 bg-slate-900'
+                        ? 'border-rose-500 bg-rose-500/10'
+                        : 'border-slate-700 hover:border-slate-600 bg-slate-900'
                         }`}
                     >
                       <Building2 className={`w-6 h-6 ${selectedRole === 'CLIENT' ? 'text-rose-400' : 'text-slate-400'}`} />
@@ -349,8 +349,8 @@ export default function Login() {
                       type="button"
                       onClick={() => setSelectedRole('INFLUENCER')}
                       className={`p-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-2 ${selectedRole === 'INFLUENCER'
-                          ? 'border-rose-500 bg-rose-500/10'
-                          : 'border-slate-700 hover:border-slate-600 bg-slate-900'
+                        ? 'border-rose-500 bg-rose-500/10'
+                        : 'border-slate-700 hover:border-slate-600 bg-slate-900'
                         }`}
                     >
                       <UserIcon className={`w-6 h-6 ${selectedRole === 'INFLUENCER' ? 'text-rose-400' : 'text-slate-400'}`} />
@@ -383,7 +383,7 @@ export default function Login() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium text-slate-300">Password</label>
-                {!isRegister && <a href="#" className="text-xs text-rose-400 hover:text-rose-300 font-medium">Forgot password?</a>}
+                {!isRegister && <Link to="/forgot-password" className="text-xs text-rose-400 hover:text-rose-300 font-medium">Forgot password?</Link>}
               </div>
               <div className="relative">
                 <input

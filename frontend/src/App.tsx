@@ -8,6 +8,9 @@ import DashboardLayout from './layouts/DashboardLayout';
 // Public pages
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import VerifyOtp from './pages/auth/VerifyOtp';
+import ResetPassword from './pages/auth/ResetPassword';
 
 // Client pages
 import ClientDashboard from './pages/client/Dashboard';
@@ -75,6 +78,9 @@ function App() {
         <Route path="/" element={isAuthenticated ? <Navigate to={getDashboardRoute()} /> : <Landing />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to={getDashboardRoute()} /> : <Login />} />
         <Route path="/register" element={<Navigate to="/login?mode=register" replace />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
 
       {/* Client routes */}
