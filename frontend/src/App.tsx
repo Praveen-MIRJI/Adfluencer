@@ -8,7 +8,6 @@ import DashboardLayout from './layouts/DashboardLayout';
 // Public pages
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
 
 // Client pages
 import ClientDashboard from './pages/client/Dashboard';
@@ -75,7 +74,7 @@ function App() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={isAuthenticated ? <Navigate to={getDashboardRoute()} /> : <Landing />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to={getDashboardRoute()} /> : <Login />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to={getDashboardRoute()} /> : <Register />} />
+        <Route path="/register" element={<Navigate to="/login?mode=register" replace />} />
       </Route>
 
       {/* Client routes */}

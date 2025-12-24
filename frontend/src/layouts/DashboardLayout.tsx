@@ -64,30 +64,30 @@ export default function DashboardLayout() {
     fetchUserData();
   }, [setAuth, token]);
 
-  const navItems = user?.role === 'CLIENT' ? clientNav 
-    : user?.role === 'INFLUENCER' ? influencerNav 
-    : adminNav;
+  const navItems = user?.role === 'CLIENT' ? clientNav
+    : user?.role === 'INFLUENCER' ? influencerNav
+      : adminNav;
 
-  const profileHref = user?.role === 'CLIENT' ? '/client/profile' 
-    : user?.role === 'INFLUENCER' ? '/influencer/profile' 
-    : '/admin/dashboard';
+  const profileHref = user?.role === 'CLIENT' ? '/client/profile'
+    : user?.role === 'INFLUENCER' ? '/influencer/profile'
+      : '/admin/dashboard';
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const displayName = user?.role === 'CLIENT' 
+  const displayName = user?.role === 'CLIENT'
     ? user.clientProfile?.companyName || user.email?.split('@')[0]
     : user?.role === 'INFLUENCER'
-    ? user.influencerProfile?.displayName || user.email?.split('@')[0]
-    : user?.email?.split('@')[0];
+      ? user.influencerProfile?.displayName || user.email?.split('@')[0]
+      : user?.email?.split('@')[0];
 
   const avatarUrl = user?.role === 'CLIENT'
     ? user.clientProfile?.avatar
     : user?.role === 'INFLUENCER'
-    ? user.influencerProfile?.avatar
-    : null;
+      ? user.influencerProfile?.avatar
+      : null;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -104,7 +104,7 @@ export default function DashboardLayout() {
     <div className="min-h-screen bg-slate-900">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -116,11 +116,9 @@ export default function DashboardLayout() {
         lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex items-center justify-between h-16 px-4 border-b border-slate-800">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center">
-              <Megaphone className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-semibold text-white">InfluenceHub</span>
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/adfluencer-logo.png" alt="Adfluencer" className="w-9 h-9 object-contain" />
+            <span className="text-lg font-bold text-white tracking-tight">Adfluencer</span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-slate-400 hover:text-white">
             <X className="h-6 w-6" />
@@ -135,11 +133,10 @@ export default function DashboardLayout() {
                 key={item.href}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                  isActive 
-                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' 
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${isActive
+                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  }`}
               >
                 <item.icon className="h-5 w-5" />
                 <span className="font-medium">{item.name}</span>
@@ -165,18 +162,18 @@ export default function DashboardLayout() {
         {/* Top bar */}
         <header className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800">
           <div className="flex items-center justify-between h-16 px-4">
-            <button 
+            <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 text-slate-400 hover:text-white"
             >
               <Menu className="h-6 w-6" />
             </button>
             <div className="flex-1" />
-            
+
             {/* Right side - Notifications & Profile */}
             <div className="flex items-center gap-3">
               <NotificationBell />
-              
+
               {/* Profile Dropdown */}
               <div className="relative" ref={profileRef}>
                 <button

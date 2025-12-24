@@ -4,9 +4,9 @@ import {
   motion, useScroll, useTransform, useSpring, AnimatePresence, useInView, useAnimation
 } from 'framer-motion';
 import {
-  Megaphone, Users, TrendingUp, Shield, ArrowRight, Star,
-  CheckCircle, Play, Sparkles, Rocket, Zap,
-  ArrowUpRight, LayoutGrid, Search, Globe, DollarSign, Activity, MapPin,
+  Megaphone, TrendingUp, Shield, ArrowRight,
+  CheckCircle, Sparkles, Rocket, Zap,
+  ArrowUpRight, LayoutGrid, Globe, DollarSign,
   Twitter, Instagram, Linkedin, Mail
 } from 'lucide-react';
 import api from '../lib/api';
@@ -566,10 +566,15 @@ export default function Landing() {
 
       {/* Upcoming Features Section - Enhanced Neon Timeline */}
       <section className="py-32 bg-slate-950 relative overflow-hidden">
-        {/* Deep Atmospheric Background */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-        <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse-slow" />
-        <div className="absolute bottom-0 right-1/4 w-[800px] h-[800px] bg-rose-600/10 rounded-full blur-[120px] animate-float" />
+        {/* Professional Gradient Mesh Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950" />
+
+        {/* Subtle Tech Grid Overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+        {/* Ambient Glows */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-rose-500/5 rounded-full blur-[100px]" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24 relative">
@@ -801,10 +806,8 @@ export default function Landing() {
 
             {/* Brand Column */}
             <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center transform rotate-3">
-                  <span className="text-white font-bold text-lg">A</span>
-                </div>
+              <div className="flex items-center gap-3">
+                <img src="/adfluencer-logo.png" alt="Adfluencer" className="w-10 h-10 object-contain" />
                 <span className="text-xl font-bold text-white tracking-tight">Adfluencer</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
