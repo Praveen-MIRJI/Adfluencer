@@ -162,9 +162,17 @@ export default function ManageUsers() {
                   <tr key={user.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center text-white font-semibold">
-                          {user.email.charAt(0).toUpperCase()}
-                        </div>
+                        {(user.clientProfile?.avatar || user.influencerProfile?.avatar) ? (
+                          <img
+                            src={user.clientProfile?.avatar || user.influencerProfile?.avatar}
+                            alt=""
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                            {user.email.charAt(0).toUpperCase()}
+                          </div>
+                        )}
                         <div>
                           <p className="text-white font-medium">{user.email}</p>
                           <p className="text-slate-400 text-sm">{user.clientProfile?.companyName || user.influencerProfile?.displayName || '-'}</p>
@@ -200,9 +208,17 @@ export default function ManageUsers() {
         {detailsLoading ? <div className="py-8 text-center"><PageLoader /></div> : selectedUser && (
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-                {selectedUser.email.charAt(0).toUpperCase()}
-              </div>
+              {(selectedUser.clientProfile?.avatar || selectedUser.influencerProfile?.avatar) ? (
+                <img
+                  src={selectedUser.clientProfile?.avatar || selectedUser.influencerProfile?.avatar}
+                  alt=""
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+                  {selectedUser.email.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div>
                 <p className="text-white text-lg font-semibold">{selectedUser.email}</p>
                 <div className="flex gap-2 mt-1">{getRoleBadge(selectedUser.role)}{getStatusBadge(selectedUser.status)}</div>

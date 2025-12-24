@@ -222,7 +222,7 @@ export const updateCategory = async (req: AuthRequest, res: Response): Promise<v
 export const deleteCategory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    
+
     // Check if category has ads
     const { count } = await supabase.from('Advertisement').select('*', { count: 'exact', head: true }).eq('categoryId', id);
     if (count && count > 0) {
@@ -305,7 +305,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 
     let query = supabase
       .from('User')
-      .select('id, email, role, status, createdAt, clientProfile:ClientProfile(companyName), influencerProfile:InfluencerProfile(displayName)', { count: 'exact' })
+      .select('id, email, role, status, createdAt, clientProfile:ClientProfile(companyName, avatar), influencerProfile:InfluencerProfile(displayName, avatar)', { count: 'exact' })
       .order('createdAt', { ascending: false })
       .range(skip, skip + limit - 1);
 
@@ -473,7 +473,7 @@ export const getAnalyticsChartData = async (req: AuthRequest, res: Response): Pr
       const bidsInMonth = (allBids || []).filter(b => b.createdAt?.startsWith(month)).length;
       const contractsInMonth = (allContracts || []).filter(c => c.completedAt?.startsWith(month));
       const revenueInMonth = contractsInMonth.reduce((sum, c) => sum + (c.agreedPrice || 0), 0);
-      
+
       return {
         month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short' }),
         fullMonth: month,
@@ -575,7 +575,7 @@ export const getAnalyticsChartData = async (req: AuthRequest, res: Response): Pr
     const totalRevenue = (allContracts || [])
       .filter(c => c.status === 'COMPLETED')
       .reduce((sum, c) => sum + (c.agreedPrice || 0), 0);
-    
+
     const successRate = (allBids || []).length > 0
       ? ((allBids || []).filter(b => b.status === 'ACCEPTED').length / (allBids || []).length) * 100
       : 0;

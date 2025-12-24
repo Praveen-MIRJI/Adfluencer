@@ -14,6 +14,7 @@ import contractRoutes from './routes/contract.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import savedAdRoutes from './routes/savedAd.routes';
 import influencerRoutes from './routes/influencer.routes';
+import publicRoutes from './routes/public.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -43,6 +44,7 @@ app.use('/api/contracts', contractRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/saved-ads', savedAdRoutes);
 app.use('/api/influencers', influencerRoutes);
+app.use('/api/public', publicRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
