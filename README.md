@@ -76,13 +76,7 @@ npm run dev
 The frontend will be available at http://localhost:5173
 The backend API will be available at http://localhost:3001
 
-## Default Users (after seeding)
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@marketplace.com | Admin123! |
-| Client | client@example.com | Client123! |
-| Influencer | influencer@example.com | Influencer123! |
 
 ## Features
 
