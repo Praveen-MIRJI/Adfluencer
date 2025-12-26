@@ -237,3 +237,56 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
     res.status(500).json({ success: false, error: 'Failed to get stats' });
   }
 };
+
+// Get general user profile (for VerificationBadge and other components)
+export const getUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+
+    // Get user data with profiles
+    const { data: user, error: userError } = await supabase
+      .from('User')
+      .select(`
+        id,
+        email,
+        role,
+        isVerified,
+        emailVerified,
+        phoneVerified,
+        createdAt,
+        clientProfile:ClientProfile(*),
+        influencerProfile:InfluencerProfile(*)
+      `)
+      .eq('id', userId)
+      .single();
+
+    if (userError) {
+      console.error('Error fetching user profile:', userError);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch user profile'
+      });
+      return;
+    }
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: user
+    });
+
+  } catch (error) {
+    console.error('Get user profile error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch user profile'
+    });
+  }
+};

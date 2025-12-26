@@ -334,15 +334,15 @@ export default function Landing() {
               </div>
             </motion.div>
 
-            {/* Right Interactive Visual */}
+            {/* Right Interactive Visual - Now visible on mobile with adjusted height */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.4 }}
-              className="relative hidden lg:block h-[600px] w-full"
+              className="relative h-[350px] sm:h-[400px] lg:h-[600px] w-full mt-8 lg:mt-0"
             >
               {/* Abstract Background Shapes */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-rose-500/20 via-purple-500/20 to-blue-500/20 rounded-full blur-[80px] animate-pulse-slow" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[400px] lg:w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] bg-gradient-to-tr from-rose-500/20 via-purple-500/20 to-blue-500/20 rounded-full blur-[80px] animate-pulse-slow" />
 
               {/* Main 3D Card Stack */}
               <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -353,9 +353,9 @@ export default function Landing() {
                 ] : data.heroAds} />
               </div>
 
-              {/* Floating Element: Budget - Top Right */}
+              {/* Floating Element: Budget - Top Right - Hidden on mobile */}
               <motion.div
-                className="absolute top-20 right-10 bg-slate-800/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700/50 shadow-2xl z-20 w-48"
+                className="absolute top-20 right-10 bg-slate-800/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700/50 shadow-2xl z-20 w-48 hidden lg:block"
                 animate={{ y: [0, -15, 0], rotate: [0, 2, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               >
@@ -377,9 +377,9 @@ export default function Landing() {
                 </div>
               </motion.div>
 
-              {/* Floating Element: Engagement - Bottom Right */}
+              {/* Floating Element: Engagement - Bottom Right - Hidden on mobile */}
               <motion.div
-                className="absolute bottom-32 -right-4 bg-slate-800/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700/50 shadow-2xl z-20 w-52"
+                className="absolute bottom-32 -right-4 bg-slate-800/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700/50 shadow-2xl z-20 w-52 hidden lg:block"
                 animate={{ y: [0, 20, 0], rotate: [0, -2, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
               >
@@ -400,9 +400,9 @@ export default function Landing() {
                 </div>
               </motion.div>
 
-              {/* Floating Element: Active Users - Left */}
+              {/* Floating Element: Active Users - Left - Hidden on mobile */}
               <motion.div
-                className="absolute top-40 -left-10 bg-slate-800/80 backdrop-blur-md p-3 pr-5 rounded-full border border-slate-700/50 shadow-2xl z-20 flex items-center gap-3"
+                className="absolute top-40 -left-10 bg-slate-800/80 backdrop-blur-md p-3 pr-5 rounded-full border border-slate-700/50 shadow-2xl z-20 flex items-center gap-3 hidden lg:flex"
                 animate={{ x: [0, 10, 0], y: [0, 5, 0] }}
                 transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
               >
@@ -419,9 +419,9 @@ export default function Landing() {
                 </div>
               </motion.div>
 
-              {/* Floating Element: Verified Badge - Bottom Left */}
+              {/* Floating Element: Verified Badge - Bottom Left - Hidden on mobile */}
               <motion.div
-                className="absolute bottom-20 left-10 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-lg border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.3)] z-20 flex items-center gap-2"
+                className="absolute bottom-20 left-10 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-lg border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.3)] z-20 items-center gap-2 hidden lg:flex"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >

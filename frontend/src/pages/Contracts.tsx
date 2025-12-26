@@ -106,7 +106,7 @@ export default function Contracts() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">My Contracts</h1>
           <p className="text-slate-400 mt-1">Manage your active and past contracts</p>
@@ -114,7 +114,7 @@ export default function Contracts() {
         <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="w-40"
+          className="w-full sm:w-40"
         >
           <option value="">All Status</option>
           <option value="ACTIVE">Active</option>
@@ -136,9 +136,9 @@ export default function Contracts() {
           <div className="space-y-4">
             {contracts.map((contract) => (
               <Card key={contract.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
                       {getStatusIcon(contract.status)}
                       <div>
                         <h3 className="font-semibold text-white">
@@ -151,14 +151,14 @@ export default function Contracts() {
                             <>Client: {contract.client?.clientProfile?.companyName || contract.client?.email}</>
                           )}
                         </p>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-slate-400">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-sm text-slate-400">
                           <span>Agreed: ${contract.agreedPrice.toLocaleString()}</span>
                           <span>•</span>
                           <span>Due: {format(new Date(contract.deliveryDeadline), 'MMM d, yyyy')}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                       {getStatusBadge(contract.status)}
                       {contract.status === 'ACTIVE' && isClient && (
                         <div className="flex gap-2">

@@ -115,13 +115,13 @@ export default function ManageUsers() {
       {/* Search & Filters */}
       <Card>
         <CardContent className="p-4">
-          <form onSubmit={handleSearch} className="flex gap-4 mb-4">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by email..."
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/50" />
             </div>
-            <Button type="submit">Search</Button>
+            <Button type="submit" className="w-full sm:w-auto">Search</Button>
           </form>
           <div className="flex flex-wrap gap-4">
             <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}

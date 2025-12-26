@@ -12,6 +12,7 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { PageLoader } from '../../components/ui/Spinner';
+import ActionBanner from '../../components/ActionBanner';
 
 interface DashboardStats {
   totalAds: number;
@@ -85,6 +86,9 @@ export default function ClientDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Action Banner */}
+      <ActionBanner />
+
       {/* Welcome Header Card */}
       <div className="bg-gradient-to-r from-slate-800 via-slate-800 to-slate-700 rounded-2xl p-6 text-white">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

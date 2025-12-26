@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import * as adController from '../controllers/advertisement.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
+import { requireWalletBalance, deductWalletBalance, requireVerification } from '../middleware/subscription.middleware';
 
 const router = Router();
 
@@ -26,7 +27,15 @@ router.get('/', adController.getAdvertisements);
 router.get('/:id', adController.getAdvertisementById);
 
 // Client routes
-router.post('/', authenticate, authorize('CLIENT'), validate(createAdValidation), adController.createAdvertisement);
+router.post('/', 
+  authenticate, 
+  authorize('CLIENT'), 
+  requireVerification,
+  requireWalletBalance('ADVERTISEMENT'),
+  validate(createAdValidation), 
+  deductWalletBalance,
+  adController.createAdvertisement
+);
 router.put('/:id', authenticate, authorize('CLIENT'), adController.updateAdvertisement);
 router.patch('/:id/close', authenticate, authorize('CLIENT'), adController.closeAdvertisement);
 router.delete('/:id', authenticate, authorize('CLIENT'), adController.deleteAdvertisement);

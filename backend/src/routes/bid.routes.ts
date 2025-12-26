@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import * as bidController from '../controllers/bid.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
+import { requireWalletBalance, deductWalletBalance, requireVerification } from '../middleware/subscription.middleware';
 
 const router = Router();
 
@@ -14,7 +15,15 @@ const createBidValidation = [
 ];
 
 // Influencer routes
-router.post('/', authenticate, authorize('INFLUENCER'), validate(createBidValidation), bidController.createBid);
+router.post('/', 
+  authenticate, 
+  authorize('INFLUENCER'), 
+  requireVerification,
+  requireWalletBalance('BID'),
+  validate(createBidValidation), 
+  deductWalletBalance,
+  bidController.createBid
+);
 router.get('/my-bids', authenticate, authorize('INFLUENCER'), bidController.getMyBids);
 router.put('/:id', authenticate, authorize('INFLUENCER'), bidController.updateBid);
 router.delete('/:id', authenticate, authorize('INFLUENCER'), bidController.withdrawBid);

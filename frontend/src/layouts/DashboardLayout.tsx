@@ -3,11 +3,12 @@ import { useAuthStore } from '../store/authStore';
 import {
   Megaphone, LayoutDashboard, FileText, Search, User, MessageSquare,
   LogOut, Menu, X, Users, Bookmark, Star, Image, FileCheck,
-  ChevronDown, Settings
+  ChevronDown, Settings, Shield, CreditCard
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { NotificationBell } from '../components/Notifications';
 import HelpCenter from '../components/HelpCenter';
+import VerificationBadge from '../components/VerificationBadge';
 import api from '../lib/api';
 
 const clientNav = [
@@ -17,6 +18,8 @@ const clientNav = [
   { name: 'Discover Influencers', href: '/client/discover', icon: Users },
   { name: 'Contracts', href: '/client/contracts', icon: FileCheck },
   { name: 'Messages', href: '/client/messages', icon: MessageSquare },
+  { name: 'KYC Verification', href: '/client/kyc', icon: Shield },
+  { name: 'Billing & Plans', href: '/client/billing', icon: CreditCard },
 ];
 
 const influencerNav = [
@@ -28,6 +31,8 @@ const influencerNav = [
   { name: 'Portfolio', href: '/influencer/portfolio', icon: Image },
   { name: 'Reviews', href: '/influencer/reviews', icon: Star },
   { name: 'Messages', href: '/influencer/messages', icon: MessageSquare },
+  { name: 'KYC Verification', href: '/influencer/kyc', icon: Shield },
+  { name: 'Billing & Plans', href: '/influencer/billing', icon: CreditCard },
 ];
 
 const adminNav = [
@@ -38,6 +43,7 @@ const adminNav = [
   { name: 'Bids', href: '/admin/bids', icon: FileText },
   { name: 'Categories', href: '/admin/categories', icon: Settings },
   { name: 'Reviews', href: '/admin/reviews', icon: Star },
+  { name: 'KYC Review', href: '/admin/kyc', icon: Shield },
 ];
 
 export default function DashboardLayout() {
@@ -170,8 +176,13 @@ export default function DashboardLayout() {
             </button>
             <div className="flex-1" />
 
-            {/* Right side - Notifications & Profile */}
+            {/* Right side - Verification, Notifications & Profile */}
             <div className="flex items-center gap-3">
+              {/* Verification Badge - Only for Client and Influencer */}
+              {(user?.role === 'CLIENT' || user?.role === 'INFLUENCER') && (
+                <VerificationBadge />
+              )}
+              
               <NotificationBell />
 
               {/* Profile Dropdown */}

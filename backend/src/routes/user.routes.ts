@@ -7,6 +7,9 @@ const router = Router();
 // Avatar upload
 router.post('/upload-avatar', authenticate, userController.uploadAvatar);
 
+// General profile route (for VerificationBadge and other components)
+router.get('/profile', authenticate, userController.getUserProfile);
+
 // Client profile routes
 router.get('/client/profile', authenticate, authorize('CLIENT'), userController.getClientProfile);
 router.put('/client/profile', authenticate, authorize('CLIENT'), userController.updateClientProfile);

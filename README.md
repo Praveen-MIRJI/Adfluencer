@@ -1,145 +1,163 @@
-# Influencer Marketplace Platform
+# Adfluencer - Influencer Marketing Marketplace
 
-A professional two-sided marketplace connecting brands with social media influencers.
+A production-grade influencer marketplace platform connecting brands with influencers. Built similar to Freelancer/Upwork but specialized for influencer marketing campaigns.
 
-## Tech Stack
-
-- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
-- **Backend**: Node.js + Express + TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT-based with role-based access control
-
-## Project Structure
+## 🏗️ Project Structure
 
 ```
-├── frontend/          # React frontend application
-│   ├── src/
-│   │   ├── components/   # Reusable UI components
-│   │   ├── layouts/      # Page layouts
-│   │   ├── pages/        # Page components
-│   │   ├── store/        # Zustand state management
-│   │   ├── lib/          # API client and utilities
-│   │   └── types/        # TypeScript types
-│   └── ...
-├── backend/           # Express backend API
-│   ├── src/
-│   │   ├── controllers/  # Route handlers
-│   │   ├── middleware/   # Auth, validation middleware
-│   │   ├── routes/       # API routes
-│   │   ├── lib/          # Prisma client
-│   │   └── types/        # TypeScript types
-│   └── prisma/           # Database schema and seeds
-└── README.md
+├── .kiro/              # Kiro IDE configuration
+├── .vscode/            # VS Code settings
+├── backend/            # Node.js/Express API
+│   ├── src/            # Source code
+│   ├── database/       # SQL migration files
+│   ├── docs/           # API documentation
+│   └── tests/          # Test files
+└── frontend/           # React/Vite application
+    └── src/            # Source code
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+
-- PostgreSQL 14+
-- npm or yarn
-
-### Backend Setup
-
+### Backend
 ```bash
 cd backend
 npm install
-
-# Create .env file
-cp .env.example .env
-# Update DATABASE_URL with your PostgreSQL credentials
-
-# Generate Prisma client and run migrations
-npx prisma generate
-npx prisma migrate dev --name init
-
-# Seed the database
-npm run prisma:seed
-
-# Start development server
 npm run dev
 ```
 
-### Frontend Setup
-
+### Frontend
 ```bash
 cd frontend
 npm install
-
-# Create .env file (optional, defaults work for local dev)
-cp .env.example .env
-
-# Start development server
 npm run dev
 ```
 
-The frontend will be available at http://localhost:5173
-The backend API will be available at http://localhost:3001
+## 💰 Payment & Escrow System
 
+### Fee Structure (Indian Market)
 
+```
+CLIENT PAYS: ₹1,000
+├── Razorpay Fee (2% + 18% GST): -₹24
+├── Platform Fee (10%): -₹100
+└── PROVIDER RECEIVES: ₹876
 
-## Features
+Platform Earnings: ₹100 (Platform Fee)
+Razorpay Fee: ₹24 (Operational Expense)
+```
 
-### For Clients (Brands)
-- Post advertisement campaigns
-- Set budget ranges and deadlines
-- Receive and review bids from influencers
-- Shortlist, accept, or reject bids
-- Message influencers directly
-- Close campaigns
+### Escrow Flow
 
-### For Influencers
-- Create professional profiles with social stats
-- Browse available campaigns
-- Submit competitive bids with proposals
-- Track bid status
-- Communicate with clients
+```
+1. CREATED          → Client initiates payment
+2. HELD_IN_ESCROW   → Payment captured, funds secured
+3. WORK_SUBMITTED   → Provider submits deliverables
+4. APPROVED         → Client approves work
+5. PAID_OUT         → Provider receives payment
 
-### For Admins
-- View platform statistics
-- Manage users (approve, block)
-- Moderate advertisements
+Alternative Flows:
+- DISPUTED          → Dispute raised, admin reviews
+- REFUNDED          → Client refunded (before work submitted)
+```
 
-## API Endpoints
+### API Endpoints
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Get current user
+#### Escrow
+- `GET /api/escrow/fee-breakdown?amount=1000` - Get fee breakdown
+- `POST /api/escrow` - Create escrow for contract
+- `POST /api/escrow/verify-payment` - Verify Razorpay payment
+- `POST /api/escrow/:id/submit-work` - Provider submits work
+- `POST /api/escrow/:id/approve` - Client approves & releases payment
+- `POST /api/escrow/:id/dispute` - Raise dispute
+- `POST /api/escrow/:id/refund` - Request refund
 
-### Advertisements
-- `GET /api/advertisements` - List advertisements
-- `GET /api/advertisements/:id` - Get advertisement details
-- `POST /api/advertisements` - Create advertisement (Client)
-- `PATCH /api/advertisements/:id/close` - Close advertisement (Client)
+#### Payments
+- `POST /api/payments/create-order` - Create Razorpay order
+- `POST /api/payments/verify` - Verify payment signature
+- `GET /api/payments/history` - Get payment history
 
-### Bids
-- `POST /api/bids` - Submit bid (Influencer)
-- `GET /api/bids/my-bids` - Get my bids (Influencer)
-- `PATCH /api/bids/:id/shortlist` - Shortlist bid (Client)
-- `PATCH /api/bids/:id/accept` - Accept bid (Client)
+## ✨ Features
 
-### Messages
-- `GET /api/messages/conversations` - Get conversations
-- `GET /api/messages/conversation/:userId` - Get messages
-- `POST /api/messages` - Send message
+### Core Features
+- **User Authentication** - JWT-based auth with role-based access
+- **KYC Verification** - Document upload with admin review
+- **Advertisement Management** - Create, browse, manage campaigns
+- **Bid System** - Influencers bid on campaigns with proposals
+- **Contract Management** - Create contracts from accepted bids
 
-## Environment Variables
+### Payment & Billing
+- **Razorpay Integration** - Secure payment gateway (India)
+- **Escrow System** - Funds held until work completion
+- **Wallet System** - In-app wallet for transactions
+- **Membership Plans** - ₹100/month, ₹500/year options
+- **Pay-per-action** - ₹5 per bid, ₹10 per advertisement
+
+### Campaign Management
+- **Deliverables System** - Submit and review deliverables
+- **Milestone Payments** - Break contracts into milestones
+- **Dispute Resolution** - Admin-mediated dispute handling
+
+### Communication
+- **Messaging System** - Direct messaging between users
+- **Notifications** - In-app notifications for all activities
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
+- **Backend**: Node.js, Express, TypeScript
+- **Database**: Supabase (PostgreSQL)
+- **Storage**: Supabase Storage
+- **Payments**: Razorpay
+
+## ⚙️ Environment Variables
 
 ### Backend (.env)
-```
-DATABASE_URL="postgresql://user:password@localhost:5432/influencer_marketplace"
-JWT_SECRET="your-secret-key"
-JWT_EXPIRES_IN="7d"
+```env
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-key
+
+# JWT
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRES_IN=7d
+
+# Server
 PORT=3001
-FRONTEND_URL="http://localhost:5173"
+FRONTEND_URL=http://localhost:5173
+
+# Razorpay
+RAZORPAY_KEY_ID=rzp_test_xxx
+RAZORPAY_KEY_SECRET=your-razorpay-secret
 ```
 
 ### Frontend (.env)
-```
-VITE_API_URL=http://localhost:3001/api
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_RAZORPAY_KEY_ID=rzp_test_xxx
 ```
 
-## License
+## 📊 Database Schema
+
+Key tables:
+- `User` - User accounts
+- `Contract` - Contracts between clients and influencers
+- `EscrowTransaction` - Payment escrow with full fee breakdown
+- `Deliverable` - Work submissions
+- `Dispute` - Dispute records
+- `UserWallet` - User wallet balances
+- `WalletTransaction` - Wallet transaction history
+- `PlatformRevenue` - Platform earnings tracking
+
+## 🔒 Security
+
+- JWT authentication
+- Row Level Security (RLS) on Supabase
+- Razorpay signature verification
+- Input validation with express-validator
+- CORS configuration
+
+## 📝 License
 
 MIT

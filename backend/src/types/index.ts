@@ -6,6 +6,11 @@ export type AdStatus = 'OPEN' | 'CLOSED' | 'PENDING_APPROVAL' | 'REJECTED';
 export type BidStatus = 'PENDING' | 'SHORTLISTED' | 'ACCEPTED' | 'REJECTED';
 export type Platform = 'INSTAGRAM' | 'YOUTUBE' | 'TWITTER' | 'TIKTOK' | 'FACEBOOK' | 'LINKEDIN';
 export type ContentType = 'STORY' | 'POST' | 'REEL' | 'VIDEO' | 'TWEET' | 'ARTICLE';
+export type KycStatus = 'NOT_SUBMITTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+export type DocumentType = 'AADHAAR' | 'PAN' | 'VOTER_ID' | 'PASSPORT' | 'DRIVING_LICENSE';
+export type SubscriptionStatus = 'ACTIVE' | 'CANCELED' | 'EXPIRED';
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+export type WalletTransactionType = 'CREDIT' | 'DEBIT';
 
 export interface JwtPayload {
   userId: string;
@@ -15,6 +20,10 @@ export interface JwtPayload {
 
 export interface AuthRequest extends Request {
   user?: JwtPayload;
+  subscription?: any;
+  walletBalance?: number;
+  actionCost?: number;
+  messagingCost?: number;
 }
 
 export interface PaginationParams {

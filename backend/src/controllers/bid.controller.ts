@@ -2,6 +2,7 @@ import { Response } from 'express';
 import supabase from '../lib/supabase';
 import { AuthRequest } from '../types';
 import { getPagination, createPaginationResponse } from '../utils/helpers';
+import { requireWalletBalance, deductWalletBalance } from '../middleware/subscription.middleware';
 
 export const createBid = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -40,6 +41,7 @@ export const createBid = async (req: AuthRequest, res: Response): Promise<void> 
       return;
     }
 
+    // Create the bid
     const { data: bid, error } = await supabase
       .from('Bid')
       .insert({
@@ -63,7 +65,34 @@ export const createBid = async (req: AuthRequest, res: Response): Promise<void> 
       link: `/client/advertisements/${advertisementId}`,
     });
 
-    res.status(201).json({ success: true, data: { ...bid, advertisement: { title: advertisement.title } } });
+    // Log activity
+    await supabase
+      .from('UserActivity')
+      .insert({
+        userId: req.user!.userId,
+        action: 'BID_CREATED',
+        resource: 'BID',
+        resourceId: bid.id,
+        metadata: { 
+          advertisementId, 
+          proposedPrice: parseFloat(proposedPrice),
+          paymentDeducted: req.actionCost || 0,
+          newWalletBalance: req.walletBalance
+        }
+      });
+
+    res.status(201).json({ 
+      success: true, 
+      data: { 
+        ...bid, 
+        advertisement: { title: advertisement.title },
+        paymentInfo: {
+          amountDeducted: req.actionCost || 0,
+          newWalletBalance: req.walletBalance
+        }
+      },
+      message: req.actionCost ? `Bid submitted successfully! ₹${req.actionCost} deducted from wallet.` : 'Bid submitted successfully!'
+    });
   } catch (error) {
     console.error('Create bid error:', error);
     res.status(500).json({ success: false, error: 'Failed to create bid' });

@@ -312,6 +312,14 @@ export default function Login() {
           transition={{ duration: 0.5 }}
           className="max-w-md w-full"
         >
+          {/* Mobile Logo - Only visible when visual side is hidden */}
+          <div className="flex items-center justify-center gap-3 mb-8 lg:hidden">
+            <div className="p-3 bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl">
+              <img src="/adfluencer-logo.png" alt="Adfluencer" className="w-8 h-8 object-contain" />
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">Adfluencer</span>
+          </div>
+
           <div className="mb-10 text-center lg:text-left">
             <motion.h2 layout className="text-3xl font-bold text-white mb-2">
               {isRegister ? 'Create Account' : 'Welcome Back'}
