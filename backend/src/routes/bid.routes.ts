@@ -3,7 +3,7 @@ import { body } from 'express-validator';
 import * as bidController from '../controllers/bid.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
-import { requireWalletBalance, deductWalletBalance, requireVerification } from '../middleware/subscription.middleware';
+import { requireWalletBalance, deductWalletBalance } from '../middleware/subscription.middleware';
 
 const router = Router();
 
@@ -18,7 +18,7 @@ const createBidValidation = [
 router.post('/', 
   authenticate, 
   authorize('INFLUENCER'), 
-  requireVerification,
+  // requireVerification, // Disabled KYC verification requirement
   // Note: Wallet deduction removed - using credit system instead
   // requireWalletBalance('BID'),
   validate(createBidValidation), 

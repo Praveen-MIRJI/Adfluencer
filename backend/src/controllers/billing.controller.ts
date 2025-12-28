@@ -180,8 +180,10 @@ export const subscribeToPlan = async (req: AuthRequest, res: Response): Promise<
         // Calculate subscription dates
         const startDate = new Date();
         const endDate = new Date();
-        
-        if (plan.billingCycle === 'MONTHLY') {
+
+        if (plan.billingCycle === 'WEEKLY') {
+          endDate.setDate(endDate.getDate() + 7); // Add 7 days
+        } else if (plan.billingCycle === 'MONTHLY') {
           endDate.setMonth(endDate.getMonth() + 1);
         } else if (plan.billingCycle === 'YEARLY') {
           endDate.setFullYear(endDate.getFullYear() + 1);
@@ -568,7 +570,7 @@ export const createWalletTopupOrder = async (req: AuthRequest, res: Response): P
 
     // Create Razorpay order - receipt must be max 40 chars
     console.log('Creating Razorpay order for wallet topup:', { amount: amountNum, userId });
-    
+
     const shortUserId = userId.substring(0, 8);
     const orderResult = await createOrder({
       amount: amountNum,
@@ -787,8 +789,10 @@ export const verifySubscriptionPayment = async (req: AuthRequest, res: Response)
     // Calculate subscription dates
     const startDate = new Date();
     const endDate = new Date();
-    
-    if (plan.billingCycle === 'MONTHLY') {
+
+    if (plan.billingCycle === 'WEEKLY') {
+      endDate.setDate(endDate.getDate() + 7);
+    } else if (plan.billingCycle === 'MONTHLY') {
       endDate.setMonth(endDate.getMonth() + 1);
     } else if (plan.billingCycle === 'YEARLY') {
       endDate.setFullYear(endDate.getFullYear() + 1);

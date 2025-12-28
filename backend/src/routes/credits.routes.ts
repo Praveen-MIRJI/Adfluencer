@@ -7,7 +7,8 @@ import {
   verifyCreditPayment,
   useCredit,
   getCreditHistory,
-  claimSpinWheelCredits
+  claimSpinWheelCredits,
+  checkUserSubscriptionStatus
 } from '../controllers/credits.controller';
 
 const router = Router();
@@ -20,6 +21,9 @@ router.use(authenticate);
 
 // Get user's credit balance
 router.get('/balance', getUserCredits);
+
+// Check subscription status
+router.get('/subscription-status', checkUserSubscriptionStatus);
 
 // Get credit settings (pricing) - moved to public above
 

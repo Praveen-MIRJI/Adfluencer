@@ -4,6 +4,48 @@ import { createOrder } from '../lib/razorpay';
 import { AuthRequest } from '../types';
 import crypto from 'crypto';
 
+// Helper function to check if user has active subscription
+export const checkActiveSubscription = async (userId: string) => {
+  try {
+    console.log(`[checkActiveSubscription] Checking subscription for user: ${userId}`);
+    
+    const { data: activeSubscription, error } = await supabase
+      .from('UserSubscription')
+      .select(`
+        id,
+        status,
+        endDate,
+        planId,
+        plan:MembershipPlan(name, billingCycle)
+      `)
+      .eq('userId', userId)
+      .eq('status', 'ACTIVE')
+      .gte('endDate', new Date().toISOString())
+      .single();
+
+    console.log(`[checkActiveSubscription] Query result:`, { activeSubscription, error });
+
+    if (error && error.code !== 'PGRST116') {
+      console.error(`[checkActiveSubscription] Query error:`, error);
+      throw error;
+    }
+
+    const hasActiveSubscription = !!activeSubscription;
+    console.log(`[checkActiveSubscription] Has active subscription:`, hasActiveSubscription);
+
+    return {
+      hasActiveSubscription,
+      subscription: activeSubscription
+    };
+  } catch (error) {
+    console.error('Error checking active subscription:', error);
+    return {
+      hasActiveSubscription: false,
+      subscription: null
+    };
+  }
+};
+
 // Get user's credit balance
 export const getUserCredits = async (req: AuthRequest, res: Response) => {
   try {
@@ -566,6 +608,41 @@ export const useCredit = async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to use credit'
+    });
+  }
+};
+
+// Check if user has active subscription (for frontend)
+export const checkUserSubscriptionStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+    }
+
+    const { hasActiveSubscription, subscription } = await checkActiveSubscription(userId);
+
+    res.json({
+      success: true,
+      data: {
+        hasActiveSubscription,
+        subscription: subscription ? {
+          id: subscription.id,
+          planName: (subscription as any).plan?.name || 'Unknown Plan',
+          billingCycle: (subscription as any).plan?.billingCycle || 'UNKNOWN',
+          endDate: subscription.endDate
+        } : null
+      }
+    });
+  } catch (error: any) {
+    console.error('Check subscription status error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check subscription status'
     });
   }
 };

@@ -3,7 +3,7 @@ import { body } from 'express-validator';
 import * as messageController from '../controllers/message.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
-import { requireMessagingAccess, deductWalletBalance, requireVerification } from '../middleware/subscription.middleware';
+import { requireMessagingAccess, deductWalletBalance } from '../middleware/subscription.middleware';
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.use(authenticate);
 router.get('/conversations', messageController.getConversations);
 router.get('/conversation/:userId', requireMessagingAccess, messageController.getMessages);
 router.post('/', 
-  requireVerification,
+  // requireVerification, // Disabled KYC verification requirement
   requireMessagingAccess, 
   validate(sendMessageValidation),
   deductWalletBalance,

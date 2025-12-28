@@ -4,9 +4,10 @@ import { AuthRequest, AdStatus } from '../types';
 import { getPagination, createPaginationResponse } from '../utils/helpers';
 
 // Helper function to check and use credit
-// Helper function to check and use credit
 const checkAndUseCredit = async (userId: string, creditType: 'BID' | 'POST', resourceId: string) => {
   try {
+    console.log(`[checkAndUseCredit] Checking credit for user ${userId}, type: ${creditType}`);
+
     // Check if credit system is enabled
     const { data: settings, error: settingsError } = await supabase
       .from('CreditSettings')
@@ -77,6 +78,8 @@ const checkAndUseCredit = async (userId: string, creditType: 'BID' | 'POST', res
 
     const availableCredits = creditType === 'BID' ? userCredits.bidCredits : userCredits.postCredits;
 
+    console.log(`[checkAndUseCredit] Available ${creditType} credits: ${availableCredits}`);
+
     if (availableCredits < 1) {
       return { 
         success: false, 
@@ -86,6 +89,7 @@ const checkAndUseCredit = async (userId: string, creditType: 'BID' | 'POST', res
     }
 
     // Deduct credit
+    console.log(`[checkAndUseCredit] Deducting 1 ${creditType} credit`);
     const newBidCredits = creditType === 'BID' ? userCredits.bidCredits - 1 : userCredits.bidCredits;
     const newPostCredits = creditType === 'POST' ? userCredits.postCredits - 1 : userCredits.postCredits;
     const newTotalUsed = creditType === 'BID'
@@ -128,6 +132,8 @@ const checkAndUseCredit = async (userId: string, creditType: 'BID' | 'POST', res
       console.error('Failed to record credit transaction:', transactionError);
       // Don't fail the operation if transaction recording fails
     }
+
+    console.log(`[checkAndUseCredit] Credit deducted successfully. New balance: ${creditType === 'BID' ? newBidCredits : newPostCredits}`);
 
     return { 
       success: true, 

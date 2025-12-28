@@ -3,7 +3,7 @@ import { body } from 'express-validator';
 import * as adController from '../controllers/advertisement.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
-import { requireWalletBalance, deductWalletBalance, requireVerification } from '../middleware/subscription.middleware';
+import { requireWalletBalance, deductWalletBalance } from '../middleware/subscription.middleware';
 
 const router = Router();
 
@@ -30,7 +30,7 @@ router.get('/:id', adController.getAdvertisementById);
 router.post('/', 
   authenticate, 
   authorize('CLIENT'), 
-  requireVerification,
+  // requireVerification, // Disabled KYC verification requirement
   requireWalletBalance('ADVERTISEMENT'),
   validate(createAdValidation), 
   deductWalletBalance,

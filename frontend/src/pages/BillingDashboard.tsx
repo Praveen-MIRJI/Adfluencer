@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CreditCard, 
-  Wallet, 
-  Crown, 
-  History, 
+import {
+  CreditCard,
+  Wallet,
+  Crown,
+  History,
   TrendingUp,
   Calendar,
   Download,
-  Plus,
-  Coins
+  Coins,
+  ArrowRight
 } from 'lucide-react';
 import MembershipPlans from '../components/MembershipPlans';
 import WalletManagement from '../components/WalletManagement';
@@ -69,7 +69,7 @@ const BillingDashboard: React.FC = () => {
       setStats({
         totalSpent,
         currentBalance: walletData.success ? walletData.data?.balance || 0 : 0,
-        activeSubscription: subscriptionData.success && subscriptionData.data?.status !== 'NO_SUBSCRIPTION' 
+        activeSubscription: subscriptionData.success && subscriptionData.data?.status !== 'NO_SUBSCRIPTION'
           ? subscriptionData.data : null,
         monthlySpending,
         transactionCount: paymentsData.success ? paymentsData.data?.length || 0 : 0
@@ -111,267 +111,280 @@ const BillingDashboard: React.FC = () => {
         <p className="text-slate-300">Manage your subscription, wallet, and payment history</p>
       </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
-          >
-            <div className="flex items-center justify-between">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Wallet Balance</p>
+              <p className="text-2xl font-bold text-white">
+                ₹{stats.currentBalance.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="p-3 bg-green-900/30 rounded-lg">
+              <Wallet className="w-6 h-6 text-green-400" />
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Total Spent</p>
+              <p className="text-2xl font-bold text-white">
+                ₹{stats.totalSpent.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="p-3 bg-blue-900/30 rounded-lg">
+              <CreditCard className="w-6 h-6 text-blue-400" />
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-400 mb-1">This Month</p>
+              <p className="text-2xl font-bold text-white">
+                ₹{stats.monthlySpending.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="p-3 bg-purple-900/30 rounded-lg">
+              <Calendar className="w-6 h-6 text-purple-400" />
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Subscription</p>
+              <p className="text-lg font-bold text-white">
+                {stats.activeSubscription ? stats.activeSubscription.plan.name : 'None'}
+              </p>
+            </div>
+            <div className="p-3 bg-orange-900/30 rounded-lg">
+              <Crown className="w-6 h-6 text-orange-400" />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Active Subscription Banner */}
+      {stats.activeSubscription && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 lg:p-6 text-white mb-8"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-white/20 rounded-lg">
+                <Crown className="w-6 h-6" />
+              </div>
               <div>
-                <p className="text-sm text-slate-400 mb-1">Wallet Balance</p>
-                <p className="text-2xl font-bold text-white">
-                  ₹{stats.currentBalance.toLocaleString('en-IN')}
+                <h3 className="text-lg lg:text-xl font-bold">{stats.activeSubscription.plan.name} Plan</h3>
+                <p className="text-purple-100 text-sm lg:text-base">
+                  Active until {new Date(stats.activeSubscription.endDate).toLocaleDateString('en-IN')}
                 </p>
               </div>
-              <div className="p-3 bg-green-900/30 rounded-lg">
-                <Wallet className="w-6 h-6 text-green-400" />
+            </div>
+            <div className="text-left sm:text-right">
+              <div className="text-xl lg:text-2xl font-bold">
+                ₹{stats.activeSubscription.plan.price}
+              </div>
+              <div className="text-purple-100 text-sm">
+                /{stats.activeSubscription.plan.billingCycle.toLowerCase()}
               </div>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
+      )}
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-400 mb-1">Total Spent</p>
-                <p className="text-2xl font-bold text-white">
-                  ₹{stats.totalSpent.toLocaleString('en-IN')}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-900/30 rounded-lg">
-                <CreditCard className="w-6 h-6 text-blue-400" />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-400 mb-1">This Month</p>
-                <p className="text-2xl font-bold text-white">
-                  ₹{stats.monthlySpending.toLocaleString('en-IN')}
-                </p>
-              </div>
-              <div className="p-3 bg-purple-900/30 rounded-lg">
-                <Calendar className="w-6 h-6 text-purple-400" />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-400 mb-1">Subscription</p>
-                <p className="text-lg font-bold text-white">
-                  {stats.activeSubscription ? stats.activeSubscription.plan.name : 'None'}
-                </p>
-              </div>
-              <div className="p-3 bg-orange-900/30 rounded-lg">
-                <Crown className="w-6 h-6 text-orange-400" />
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Active Subscription Banner */}
-        {stats.activeSubscription && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 lg:p-6 text-white mb-8"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-white/20 rounded-lg">
-                  <Crown className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-lg lg:text-xl font-bold">{stats.activeSubscription.plan.name} Plan</h3>
-                  <p className="text-purple-100 text-sm lg:text-base">
-                    Active until {new Date(stats.activeSubscription.endDate).toLocaleDateString('en-IN')}
-                  </p>
-                </div>
-              </div>
-              <div className="text-left sm:text-right">
-                <div className="text-xl lg:text-2xl font-bold">
-                  ₹{stats.activeSubscription.plan.price}
-                </div>
-                <div className="text-purple-100 text-sm">
-                  /{stats.activeSubscription.plan.billingCycle.toLowerCase()}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Navigation Tabs */}
-        <div className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl shadow-lg shadow-black/10 mb-8">
-          <div className="border-b border-slate-600/50">
-            <nav className="flex space-x-4 lg:space-x-8 px-4 lg:px-6 overflow-x-auto">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? 'border-rose-500 text-rose-400'
-                        : 'border-transparent text-slate-400 hover:text-slate-300'
+      {/* Navigation Tabs */}
+      <div className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl shadow-lg shadow-black/10 mb-8">
+        <div className="border-b border-slate-600/50">
+          <nav className="flex space-x-4 lg:space-x-8 px-4 lg:px-6 overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${activeTab === tab.id
+                    ? 'border-rose-500 text-rose-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-300'
                     }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Quick Actions */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => setActiveTab('credits')}
-                        className="w-full p-4 text-left border border-slate-600/50 rounded-lg hover:bg-slate-700/50 transition-colors"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <Coins className="w-5 h-5 text-amber-400" />
-                          <div>
-                            <div className="font-medium text-white">Buy Credits</div>
-                            <div className="text-sm text-slate-400">Purchase post or bid credits</div>
-                          </div>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => setActiveTab('wallet')}
-                        className="w-full p-4 text-left border border-slate-600/50 rounded-lg hover:bg-slate-700/50 transition-colors"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <Plus className="w-5 h-5 text-green-400" />
-                          <div>
-                            <div className="font-medium text-white">Add Money to Wallet</div>
-                            <div className="text-sm text-slate-400">Top up your wallet balance</div>
-                          </div>
-                        </div>
-                      </button>
-                      
-                      <button
-                        onClick={() => setActiveTab('subscription')}
-                        className="w-full p-4 text-left border border-slate-600/50 rounded-lg hover:bg-slate-700/50 transition-colors"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <Crown className="w-5 h-5 text-purple-400" />
-                          <div>
-                            <div className="font-medium text-white">
-                              {stats.activeSubscription ? 'Manage Subscription' : 'Subscribe to Plan'}
-                            </div>
-                            <div className="text-sm text-slate-400">
-                              {stats.activeSubscription ? 'View or modify your subscription' : 'Get unlimited access'}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                      
-                      <button
-                        onClick={() => setActiveTab('history')}
-                        className="w-full p-4 text-left border border-slate-600/50 rounded-lg hover:bg-slate-700/50 transition-colors"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <Download className="w-5 h-5 text-blue-400" />
-                          <div>
-                            <div className="font-medium text-white">Download Statements</div>
-                            <div className="text-sm text-slate-400">Get your payment history</div>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Recent Activity */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
-                    <div className="space-y-3">
-                      <div className="text-center py-8 text-slate-400">
-                        <History className="w-12 h-12 mx-auto mb-3 text-slate-500" />
-                        <p>No recent activity</p>
-                        <p className="text-sm">Your recent transactions will appear here</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'subscription' && (
-              <div>
-                <MembershipPlans />
-              </div>
-            )}
-
-            {activeTab === 'credits' && (
-              <div className="space-y-6">
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-semibold text-white mb-2">Purchase Credits</h3>
-                  <p className="text-slate-400">Buy credits to post campaigns or bid on opportunities</p>
-                </div>
-                <div className="max-w-md mx-auto">
-                  <CreditBalance showPurchaseButton={true} className="w-full" onPurchaseSuccess={fetchBillingStats} />
-                </div>
-                <div className="mt-8 p-4 bg-slate-700/30 rounded-lg">
-                  <h4 className="font-medium text-white mb-3">How Credits Work</h4>
-                  <ul className="space-y-2 text-sm text-slate-400">
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400">•</span>
-                      <span><strong className="text-white">Post Credits (Brands):</strong> Use 1 credit to post a campaign. ₹10 per credit.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400">•</span>
-                      <span><strong className="text-white">Bid Credits (Creators):</strong> Use 1 credit to bid on a campaign. ₹5 per credit.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400">•</span>
-                      <span>Credits never expire and can be used anytime.</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'wallet' && (
-              <div>
-                <WalletManagement onBalanceUpdate={fetchBillingStats} />
-              </div>
-            )}
-
-            {activeTab === 'history' && (
-              <PaymentHistory />
-            )}
-          </div>
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Quick Actions - Full Width Grid */}
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-6">Quick Actions</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Buy Credits */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('credits')}
+                    className="relative p-8 text-left border border-slate-600/50 rounded-2xl hover:bg-slate-700/30 transition-all duration-300 group overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:border-rose-500/30"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-start space-x-4">
+                      <div className="p-4 bg-gradient-to-br from-rose-500/20 to-purple-500/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Coins className="w-8 h-8 text-rose-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xl font-bold text-white mb-2">Buy Credits</div>
+                        <div className="text-sm text-slate-400 leading-relaxed">Purchase post or bid credits to start campaigns and unlock opportunities</div>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-1 transition-all duration-300" />
+                    </div>
+                  </motion.button>
+
+                  {/* Add Money to Wallet */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('wallet')}
+                    className="relative p-8 text-left border border-slate-600/50 rounded-2xl hover:bg-slate-700/30 transition-all duration-300 group overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:border-green-500/30"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-start space-x-4">
+                      <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Wallet className="w-8 h-8 text-green-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xl font-bold text-white mb-2">Add Money to Wallet</div>
+                        <div className="text-sm text-slate-400 leading-relaxed">Top up your wallet balance for seamless transactions and payments</div>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-green-400 group-hover:translate-x-1 transition-all duration-300" />
+                    </div>
+                  </motion.button>
+
+                  {/* Subscribe to Plan */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('subscription')}
+                    className="relative p-8 text-left border border-slate-600/50 rounded-2xl hover:bg-slate-700/30 transition-all duration-300 group overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:border-purple-500/30"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-start space-x-4">
+                      <div className="p-4 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Crown className="w-8 h-8 text-purple-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xl font-bold text-white mb-2">
+                          {stats.activeSubscription ? 'Manage Subscription' : 'Subscribe to Plan'}
+                        </div>
+                        <div className="text-sm text-slate-400 leading-relaxed">
+                          {stats.activeSubscription ? 'View or modify your subscription settings and benefits' : 'Get unlimited access with premium membership plans'}
+                        </div>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all duration-300" />
+                    </div>
+                  </motion.button>
+
+                  {/* Download Statements */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveTab('history')}
+                    className="relative p-8 text-left border border-slate-600/50 rounded-2xl hover:bg-slate-700/30 transition-all duration-300 group overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:border-blue-500/30"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-start space-x-4">
+                      <div className="p-4 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Download className="w-8 h-8 text-blue-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xl font-bold text-white mb-2">Download Statements</div>
+                        <div className="text-sm text-slate-400 leading-relaxed">Get your complete payment history and transaction records</div>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all duration-300" />
+                    </div>
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'subscription' && (
+            <div>
+              <MembershipPlans />
+            </div>
+          )}
+
+          {activeTab === 'credits' && (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-semibold text-white mb-2">Purchase Credits</h3>
+                <p className="text-slate-400">Buy credits to post campaigns or bid on opportunities</p>
+              </div>
+              <div className="max-w-md mx-auto">
+                <CreditBalance showPurchaseButton={true} className="w-full" onPurchaseSuccess={fetchBillingStats} />
+              </div>
+              <div className="mt-8 p-4 bg-slate-700/30 rounded-lg">
+                <h4 className="font-medium text-white mb-3">How Credits Work</h4>
+                <ul className="space-y-2 text-sm text-slate-400">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400">•</span>
+                    <span><strong className="text-white">Post Credits (Brands):</strong> Use 1 credit to post a campaign. ₹10 per credit.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400">•</span>
+                    <span><strong className="text-white">Bid Credits (Creators):</strong> Use 1 credit to bid on a campaign. ₹5 per credit.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400">•</span>
+                    <span>Credits never expire and can be used anytime.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'wallet' && (
+            <div>
+              <WalletManagement onBalanceUpdate={fetchBillingStats} />
+            </div>
+          )}
+
+          {activeTab === 'history' && (
+            <PaymentHistory />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -470,11 +483,10 @@ const PaymentHistory: React.FC = () => {
           <button
             key={filter}
             onClick={() => setActiveFilter(filter as any)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              activeFilter === filter
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeFilter === filter
+              ? 'bg-blue-600 text-white'
+              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
           >
             {filter.charAt(0).toUpperCase() + filter.slice(1)}
           </button>
@@ -502,9 +514,8 @@ const PaymentHistory: React.FC = () => {
               className="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors"
             >
               <div className="flex items-center gap-4">
-                <div className={`p-2 rounded-lg ${
-                  transaction.isCredit ? 'bg-green-500/20' : 'bg-red-500/20'
-                }`}>
+                <div className={`p-2 rounded-lg ${transaction.isCredit ? 'bg-green-500/20' : 'bg-red-500/20'
+                  }`}>
                   {transaction.isCredit ? (
                     <TrendingUp className="w-5 h-5 text-green-400" />
                   ) : (
@@ -516,11 +527,10 @@ const PaymentHistory: React.FC = () => {
                   <p className="text-sm text-slate-400">
                     {new Date(transaction.createdAt).toLocaleString('en-IN')}
                   </p>
-                  <span className={`text-xs px-2 py-0.5 rounded ${
-                    transaction.source === 'wallet' ? 'bg-blue-500/20 text-blue-400' :
+                  <span className={`text-xs px-2 py-0.5 rounded ${transaction.source === 'wallet' ? 'bg-blue-500/20 text-blue-400' :
                     transaction.source === 'credits' ? 'bg-amber-500/20 text-amber-400' :
-                    'bg-purple-500/20 text-purple-400'
-                  }`}>
+                      'bg-purple-500/20 text-purple-400'
+                    }`}>
                     {transaction.source}
                   </span>
                 </div>

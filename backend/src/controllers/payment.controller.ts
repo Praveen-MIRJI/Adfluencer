@@ -232,7 +232,9 @@ async function processSubscription(userId: string, planId: string, amount: numbe
 
     const startDate = new Date();
     const endDate = new Date();
-    if (plan.billingCycle === 'MONTHLY') {
+    if (plan.billingCycle === 'WEEKLY') {
+      endDate.setDate(endDate.getDate() + 7);
+    } else if (plan.billingCycle === 'MONTHLY') {
       endDate.setMonth(endDate.getMonth() + 1);
     } else if (plan.billingCycle === 'YEARLY') {
       endDate.setFullYear(endDate.getFullYear() + 1);
