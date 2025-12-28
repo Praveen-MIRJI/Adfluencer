@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Eye, 
-  FileText, 
-  User, 
-  Calendar, 
-  MapPin, 
+import {
+  CheckCircle,
+  XCircle,
+  Eye,
+  FileText,
+  User,
+  Calendar,
+  MapPin,
   Phone,
   Filter,
   Search,
@@ -80,7 +80,7 @@ const AdminKycReview: React.FC = () => {
 
       const response = await api.get(`/kyc/admin/all?${params}`);
       const data = response.data;
-      
+
       if (data.success) {
         setVerifications(data.data || []);
         setPagination({
@@ -192,7 +192,7 @@ const AdminKycReview: React.FC = () => {
                 className="pl-10 pr-4 py-2 border border-slate-600 bg-slate-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80"
               />
             </div>
-            
+
             <div className="relative">
               <Filter className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <select
@@ -251,8 +251,8 @@ const AdminKycReview: React.FC = () => {
                           <div className="text-sm text-slate-400">{verification.user.email}</div>
                           <div className="text-xs text-slate-500">
                             {verification.user.role} • {
-                              verification.user.clientProfile?.companyName || 
-                              verification.user.influencerProfile?.displayName || 
+                              verification.user.clientProfile?.companyName ||
+                              verification.user.influencerProfile?.displayName ||
                               'No profile'
                             }
                           </div>
@@ -420,11 +420,21 @@ const AdminKycReview: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <h5 className="text-sm font-medium text-slate-300 mb-2">Document Front</h5>
-                    <img
-                      src={selectedVerification.documentFrontUrl}
-                      alt="Document Front"
-                      className="w-full h-48 object-cover rounded-lg border border-slate-600"
-                    />
+                    {selectedVerification.documentFrontUrl ? (
+                      <img
+                        src={selectedVerification.documentFrontUrl}
+                        alt="Document Front"
+                        className="w-full h-48 object-cover rounded-lg border border-slate-600"
+                        onError={(e) => {
+                          console.error('Failed to load document front image:', selectedVerification.documentFrontUrl);
+                          e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23334155" width="200" height="200"/%3E%3Ctext fill="%23cbd5e1" font-family="sans-serif" font-size="14" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImage Load Failed%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-slate-700 rounded-lg border border-slate-600 flex items-center justify-center">
+                        <p className="text-slate-400 text-sm">No image uploaded</p>
+                      </div>
+                    )}
                   </div>
                   {selectedVerification.documentBackUrl && (
                     <div>
@@ -433,16 +443,30 @@ const AdminKycReview: React.FC = () => {
                         src={selectedVerification.documentBackUrl}
                         alt="Document Back"
                         className="w-full h-48 object-cover rounded-lg border border-slate-600"
+                        onError={(e) => {
+                          console.error('Failed to load document back image:', selectedVerification.documentBackUrl);
+                          e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23334155" width="200" height="200"/%3E%3Ctext fill="%23cbd5e1" font-family="sans-serif" font-size="14" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImage Load Failed%3C/text%3E%3C/svg%3E';
+                        }}
                       />
                     </div>
                   )}
                   <div>
                     <h5 className="text-sm font-medium text-slate-300 mb-2">Selfie</h5>
-                    <img
-                      src={selectedVerification.selfieUrl}
-                      alt="Selfie"
-                      className="w-full h-48 object-cover rounded-lg border border-slate-600"
-                    />
+                    {selectedVerification.selfieUrl ? (
+                      <img
+                        src={selectedVerification.selfieUrl}
+                        alt="Selfie"
+                        className="w-full h-48 object-cover rounded-lg border border-slate-600"
+                        onError={(e) => {
+                          console.error('Failed to load selfie image:', selectedVerification.selfieUrl);
+                          e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23334155" width="200" height="200"/%3E%3Ctext fill="%23cbd5e1" font-family="sans-serif" font-size="14" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImage Load Failed%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-slate-700 rounded-lg border border-slate-600 flex items-center justify-center">
+                        <p className="text-slate-400 text-sm">No image uploaded</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -473,7 +497,7 @@ const AdminKycReview: React.FC = () => {
           >
             <div className="p-6">
               <h3 className="text-xl font-bold text-white mb-6">Review KYC Verification</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">

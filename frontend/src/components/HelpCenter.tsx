@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { HelpCircle, X, MessageCircle, Book, ChevronDown, ChevronUp, Send } from 'lucide-react';
-import Button from './ui/Button';
 
 interface FAQ {
   question: string;
@@ -53,25 +52,7 @@ const influencerFAQs: FAQ[] = [
   },
 ];
 
-const clientRules = [
-  'Provide clear and detailed campaign requirements',
-  'Set realistic budgets and deadlines',
-  'Respond to bids and messages promptly',
-  'Complete contracts and leave honest reviews',
-  'Respect influencer content and intellectual property',
-  'Make payments through the platform only',
-  'Report any issues or disputes immediately',
-];
 
-const influencerRules = [
-  'Only bid on campaigns you can genuinely fulfill',
-  'Provide accurate follower counts and engagement rates',
-  'Deliver content by the agreed deadline',
-  'Maintain professional communication with clients',
-  'Disclose sponsored content as per platform guidelines',
-  'Do not share client confidential information',
-  'Keep your portfolio and profile up to date',
-];
 
 interface HelpCenterProps {
   userRole: 'CLIENT' | 'INFLUENCER';
@@ -79,7 +60,7 @@ interface HelpCenterProps {
 
 export default function HelpCenter({ userRole }: HelpCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'faq' | 'rules' | 'chat'>('faq');
+  const [activeTab, setActiveTab] = useState<'faq' | 'chat'>('faq');
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([
     { role: 'bot', content: 'Hello! I\'m your AI assistant. How can I help you today?' },
@@ -87,7 +68,6 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
   const [inputMessage, setInputMessage] = useState('');
 
   const faqs = userRole === 'CLIENT' ? clientFAQs : influencerFAQs;
-  const rules = userRole === 'CLIENT' ? clientRules : influencerRules;
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -120,7 +100,7 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
       {/* Help Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 transition-all hover:scale-105 flex items-center justify-center z-40"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-slate-700 text-white rounded-full shadow-lg hover:bg-slate-600 transition-all hover:scale-105 flex items-center justify-center z-40"
         title="Help Center"
       >
         <HelpCircle className="w-6 h-6" />
@@ -136,54 +116,41 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
           />
 
           {/* Panel */}
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md h-[600px] flex flex-col overflow-hidden sm:mr-4 sm:mb-4">
+          <div className="relative bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md h-[600px] flex flex-col overflow-hidden sm:mr-4 sm:mb-4">
             {/* Header */}
-            <div className="bg-primary-600 text-white px-6 py-4 flex items-center justify-between">
+            <div className="bg-slate-800 text-white px-6 py-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Help Center</h2>
-                <p className="text-primary-100 text-sm">
+                <p className="text-slate-400 text-sm">
                   {userRole === 'CLIENT' ? 'Client Support' : 'Influencer Support'}
                 </p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-primary-500 rounded-lg transition-colors"
+                className="p-1 hover:bg-slate-700 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-gray-200">
+            <div className="flex border-b border-slate-700">
               <button
                 onClick={() => setActiveTab('faq')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'faq'
-                    ? 'text-primary-600 border-b-2 border-primary-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'faq'
+                  ? 'text-white border-b-2 border-slate-400'
+                  : 'text-slate-400 hover:text-slate-300'
+                  }`}
               >
                 <Book className="w-4 h-4 inline mr-1" />
                 FAQs
               </button>
               <button
-                onClick={() => setActiveTab('rules')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'rules'
-                    ? 'text-primary-600 border-b-2 border-primary-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <HelpCircle className="w-4 h-4 inline mr-1" />
-                Rules
-              </button>
-              <button
                 onClick={() => setActiveTab('chat')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'chat'
-                    ? 'text-primary-600 border-b-2 border-primary-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'chat'
+                  ? 'text-white border-b-2 border-slate-400'
+                  : 'text-slate-400 hover:text-slate-300'
+                  }`}
               >
                 <MessageCircle className="w-4 h-4 inline mr-1" />
                 Chat
@@ -198,23 +165,23 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
                   {faqs.map((faq, index) => (
                     <div
                       key={index}
-                      className="border border-gray-200 rounded-lg overflow-hidden"
+                      className="border border-slate-700 rounded-lg overflow-hidden bg-slate-800/50"
                     >
                       <button
                         onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
-                        className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                        className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-slate-700/50 transition-colors"
                       >
-                        <span className="font-medium text-gray-900 text-sm pr-2">
+                        <span className="font-medium text-white text-sm pr-2">
                           {faq.question}
                         </span>
                         {expandedFAQ === index ? (
-                          <ChevronUp className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                          <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0" />
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                          <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
                         )}
                       </button>
                       {expandedFAQ === index && (
-                        <div className="px-4 pb-3 text-sm text-gray-600 bg-gray-50">
+                        <div className="px-4 pb-3 text-sm text-slate-300 bg-slate-800">
                           {faq.answer}
                         </div>
                       )}
@@ -223,29 +190,7 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
                 </div>
               )}
 
-              {/* Rules Tab */}
-              {activeTab === 'rules' && (
-                <div className="p-4">
-                  <div className="bg-primary-50 rounded-lg p-4 mb-4">
-                    <h3 className="font-semibold text-primary-900 mb-2">
-                      Platform Guidelines
-                    </h3>
-                    <p className="text-sm text-primary-700">
-                      Please follow these rules to maintain a professional and trustworthy marketplace.
-                    </p>
-                  </div>
-                  <ul className="space-y-3">
-                    {rules.map((rule, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xs font-medium flex-shrink-0">
-                          {index + 1}
-                        </span>
-                        <span className="text-sm text-gray-700">{rule}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+
 
               {/* Chat Tab */}
               {activeTab === 'chat' && (
@@ -257,11 +202,10 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                            msg.role === 'user'
-                              ? 'bg-primary-600 text-white rounded-br-md'
-                              : 'bg-gray-100 text-gray-800 rounded-bl-md'
-                          }`}
+                          className={`max-w-[80%] rounded-2xl px-4 py-2 ${msg.role === 'user'
+                            ? 'bg-slate-600 text-white rounded-br-md'
+                            : 'bg-slate-800 text-slate-200 rounded-bl-md'
+                            }`}
                         >
                           <p className="text-sm">{msg.content}</p>
                         </div>
@@ -274,7 +218,7 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
 
             {/* Chat Input */}
             {activeTab === 'chat' && (
-              <div className="border-t border-gray-200 p-4">
+              <div className="border-t border-slate-700 p-4">
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -282,17 +226,17 @@ export default function HelpCenter({ userRole }: HelpCenterProps) {
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Type your question..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                    className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm text-white placeholder-slate-400"
                   />
                   <button
                     onClick={handleSendMessage}
                     disabled={!inputMessage.trim()}
-                    className="w-10 h-10 bg-primary-600 text-white rounded-full flex items-center justify-center hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-10 h-10 bg-slate-600 text-white rounded-full flex items-center justify-center hover:bg-slate-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4" />
                   </button>
                 </div>
-                <p className="text-xs text-gray-400 mt-2 text-center">
+                <p className="text-xs text-slate-500 mt-2 text-center">
                   AI-powered support • Response times may vary
                 </p>
               </div>

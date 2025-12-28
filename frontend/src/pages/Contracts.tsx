@@ -135,7 +135,7 @@ export default function Contracts() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-rose-400" />
+            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" />
             My Contracts
           </h1>
           <p className="text-slate-400 mt-1 text-sm sm:text-base">
@@ -156,7 +156,7 @@ export default function Contracts() {
             key={value}
             onClick={() => setStatusFilter(value)}
             className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 ${statusFilter === value
-              ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25'
+              ? 'bg-slate-600 text-white'
               : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600'
               }`}
           >
@@ -186,16 +186,16 @@ export default function Contracts() {
               return (
                 <div
                   key={contract.id}
-                  className={`group relative bg-gradient-to-br from-slate-800/90 via-slate-800/80 to-slate-900/90 rounded-2xl border ${statusStyles.border} transition-all duration-300 overflow-hidden hover:shadow-xl ${statusStyles.shadow}`}
+                  className="group relative bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 hover:border-slate-600/80 transition-all duration-300 overflow-hidden hover:shadow-xl hover:shadow-black/20"
                 >
-                  {/* Status-based gradient bar */}
-                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${statusStyles.gradient}`} />
+                  {/* Subtle status indicator */}
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent" />
 
                   <div className="p-4 sm:p-5">
                     {/* Top Row: Status Badge & Icon */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className={`p-1.5 sm:p-2 rounded-lg bg-gradient-to-br ${statusStyles.gradient.replace('from-', 'from-').split(' ')[0]}/20`}>
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-slate-700/50">
                           {statusStyles.icon}
                         </div>
                         <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${statusStyles.badge}`}>
@@ -221,11 +221,11 @@ export default function Contracts() {
 
                     {/* Partner Info */}
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-rose-500/20 to-pink-500/20 border border-rose-500/30 flex items-center justify-center flex-shrink-0">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-700/50 border border-slate-600/50 flex items-center justify-center flex-shrink-0">
                         {isClient ? (
-                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
+                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                         ) : (
-                          <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
+                          <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                         )}
                       </div>
                       <div className="min-w-0">
@@ -241,24 +241,24 @@ export default function Contracts() {
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4">
-                      <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20 rounded-xl p-2 sm:p-2.5">
-                        <div className="flex items-center gap-1 text-emerald-400 mb-0.5">
+                      <div className="bg-slate-900/40 border border-slate-700/30 rounded-lg p-2 sm:p-2.5">
+                        <div className="flex items-center gap-1 text-slate-400 mb-0.5">
                           <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide">Agreed</span>
                         </div>
-                        <p className="text-sm sm:text-base font-bold text-white">
+                        <p className="text-sm sm:text-base font-semibold text-white">
                           ${contract.agreedPrice?.toLocaleString()}
                         </p>
                       </div>
-                      <div className={`rounded-xl p-2 sm:p-2.5 ${isOverdue
-                        ? 'bg-gradient-to-br from-red-500/15 to-rose-500/10 border border-red-500/30'
-                        : 'bg-gradient-to-br from-slate-600/20 to-slate-700/20 border border-slate-600/30'
+                      <div className={`rounded-lg p-2 sm:p-2.5 ${isOverdue
+                        ? 'bg-red-500/5 border border-red-500/20'
+                        : 'bg-slate-900/40 border border-slate-700/30'
                         }`}>
                         <div className={`flex items-center gap-1 mb-0.5 ${isOverdue ? 'text-red-400' : 'text-slate-400'}`}>
                           <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide">Due</span>
                         </div>
-                        <p className={`text-xs sm:text-sm font-bold ${isOverdue ? 'text-red-300' : 'text-white'}`}>
+                        <p className={`text-xs sm:text-sm font-semibold ${isOverdue ? 'text-red-300' : 'text-white'}`}>
                           {format(new Date(contract.deliveryDeadline), 'MMM d, yyyy')}
                         </p>
                       </div>
@@ -266,14 +266,14 @@ export default function Contracts() {
 
                     {/* Completed Info */}
                     {contract.completedAt && (
-                      <div className="flex items-center justify-between py-2 px-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg mb-3">
-                        <p className="text-xs sm:text-sm text-emerald-400">
+                      <div className="flex items-center justify-between py-2 px-3 bg-slate-700/30 border border-slate-600/30 rounded-lg mb-3">
+                        <p className="text-xs sm:text-sm text-slate-300">
                           ✓ Completed {format(new Date(contract.completedAt), 'MMM d, yyyy')}
                         </p>
                         {isClient && (
                           <button
                             onClick={() => setReviewModal(contract)}
-                            className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 font-medium"
+                            className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium"
                           >
                             <Star className="w-3.5 h-3.5" />
                             Review
@@ -287,7 +287,7 @@ export default function Contracts() {
                       <div className="flex gap-2 pt-3 border-t border-slate-700/50">
                         <Button
                           size="sm"
-                          className="flex-1 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600"
+                          className="flex-1 bg-slate-600 hover:bg-slate-700"
                           onClick={() => setActionModal({ type: 'complete', contract })}
                         >
                           <CheckCircle className="w-3.5 h-3.5 mr-1" />

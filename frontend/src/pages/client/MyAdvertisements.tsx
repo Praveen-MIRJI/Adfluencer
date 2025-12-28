@@ -202,13 +202,13 @@ export default function MyAdvertisements() {
                 className="group relative"
               >
                 {/* Card Container */}
-                <div className="relative bg-gradient-to-br from-slate-800/90 via-slate-800/70 to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-700/50 hover:border-rose-500/40 transition-all duration-300 overflow-hidden shadow-lg shadow-slate-950/20 hover:shadow-xl hover:shadow-rose-500/10 hover:-translate-y-1">
+                <div className="relative bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 hover:border-slate-600/80 transition-all duration-300 overflow-hidden shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/20 hover:-translate-y-0.5">
 
-                  {/* Top Gradient Accent */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-purple-500 to-rose-500" />
+                  {/* Subtle Top Border */}
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent" />
 
                   {/* Subtle Glow Effect on Hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/0 to-purple-500/0 group-hover:from-rose-500/5 group-hover:to-purple-500/5 transition-all duration-300 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-700/0 to-slate-600/0 group-hover:from-slate-700/5 group-hover:to-slate-600/5 transition-all duration-300 pointer-events-none" />
 
                   <div className="relative p-6">
                     {/* Status Row */}
@@ -236,11 +236,11 @@ export default function MyAdvertisements() {
 
                     {/* Title & Category */}
                     <div className="mb-4">
-                      <h3 className="text-lg font-semibold text-white mb-1.5 line-clamp-2 group-hover:text-rose-300 transition-colors leading-snug">
+                      <h3 className="text-lg font-semibold text-white mb-1.5 line-clamp-2 group-hover:text-slate-200 transition-colors leading-snug">
                         {ad.title}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-gradient-to-r from-rose-500 to-purple-500" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
                         <span className="text-sm text-slate-400">{ad.category?.name}</span>
                       </div>
                     </div>
@@ -253,34 +253,34 @@ export default function MyAdvertisements() {
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-3 mb-5">
                       {/* Budget */}
-                      <div className="bg-slate-900/60 rounded-xl p-3.5 border border-slate-700/40">
+                      <div className="bg-slate-900/40 rounded-lg p-3.5 border border-slate-700/30">
                         <div className="flex items-center gap-2 mb-1.5">
-                          <div className="w-6 h-6 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                            <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                          <div className="w-6 h-6 rounded-lg bg-slate-700/50 flex items-center justify-center">
+                            <DollarSign className="w-3.5 h-3.5 text-slate-400" />
                           </div>
                           <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Budget</span>
                         </div>
-                        <p className="text-sm font-bold text-white">
+                        <p className="text-sm font-semibold text-white">
                           ${ad.budgetMin.toLocaleString()} - ${ad.budgetMax.toLocaleString()}
                         </p>
                       </div>
 
                       {/* Deadline */}
-                      <div className={`rounded-xl p-3.5 border ${isExpired
-                        ? 'bg-slate-900/60 border-slate-700/40'
+                      <div className={`rounded-lg p-3.5 border ${isExpired
+                        ? 'bg-slate-900/40 border-slate-700/30'
                         : isUrgent
-                          ? 'bg-amber-500/10 border-amber-500/30'
-                          : 'bg-slate-900/60 border-slate-700/40'
+                          ? 'bg-orange-500/5 border-orange-500/20'
+                          : 'bg-slate-900/40 border-slate-700/30'
                         }`}>
                         <div className="flex items-center gap-2 mb-1.5">
-                          <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${isExpired ? 'bg-slate-500/15' : isUrgent ? 'bg-amber-500/15' : 'bg-blue-500/15'
+                          <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${isExpired ? 'bg-slate-700/50' : isUrgent ? 'bg-orange-500/10' : 'bg-slate-700/50'
                             }`}>
-                            <Clock className={`w-3.5 h-3.5 ${isExpired ? 'text-slate-500' : isUrgent ? 'text-amber-400' : 'text-blue-400'
+                            <Clock className={`w-3.5 h-3.5 ${isExpired ? 'text-slate-500' : isUrgent ? 'text-orange-400' : 'text-slate-400'
                               }`} />
                           </div>
                           <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Deadline</span>
                         </div>
-                        <p className={`text-sm font-bold ${isExpired ? 'text-slate-500' : isUrgent ? 'text-amber-300' : 'text-white'
+                        <p className={`text-sm font-semibold ${isExpired ? 'text-slate-500' : isUrgent ? 'text-orange-300' : 'text-white'
                           }`}>
                           {isExpired ? 'Expired' : daysLeft === 0 ? 'Due today' : `${daysLeft} days left`}
                         </p>
@@ -292,7 +292,7 @@ export default function MyAdvertisements() {
                       <span className="text-xs text-slate-500">
                         Created {formatDistanceToNow(new Date(ad.createdAt), { addSuffix: true })}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-400 group-hover:text-rose-300 transition-colors">
+                      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 group-hover:text-white transition-colors">
                         View Details
                         <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -379,7 +379,7 @@ export default function MyAdvertisements() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <Link
                           to={`/client/advertisements/${ad.id}`}
-                          className="inline-flex items-center gap-1 text-sm text-rose-400 hover:text-rose-300 font-medium"
+                          className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white font-medium transition-colors"
                         >
                           <Eye className="h-4 w-4" />
                           View

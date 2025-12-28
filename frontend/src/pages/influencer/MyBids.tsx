@@ -74,14 +74,14 @@ export default function MyBids() {
       </div>
 
       {/* Filters */}
-      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-xl border border-slate-700/50 p-3 sm:p-4">
+      <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-3 sm:p-4">
         <div className="flex flex-wrap gap-2 sm:gap-3">
           {['', 'PENDING', 'SHORTLISTED', 'ACCEPTED', 'REJECTED'].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${statusFilter === status
-                ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25'
+                ? 'bg-slate-600 text-white'
                 : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600/50'
                 }`}
             >
@@ -112,10 +112,10 @@ export default function MyBids() {
               <Link
                 key={bid.id}
                 to={`/influencer/ads/${bid.advertisementId}`}
-                className="group relative bg-gradient-to-br from-slate-800/90 via-slate-800/80 to-slate-900/90 rounded-2xl border border-slate-700/50 hover:border-rose-500/40 transition-all duration-300 overflow-hidden hover:shadow-xl hover:shadow-rose-500/10"
+                className="group relative bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 hover:border-slate-600/80 transition-all duration-300 overflow-hidden hover:shadow-xl hover:shadow-black/20"
               >
-                {/* Top gradient bar */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400" />
+                {/* Subtle top border */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent" />
 
                 <div className="p-4">
                   {/* Status & Date Row */}
@@ -129,37 +129,37 @@ export default function MyBids() {
                   </div>
 
                   {/* Ad Title */}
-                  <h3 className="font-bold text-white mb-2 line-clamp-2 text-sm group-hover:text-rose-300 transition-colors">
+                  <h3 className="font-bold text-white mb-2 line-clamp-2 text-sm group-hover:text-slate-200 transition-colors">
                     {bid.advertisement?.title}
                   </h3>
 
                   {/* Category */}
                   <p className="text-xs text-slate-400 mb-3 flex items-center gap-1.5">
-                    <span className="w-1 h-1 bg-rose-400 rounded-full" />
+                    <span className="w-1 h-1 bg-slate-500 rounded-full" />
                     {bid.advertisement?.category?.name}
                   </p>
 
                   {/* Stats Grid */}
                   <div className="grid grid-cols-3 gap-2 mb-3">
-                    <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/5 border border-emerald-500/20 rounded-lg p-2 text-center">
-                      <DollarSign className="w-3.5 h-3.5 text-emerald-400 mx-auto mb-0.5" />
-                      <p className="text-xs font-bold text-white">${bid.proposedPrice}</p>
+                    <div className="bg-slate-900/40 border border-slate-700/30 rounded-lg p-2 text-center">
+                      <DollarSign className="w-3.5 h-3.5 text-slate-400 mx-auto mb-0.5" />
+                      <p className="text-xs font-semibold text-white">${bid.proposedPrice}</p>
                       <p className="text-[10px] text-slate-400">Your Bid</p>
                     </div>
-                    <div className="bg-slate-700/30 border border-slate-600/30 rounded-lg p-2 text-center">
+                    <div className="bg-slate-900/40 border border-slate-700/30 rounded-lg p-2 text-center">
                       <Clock className="w-3.5 h-3.5 text-slate-400 mx-auto mb-0.5" />
-                      <p className="text-xs font-bold text-white">{bid.deliveryDays}</p>
+                      <p className="text-xs font-semibold text-white">{bid.deliveryDays}</p>
                       <p className="text-[10px] text-slate-400">Days</p>
                     </div>
-                    <div className="bg-gradient-to-br from-rose-500/10 to-pink-500/10 border border-rose-500/20 rounded-lg p-2 text-center">
-                      <Building2 className="w-3.5 h-3.5 text-rose-400 mx-auto mb-0.5" />
-                      <p className="text-xs font-bold text-white truncate">{bid.advertisement?.client?.clientProfile?.companyName?.slice(0, 8) || 'Client'}</p>
+                    <div className="bg-slate-900/40 border border-slate-700/30 rounded-lg p-2 text-center">
+                      <Building2 className="w-3.5 h-3.5 text-slate-400 mx-auto mb-0.5" />
+                      <p className="text-xs font-semibold text-white truncate">{bid.advertisement?.client?.clientProfile?.companyName?.slice(0, 8) || 'Client'}</p>
                       <p className="text-[10px] text-slate-400">Client</p>
                     </div>
                   </div>
 
                   {/* View Details */}
-                  <div className="flex items-center justify-end text-rose-400 text-xs font-medium group-hover:text-rose-300">
+                  <div className="flex items-center justify-end text-slate-400 text-xs font-medium group-hover:text-white">
                     View Details <ArrowRight className="w-3.5 h-3.5 ml-1" />
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export default function MyBids() {
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden lg:block bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-xl border border-slate-700/50 overflow-hidden">
+          <div className="hidden lg:block bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-700/50">
                 <thead className="bg-slate-900/50">
@@ -204,14 +204,14 @@ export default function MyBids() {
                           {bid.advertisement?.title}
                         </div>
                         <div className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                          <span className="w-1 h-1 bg-rose-400 rounded-full" />
+                          <span className="w-1 h-1 bg-slate-500 rounded-full" />
                           {bid.advertisement?.category?.name}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500/20 to-pink-500/20 border border-rose-500/30 flex items-center justify-center">
-                            <Building2 className="w-4 h-4 text-rose-400" />
+                          <div className="w-8 h-8 rounded-full bg-slate-700/50 border border-slate-600/50 flex items-center justify-center">
+                            <Building2 className="w-4 h-4 text-slate-400" />
                           </div>
                           <span className="text-sm text-slate-300">
                             {bid.advertisement?.client?.clientProfile?.companyName || 'Client'}
@@ -219,7 +219,7 @@ export default function MyBids() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-bold text-emerald-400">${bid.proposedPrice}</span>
+                        <span className="text-sm font-semibold text-white">${bid.proposedPrice}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
                         {bid.deliveryDays} days
@@ -235,7 +235,7 @@ export default function MyBids() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <Link
                           to={`/influencer/ads/${bid.advertisementId}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg text-rose-400 hover:text-rose-300 text-sm font-medium transition-all"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-lg text-slate-300 hover:text-white text-sm font-medium transition-all"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                           View

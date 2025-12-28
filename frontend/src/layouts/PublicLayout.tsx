@@ -9,31 +9,31 @@ export default function PublicLayout() {
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="fixed top-0 w-full z-50 bg-slate-950/70 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <Link to="/" className="flex items-center gap-3 group">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-20">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
               <div className="relative">
                 <div className="absolute -inset-1 bg-gradient-to-r from-rose-600 to-indigo-600 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-500" />
-                <img src="/adfluencer-logo.png" alt="Adfluencer" className="relative w-10 h-10 object-contain" />
+                <img src="/adfluencer-logo.png" alt="Adfluencer" className="relative w-7 h-7 sm:w-10 sm:h-10 object-contain" />
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">Adfluencer</span>
+              <span className="text-sm sm:text-xl font-bold text-white tracking-tight">Adfluencer</span>
             </Link>
-            <nav className="flex items-center gap-4">
+            <nav className="flex items-center gap-1 sm:gap-4">
               <button
                 onClick={() => setShowHowItWorks(true)}
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-4 py-2 rounded-full hover:bg-white/5"
+                className="text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors px-2 sm:px-4 py-1.5 sm:py-2 rounded-full hover:bg-white/5"
               >
                 How It Works
               </button>
-              <Link to="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-4 py-2 rounded-full hover:bg-white/5">
+              <Link to="/login" className="text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors px-2 sm:px-4 py-1.5 sm:py-2 rounded-full hover:bg-white/5">
                 Login
               </Link>
               <Link
                 to="/login?mode=register"
-                className="group relative px-6 py-2.5 rounded-full font-bold text-white shadow-lg shadow-rose-500/20 transition-all duration-300 hover:shadow-rose-500/40 hover:scale-105 active:scale-95 overflow-hidden"
+                className="group relative px-3 sm:px-6 py-1.5 sm:py-2.5 rounded-full font-bold text-white shadow-lg shadow-rose-500/20 transition-all duration-300 hover:shadow-rose-500/40 hover:scale-105 active:scale-95 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-indigo-600 transition-transform duration-300 group-hover:scale-110" />
-                <span className="relative z-10 flex items-center gap-2 text-sm">Sign Up</span>
+                <span className="relative z-10 flex items-center gap-2 text-xs sm:text-sm">Sign Up</span>
               </Link>
             </nav>
           </div>
@@ -93,7 +93,7 @@ export default function PublicLayout() {
                       <p className="text-slate-400 text-sm">Find the perfect influencers for your campaigns</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -143,7 +143,7 @@ export default function PublicLayout() {
                       <p className="text-slate-400 text-sm">Monetize your audience with brand partnerships</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -205,7 +205,7 @@ export default function PublicLayout() {
         )}
       </AnimatePresence>
 
-      <main>
+      <main className="pt-14 sm:pt-20">
         <Outlet />
       </main>
     </div>

@@ -1,240 +1,175 @@
-import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Image, Video, Link as LinkIcon, ExternalLink } from 'lucide-react';
-import api from '../../lib/api';
-import { PortfolioItem } from '../../types';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import Textarea from '../../components/ui/Textarea';
-import Spinner from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
-import Modal from '../../components/ui/Modal';
-import toast from 'react-hot-toast';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Image, CheckCircle, Clock, Star, Award, Users, TrendingUp } from 'lucide-react';
 
-export default function Portfolio() {
-  const [items, setItems] = useState<PortfolioItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    mediaUrl: '',
-    mediaType: 'IMAGE' as 'IMAGE' | 'VIDEO' | 'LINK',
-    platform: '',
-  });
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    fetchPortfolio();
-  }, []);
-
-  const fetchPortfolio = async () => {
-    try {
-      const res = await api.get('/portfolio/my-portfolio');
-      setItems(res.data.data || []);
-    } catch (error) {
-      console.error('Failed to fetch portfolio:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const openModal = (item?: PortfolioItem) => {
-    if (item) {
-      setEditingItem(item);
-      setFormData({
-        title: item.title,
-        description: item.description || '',
-        mediaUrl: item.mediaUrl,
-        mediaType: item.mediaType,
-        platform: item.platform || '',
-      });
-    } else {
-      setEditingItem(null);
-      setFormData({ title: '', description: '', mediaUrl: '', mediaType: 'IMAGE', platform: '' });
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      if (editingItem) {
-        const res = await api.put(`/portfolio/${editingItem.id}`, formData);
-        setItems(prev => prev.map(i => i.id === editingItem.id ? res.data.data : i));
-        toast.success('Portfolio item updated');
-      } else {
-        const res = await api.post('/portfolio', formData);
-        setItems(prev => [res.data.data, ...prev]);
-        toast.success('Portfolio item added');
-      }
-      setIsModalOpen(false);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to save portfolio item');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
-    try {
-      await api.delete(`/portfolio/${id}`);
-      setItems(prev => prev.filter(i => i.id !== id));
-      toast.success('Portfolio item deleted');
-    } catch (error) {
-      toast.error('Failed to delete portfolio item');
-    }
-  };
-
-  const getMediaIcon = (type: string) => {
-    switch (type) {
-      case 'IMAGE': return <Image className="w-5 h-5" />;
-      case 'VIDEO': return <Video className="w-5 h-5" />;
-      case 'LINK': return <LinkIcon className="w-5 h-5" />;
-      default: return <Image className="w-5 h-5" />;
-    }
-  };
-
+const Portfolio: React.FC = () => {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">My Portfolio</h1>
-          <p className="text-slate-400 mt-1">Showcase your best work to attract clients</p>
-        </div>
-        <Button onClick={() => openModal()}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Item
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-12"><Spinner size="lg" /></div>
-      ) : items.length === 0 ? (
-        <EmptyState
-          icon={Image}
-          title="No portfolio items yet"
-          description="Add your best work to showcase your skills to potential clients"
-          action={<Button onClick={() => openModal()}>Add Your First Item</Button>}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item) => (
-            <Card key={item.id} className="overflow-hidden group">
-              <div className="relative h-48 bg-slate-900/50">
-                {item.mediaType === 'IMAGE' ? (
-                  <img src={item.mediaUrl} alt={item.title} className="w-full h-full object-cover" />
-                ) : item.mediaType === 'VIDEO' ? (
-                  <video src={item.mediaUrl} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ExternalLink className="w-12 h-12 text-slate-500" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button
-                    onClick={() => openModal(item)}
-                    className="p-2 bg-slate-800 rounded-full text-white hover:bg-slate-700"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="p-2 bg-slate-800 rounded-full text-red-400 hover:bg-red-500/20"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  {item.mediaType === 'LINK' && (
-                    <a
-                      href={item.mediaUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 bg-slate-800 rounded-full text-rose-400 hover:bg-rose-500/20"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2 text-slate-400">
-                  {getMediaIcon(item.mediaType)}
-                  {item.platform && (
-                    <span className="text-xs text-slate-500">{item.platform}</span>
-                  )}
-                </div>
-                <h3 className="font-semibold text-white">{item.title}</h3>
-                {item.description && (
-                  <p className="text-sm text-slate-300 mt-1 line-clamp-2">{item.description}</p>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* Add/Edit Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingItem ? 'Edit Portfolio Item' : 'Add Portfolio Item'}
+    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-4xl w-full"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Title"
-            value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            required
-          />
-          <Textarea
-            label="Description"
-            value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-            rows={3}
-          />
-          <Select
-            label="Media Type"
-            value={formData.mediaType}
-            onChange={(e) => setFormData(prev => ({ ...prev, mediaType: e.target.value as any }))}
-          >
-            <option value="IMAGE">Image</option>
-            <option value="VIDEO">Video</option>
-            <option value="LINK">External Link</option>
-          </Select>
-          <Input
-            label="Media URL"
-            type="url"
-            value={formData.mediaUrl}
-            onChange={(e) => setFormData(prev => ({ ...prev, mediaUrl: e.target.value }))}
-            placeholder="https://..."
-            required
-          />
-          <Select
-            label="Platform (optional)"
-            value={formData.platform}
-            onChange={(e) => setFormData(prev => ({ ...prev, platform: e.target.value }))}
-          >
-            <option value="">Select platform</option>
-            <option value="Instagram">Instagram</option>
-            <option value="YouTube">YouTube</option>
-            <option value="TikTok">TikTok</option>
-            <option value="Twitter">Twitter</option>
-            <option value="Other">Other</option>
-          </Select>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={submitting}>
-              {editingItem ? 'Update' : 'Add'} Item
-            </Button>
+        {/* Main Card */}
+        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-600/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
+          {/* Header Section */}
+          <div className="relative p-8 md:p-12 text-center">
+            {/* Animated Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-blue-600/10 to-pink-600/10"></div>
+
+            {/* Icon */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="relative inline-flex items-center justify-center w-24 h-24 mb-6"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full blur-xl opacity-50 animate-pulse"></div>
+              <div className="relative bg-gradient-to-br from-purple-500 to-blue-600 rounded-full p-6">
+                <Image className="w-12 h-12 text-white" />
+              </div>
+            </motion.div>
+
+            {/* Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-4xl md:text-5xl font-bold text-white mb-4"
+            >
+              Portfolio
+            </motion.h1>
+
+            {/* Coming Soon Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-full mb-6"
+            >
+              <Clock className="w-5 h-5 text-yellow-400" />
+              <span className="text-lg font-semibold text-yellow-400">Coming Soon</span>
+            </motion.div>
+
+            {/* Description */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed"
+            >
+              We're building a powerful portfolio showcase to help you display your best work and attract more clients.
+              Stay tuned for this exciting feature!
+            </motion.p>
           </div>
-        </form>
-      </Modal>
+
+          {/* Features Grid */}
+          <div className="p-8 md:p-12 bg-slate-900/30">
+            <h3 className="text-xl font-semibold text-white mb-6 text-center">What to Expect</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Feature 1 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="bg-slate-800/50 border border-slate-600/50 rounded-xl p-6 hover:border-purple-500/50 transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
+                  <Image className="w-6 h-6 text-purple-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Media Showcase</h4>
+                <p className="text-sm text-slate-400">
+                  Upload and display your best work with images, videos, and case studies
+                </p>
+              </motion.div>
+
+              {/* Feature 2 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="bg-slate-800/50 border border-slate-600/50 rounded-xl p-6 hover:border-blue-500/50 transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
+                  <TrendingUp className="w-6 h-6 text-blue-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Performance Metrics</h4>
+                <p className="text-sm text-slate-400">
+                  Showcase your reach, engagement rates, and campaign success stories
+                </p>
+              </motion.div>
+
+              {/* Feature 3 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="bg-slate-800/50 border border-slate-600/50 rounded-xl p-6 hover:border-pink-500/50 transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-pink-500/20 rounded-lg flex items-center justify-center mb-4">
+                  <Award className="w-6 h-6 text-pink-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Achievements</h4>
+                <p className="text-sm text-slate-400">
+                  Highlight your awards, certifications, and notable collaborations
+                </p>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Benefits Section */}
+          <div className="p-8 md:p-12 border-t border-slate-600/50">
+            <h3 className="text-xl font-semibold text-white mb-6 text-center">Benefits of Portfolio</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+              {[
+                'Showcase your best work professionally',
+                'Attract more high-value clients',
+                'Build credibility and trust',
+                'Stand out from other influencers',
+                'Increase your bid acceptance rate',
+                'Track your growth over time'
+              ].map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.9 + index * 0.1 }}
+                  className="flex items-center space-x-3"
+                >
+                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <span className="text-slate-300">{benefit}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 bg-slate-900/50 border-t border-slate-600/50 text-center">
+            <div className="flex items-center justify-center space-x-2 text-slate-400">
+              <Star className="w-4 h-4" />
+              <span className="text-sm">Build your professional portfolio to win more campaigns</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Info */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="mt-8 text-center"
+        >
+          <p className="text-slate-400 text-sm">
+            Have suggestions for portfolio features? Contact us at{' '}
+            <a href="mailto:support@adfluencer.com" className="text-blue-400 hover:text-blue-300 transition-colors">
+              support@adfluencer.com
+            </a>
+          </p>
+        </motion.div>
+      </motion.div>
     </div>
   );
-}
+};
+
+export default Portfolio;

@@ -11,6 +11,7 @@ import Login from './pages/auth/Login';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import VerifyOtp from './pages/auth/VerifyOtp';
 import ResetPassword from './pages/auth/ResetPassword';
+import TermsAndConditions from './pages/TermsAndConditions';
 
 // Client pages
 import ClientDashboard from './pages/client/Dashboard';
@@ -86,6 +87,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
       </Route>
 
       {/* Client routes */}

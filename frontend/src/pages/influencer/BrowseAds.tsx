@@ -235,37 +235,37 @@ export default function BrowseAds() {
                 <Link
                   key={ad.id}
                   to={`/influencer/ads/${ad.id}`}
-                  className="group relative bg-gradient-to-br from-slate-800/90 via-slate-800/80 to-slate-900/90 rounded-2xl border border-slate-700/50 hover:border-rose-500/40 transition-all duration-300 overflow-hidden min-w-0 hover:shadow-xl hover:shadow-rose-500/10 hover:-translate-y-1"
+                  className="group relative bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 hover:border-slate-600/80 transition-all duration-300 overflow-hidden min-w-0 hover:shadow-xl hover:shadow-black/20 hover:-translate-y-0.5"
                 >
-                  {/* Gradient accent bar */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400" />
+                  {/* Subtle top border */}
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent" />
 
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/0 via-transparent to-pink-500/0 group-hover:from-rose-500/5 group-hover:to-pink-500/5 transition-all duration-300" />
+                  {/* Subtle glow effect on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-700/0 to-slate-600/0 group-hover:from-slate-700/5 group-hover:to-slate-600/5 transition-all duration-300" />
 
                   <div className="relative p-4 sm:p-5">
                     {/* Tags Row */}
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3">
-                      <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-full text-[10px] sm:text-xs font-medium text-blue-300">
+                      <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-slate-700/50 border border-slate-600/50 rounded-full text-[10px] sm:text-xs font-medium text-slate-300">
                         {ad.platform}
                       </span>
                       <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-slate-700/50 border border-slate-600/50 rounded-full text-[10px] sm:text-xs font-medium text-slate-300">
                         {ad.contentType}
                       </span>
                       {isUrgent && daysLeft > 0 && (
-                        <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-full text-[10px] sm:text-xs font-medium text-amber-300 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
+                        <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-orange-500/10 border border-orange-500/20 rounded-full text-[10px] sm:text-xs font-medium text-orange-300 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
                           Urgent
                         </span>
                       )}
                     </div>
 
                     {/* Title & Category */}
-                    <h3 className="font-bold text-white mb-1.5 line-clamp-2 group-hover:text-rose-300 transition-colors text-sm sm:text-base leading-tight">
+                    <h3 className="font-bold text-white mb-1.5 line-clamp-2 group-hover:text-slate-200 transition-colors text-sm sm:text-base leading-tight">
                       {ad.title}
                     </h3>
                     <p className="text-[11px] sm:text-xs text-slate-400 mb-3 truncate flex items-center gap-1.5">
-                      <span className="w-1 h-1 bg-rose-400 rounded-full" />
+                      <span className="w-1 h-1 bg-slate-500 rounded-full" />
                       {ad.category?.name}
                     </p>
 
@@ -276,24 +276,24 @@ export default function BrowseAds() {
 
                     {/* Stats Grid - Glassmorphism style */}
                     <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4">
-                      <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/5 backdrop-blur-sm border border-emerald-500/20 rounded-xl p-2.5 sm:p-3">
-                        <div className="flex items-center gap-1.5 text-emerald-400 mb-1">
+                      <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-700/30 rounded-lg p-2.5 sm:p-3">
+                        <div className="flex items-center gap-1.5 text-slate-400 mb-1">
                           <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide">Budget</span>
                         </div>
-                        <p className="text-sm sm:text-base font-bold text-white truncate">
+                        <p className="text-sm sm:text-base font-semibold text-white truncate">
                           ${ad.budgetMin.toLocaleString()} - ${ad.budgetMax.toLocaleString()}
                         </p>
                       </div>
-                      <div className={`backdrop-blur-sm rounded-xl p-2.5 sm:p-3 ${isUrgent
-                        ? 'bg-gradient-to-br from-amber-500/15 to-orange-500/10 border border-amber-500/30'
-                        : 'bg-gradient-to-br from-slate-600/20 to-slate-700/20 border border-slate-600/30'
+                      <div className={`backdrop-blur-sm rounded-lg p-2.5 sm:p-3 ${isUrgent
+                        ? 'bg-orange-500/5 border border-orange-500/20'
+                        : 'bg-slate-900/40 border border-slate-700/30'
                         }`}>
-                        <div className={`flex items-center gap-1.5 mb-1 ${isUrgent ? 'text-amber-400' : 'text-slate-400'}`}>
+                        <div className={`flex items-center gap-1.5 mb-1 ${isUrgent ? 'text-orange-400' : 'text-slate-400'}`}>
                           <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide">Deadline</span>
                         </div>
-                        <p className={`text-sm sm:text-base font-bold ${isUrgent ? 'text-amber-300' : 'text-white'}`}>
+                        <p className={`text-sm sm:text-base font-semibold ${isUrgent ? 'text-orange-300' : 'text-white'}`}>
                           {daysLeft > 0 ? `${daysLeft} days left` : 'Due today'}
                         </p>
                       </div>
@@ -302,23 +302,23 @@ export default function BrowseAds() {
                     {/* Footer with Company & Bids */}
                     <div className="flex items-center justify-between pt-3 border-t border-slate-700/50">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-rose-500/20 to-pink-500/20 border border-rose-500/30 flex items-center justify-center flex-shrink-0">
-                          <Building2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-rose-400" />
+                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-700/50 border border-slate-600/50 flex items-center justify-center flex-shrink-0">
+                          <Building2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-400" />
                         </div>
                         <span className="text-xs sm:text-sm text-slate-300 truncate font-medium">
                           {ad.client?.clientProfile?.companyName || 'Client'}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5 bg-slate-700/40 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full flex-shrink-0">
-                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
+                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                         <span className="text-xs sm:text-sm font-semibold text-white">{ad._count?.bids || 0}</span>
                         <span className="text-[10px] sm:text-xs text-slate-400 hidden sm:inline">bids</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Bottom gradient line on hover */}
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Bottom subtle line on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
               );
             })}

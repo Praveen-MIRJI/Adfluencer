@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Mail, Lock, CheckCircle2, TrendingUp, Activity, Building2, User as UserIcon, X } from 'lucide-react';
+import { Mail, Lock, CheckCircle2, TrendingUp, Activity, Building2, User as UserIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import Button from '../../components/ui/Button';
-import { User } from '../../types';
 
 interface AuthForm {
   email: string;
@@ -25,12 +24,7 @@ export default function Login() {
     }
   }, [searchParams]);
 
-  const [selectedRole, setSelectedRole] = useState<'CLIENT' | 'INFLUENCER'>('CLIENT');
-  const [loading, setLoading] = useState(false);
-  const [socialModal, setSocialModal] = useState<{ isOpen: boolean; provider: 'google' | 'linkedin' | null }>({
-    isOpen: false,
-    provider: null
-  });
+
 
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -63,7 +57,7 @@ export default function Login() {
       setAuth(user, token);
 
       toast.success(isRegister ? 'Account created successfully!' : 'Welcome back!');
-      
+
       // Navigate to dashboard - spin wheel will be shown there if needed
       setTimeout(() => {
         switch (user.role) {
@@ -86,137 +80,11 @@ export default function Login() {
     }
   };
 
-  const openSocialModal = (provider: 'google' | 'linkedin') => {
-    setSocialModal({ isOpen: true, provider });
-  };
-
-  const handleSocialSelect = (accountType: 'BRAND' | 'CREATOR') => {
-    const provider = socialModal.provider;
-    setSocialModal({ isOpen: false, provider: null });
-
-    toast.loading(`Authenticating with ${provider === 'google' ? 'Google' : 'LinkedIn'}...`, {
-      duration: 1000,
-    });
-
-    setTimeout(() => {
-      toast.dismiss();
-      toast.success(`Successfully logged in via ${provider === 'google' ? 'Google' : 'LinkedIn'}`);
-
-      // Create Demo User
-      const demoUser: User = {
-        id: `demo-${provider}-${Date.now()}`,
-        email: `demo.${accountType.toLowerCase()}@${provider}.com`,
-        role: accountType === 'BRAND' ? 'CLIENT' : 'INFLUENCER',
-        status: 'ACTIVE',
-        createdAt: new Date().toISOString(),
-        clientProfile: accountType === 'BRAND' ? {
-          id: 'demo-client-profile',
-          userId: 'demo-client-id',
-          companyName: provider === 'google' ? 'TechGiant Inc.' : 'Professional Corp',
-          industry: 'Technology',
-          avatar: `https://ui-avatars.com/api/?name=${provider === 'google' ? 'Google+Brand' : 'LinkedIn+Corp'}&background=0D8ABC&color=fff`
-        } : undefined,
-        influencerProfile: accountType === 'CREATOR' ? {
-          id: 'demo-inf-profile',
-          userId: 'demo-inf-id',
-          displayName: provider === 'google' ? 'YouTube Star' : 'LinkedIn Thought Leader',
-          avatar: `https://ui-avatars.com/api/?name=${provider === 'google' ? 'Creator' : 'Professional'}&background=random&color=fff`
-        } : undefined
-      };
-
-      const demoToken = 'demo-jwt-token';
-      setAuth(demoUser, demoToken);
-
-      if (demoUser.role === 'CLIENT') {
-        navigate('/client/dashboard');
-      } else {
-        navigate('/influencer/dashboard');
-      }
-    }, 1000);
-  };
+  const [selectedRole, setSelectedRole] = useState<'CLIENT' | 'INFLUENCER'>('CLIENT');
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-950 flex relative">
-      {/* Social Login Modal */}
-      <AnimatePresence>
-        {socialModal.isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
-            >
-              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <img
-                    src={socialModal.provider === 'google'
-                      ? "https://www.svgrepo.com/show/475656/google-color.svg"
-                      : "https://www.svgrepo.com/show/448234/linkedin.svg"}
-                    className="w-6 h-6"
-                    alt="Logo"
-                  />
-                  Sign in with {socialModal.provider === 'google' ? 'Google' : 'LinkedIn'}
-                </h3>
-                <button
-                  onClick={() => setSocialModal({ isOpen: false, provider: null })}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <p className="text-sm text-gray-500 mb-2">Choose an account to continue to Adfluencer</p>
-
-                {/* Account Option 1: Brand */}
-                <button
-                  onClick={() => handleSocialSelect('BRAND')}
-                  className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all group text-left"
-                >
-                  <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg">
-                    {socialModal.provider === 'google' ? 'T' : 'P'}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-800 group-hover:text-indigo-600 transition-colors">
-                      {socialModal.provider === 'google' ? 'TechGiant Inc.' : 'Professional Corp'}
-                    </p>
-                    <p className="text-xs text-gray-500">demo.brand@{socialModal.provider}.com</p>
-                  </div>
-                </button>
-
-                {/* Account Option 2: Creator */}
-                <button
-                  onClick={() => handleSocialSelect('CREATOR')}
-                  className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all group text-left"
-                >
-                  <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-lg">
-                    <UserIcon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-800 group-hover:text-rose-600 transition-colors">
-                      {socialModal.provider === 'google' ? 'Demo Creator' : 'Linked Influencer'}
-                    </p>
-                    <p className="text-xs text-gray-500">demo.creator@{socialModal.provider}.com</p>
-                  </div>
-                </button>
-
-                <div className="pt-4 border-t border-gray-100">
-                  <button className="w-full text-center text-sm font-medium text-gray-600 hover:text-gray-900 py-2">
-                    Use another account
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
 
       {/* Visual Side (Hidden on Mobile) */}
       <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-slate-950 items-center justify-center">
@@ -443,33 +311,15 @@ export default function Login() {
               {isRegister ? 'Create Account' : 'Sign In'}
             </Button>
 
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-800"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-slate-950 px-2 text-slate-500">Or continue with</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => openSocialModal('google')}
-                className="flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 rounded-xl py-2.5 transition-all hover:border-slate-600 hover:shadow-lg active:scale-95"
-              >
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-                <span className="text-slate-300 text-sm font-medium">Google</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => openSocialModal('linkedin')}
-                className="flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 rounded-xl py-2.5 transition-all hover:border-slate-600 hover:shadow-lg active:scale-95"
-              >
-                <img src="https://www.svgrepo.com/show/448234/linkedin.svg" className="w-5 h-5" alt="LinkedIn" />
-                <span className="text-slate-300 text-sm font-medium">LinkedIn</span>
-              </button>
-            </div>
+            {/* Terms and Conditions */}
+            {isRegister && (
+              <p className="text-xs text-slate-500 text-center">
+                By creating an account, you agree to our{' '}
+                <Link to="/terms" className="text-rose-400 hover:text-rose-300 font-medium underline">
+                  Terms and Conditions
+                </Link>
+              </p>
+            )}
           </form>
 
           <p className="mt-8 text-center text-sm text-slate-400">

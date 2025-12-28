@@ -7,6 +7,41 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
   try {
     const userId = req.user!.userId;
 
+    // Get all contracts where user is either client or influencer with partner details
+    const { data: contracts, error: contractError } = await supabase
+      .from('Contract')
+      .select(`
+        id,
+        clientId,
+        influencerId,
+        client:User!Contract_clientId_fkey(id, email, role, clientProfile:ClientProfile(companyName, avatar)),
+        influencer:User!Contract_influencerId_fkey(id, email, role, influencerProfile:InfluencerProfile(displayName, avatar))
+      `)
+      .or(`clientId.eq.${userId},influencerId.eq.${userId}`)
+      .in('status', ['ACTIVE', 'COMPLETED']);
+
+    if (contractError) {
+      console.error('Contract error:', contractError);
+      throw contractError;
+    }
+
+    // Build conversations map from contracts (this ensures all contract partners appear)
+    const conversationsMap = new Map();
+
+    for (const contract of contracts || []) {
+      const partnerId = contract.clientId === userId ? contract.influencerId : contract.clientId;
+      const partner = contract.clientId === userId ? contract.influencer : contract.client;
+
+      if (!conversationsMap.has(partnerId)) {
+        conversationsMap.set(partnerId, {
+          partnerId,
+          partner,
+          lastMessage: null,
+          unreadCount: 0
+        });
+      }
+    }
+
     // Get all messages where user is sender or receiver
     const { data: messages, error } = await supabase
       .from('Message')
@@ -23,13 +58,16 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
       throw error;
     }
 
-    // Build conversations map
-    const conversationsMap = new Map();
+    // Update conversations with latest messages (only for partners we have contracts with)
     for (const msg of messages || []) {
       const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-      if (!conversationsMap.has(partnerId)) {
-        const partner = msg.senderId === userId ? msg.receiver : msg.sender;
-        conversationsMap.set(partnerId, { partnerId, partner, lastMessage: msg, unreadCount: 0 });
+
+      if (conversationsMap.has(partnerId)) {
+        const conv = conversationsMap.get(partnerId);
+        // Only update if this is the first message (most recent due to ordering)
+        if (!conv.lastMessage) {
+          conv.lastMessage = msg;
+        }
       }
     }
 
@@ -49,7 +87,17 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
       conv.unreadCount = unreadCounts[partnerId] || 0;
     }
 
-    res.json({ success: true, data: Array.from(conversationsMap.values()) });
+    // Sort conversations: those with messages first (by last message time), then those without
+    const conversationsArray = Array.from(conversationsMap.values()).sort((a, b) => {
+      if (a.lastMessage && b.lastMessage) {
+        return new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime();
+      }
+      if (a.lastMessage) return -1;
+      if (b.lastMessage) return 1;
+      return 0;
+    });
+
+    res.json({ success: true, data: conversationsArray });
   } catch (error) {
     console.error('Get conversations error:', error);
     res.status(500).json({ success: false, error: 'Failed to get conversations' });
@@ -85,10 +133,29 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
     const { receiverId, content } = req.body;
     if (!content?.trim()) { res.status(400).json({ success: false, error: 'Message content is required' }); return; }
 
-    const { data: message, error } = await supabase.from('Message').insert({ senderId: req.user!.userId, receiverId, content: content.trim() }).select().single();
+    const userId = req.user!.userId;
+
+    // Check if there's an active or completed contract between sender and receiver
+    const { data: contract, error: contractError } = await supabase
+      .from('Contract')
+      .select('id')
+      .or(`and(clientId.eq.${userId},influencerId.eq.${receiverId}),and(clientId.eq.${receiverId},influencerId.eq.${userId})`)
+      .in('status', ['ACTIVE', 'COMPLETED'])
+      .limit(1)
+      .single();
+
+    if (contractError || !contract) {
+      res.status(403).json({
+        success: false,
+        error: 'You can only message users after a bid has been accepted and a contract is created'
+      });
+      return;
+    }
+
+    const { data: message, error } = await supabase.from('Message').insert({ senderId: userId, receiverId, content: content.trim() }).select().single();
     if (error) throw error;
 
-    await supabase.from('Notification').insert({ userId: receiverId, title: 'New Message', message: 'You have a new message', type: 'MESSAGE', link: `/messages/${req.user!.userId}` });
+    await supabase.from('Notification').insert({ userId: receiverId, title: 'New Message', message: 'You have a new message', type: 'MESSAGE', link: `/messages/${userId}` });
 
     res.status(201).json({ success: true, data: message });
   } catch (error) {

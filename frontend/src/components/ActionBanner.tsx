@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Shield, Wallet, X, ArrowRight } from 'lucide-react';
+import { Wallet, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import api from '../lib/api';
@@ -40,8 +40,8 @@ const ActionBanner: React.FC = () => {
       setBannerData({
         kycStatus: kycData.success ? kycData.data.status || 'NOT_SUBMITTED' : 'NOT_SUBMITTED',
         isVerified: kycData.success ? kycData.data.isVerified || false : false,
-        walletBalance: creditsData.success 
-          ? (creditsData.data.bidCredits || 0) + (creditsData.data.postCredits || 0) 
+        walletBalance: creditsData.success
+          ? (creditsData.data.bidCredits || 0) + (creditsData.data.postCredits || 0)
           : 0
       });
     } catch (error) {
@@ -62,22 +62,6 @@ const ActionBanner: React.FC = () => {
   const banners = [];
   const basePath = user.role === 'CLIENT' ? '/client' : '/influencer';
 
-  // KYC Verification Banner
-  if (!bannerData.isVerified && bannerData.kycStatus !== 'PENDING' && !dismissed.includes('kyc-verification')) {
-    banners.push({
-      id: 'kyc-verification',
-      type: 'warning',
-      icon: Shield,
-      title: 'Complete KYC Verification',
-      message: bannerData.kycStatus === 'REJECTED' 
-        ? 'Your KYC was rejected. Please resubmit with correct information.'
-        : 'Verify your identity to unlock all platform features and build trust.',
-      action: 'Verify Now',
-      link: `${basePath}/kyc`,
-      color: 'bg-yellow-50 border-yellow-200 text-yellow-800'
-    });
-  }
-
   // Low Credits Banner
   if (bannerData.walletBalance < 5 && !dismissed.includes('low-balance')) {
     banners.push({
@@ -92,19 +76,6 @@ const ActionBanner: React.FC = () => {
     });
   }
 
-  // KYC Under Review Banner
-  if (bannerData.kycStatus === 'PENDING' && !dismissed.includes('kyc-pending')) {
-    banners.push({
-      id: 'kyc-pending',
-      type: 'info',
-      icon: Shield,
-      title: 'KYC Under Review',
-      message: 'Your KYC verification is being reviewed. This typically takes 24-48 hours.',
-      action: 'View Status',
-      link: `${basePath}/kyc`,
-      color: 'bg-blue-50 border-blue-200 text-blue-800'
-    });
-  }
 
   if (banners.length === 0) return null;
 

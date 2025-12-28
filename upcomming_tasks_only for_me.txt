@@ -1,4 +1,0 @@
-Next Steps
-Add Razorpay credentials to .env
-Configure webhook URL in Razorpay dashboard: https://your-domain.com/api/webhooks/razorpay
-Run the database migration

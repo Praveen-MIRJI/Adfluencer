@@ -1,0 +1,75 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                   KYC IMAGE UPLOAD - QUICK FIX                       ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+🔴 PROBLEM: KYC images not showing in admin review panel
+
+✅ ROOT CAUSE: Supabase storage bucket 'kyc-documents' doesn't exist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 SOLUTION (5 MINUTES):
+
+1. Open Supabase Dashboard
+   → https://supabase.com/dashboard/project/dkhthctzwameiiqrxprs
+
+2. Go to Storage (left sidebar)
+
+3. Click "New bucket"
+
+4. Configure:
+   ┌─────────────────────────────────────────┐
+   │ Name: kyc-documents                     │
+   │ Public bucket: ✅ CHECKED               │
+   │ File size limit: 5242880                │
+   │ MIME types: image/jpeg, image/jpg,      │
+   │             image/png, image/webp       │
+   └─────────────────────────────────────────┘
+
+5. Click "Create bucket"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪 TEST:
+
+1. Go to KYC verification page
+2. Upload a test document
+3. Check admin panel → KYC Review
+4. Images should now display ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 VERIFY:
+
+Run diagnostic:
+$ cd backend
+$ npx tsx scripts/check-kyc-storage.ts
+
+Should show:
+✅ Bucket "kyc-documents" exists
+✅ Public: YES
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  CRITICAL: The "Public bucket" checkbox MUST be checked!
+   Without it, images will upload but won't display.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTATION:
+   - Full guide: KYC_IMAGE_FIX_GUIDE.md
+   - Summary: KYC_FIX_SUMMARY.md
+   - Visual guide: See generated image
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ CODE IMPROVEMENTS MADE:
+   ✅ Enhanced error logging in fileUpload.ts
+   ✅ Image error handling in AdminKycReview.tsx
+   ✅ Diagnostic script: check-kyc-storage.ts
+   ✅ Setup script: setup-storage-bucket.ts
+   ✅ SQL policies: setup_kyc_storage_policies.sql
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+That's it! Just create the bucket and you're done! 🎉
