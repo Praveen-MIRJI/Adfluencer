@@ -18,10 +18,8 @@ import publicRoutes from './routes/public.routes';
 import kycRoutes from './routes/kyc.routes';
 import billingRoutes from './routes/billing.routes';
 import paymentRoutes from './routes/payment.routes';
-import escrowRoutes from './routes/escrow.routes';
-import deliverableRoutes from './routes/deliverable.routes';
-import disputeRoutes from './routes/dispute.routes';
-import webhookRoutes from './routes/webhook.routes';
+import creditsRoutes from './routes/credits.routes';
+import adminCreditsRoutes from './routes/admin/credits.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -59,12 +57,8 @@ app.use('/api/public', publicRoutes);
 app.use('/api/kyc', kycRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/escrow', escrowRoutes);
-app.use('/api/deliverables', deliverableRoutes);
-app.use('/api/disputes', disputeRoutes);
-
-// Webhook routes (no auth required - verified by signature)
-app.use('/api/webhooks', webhookRoutes);
+app.use('/api/credits', creditsRoutes);
+app.use('/api/admin/credits', adminCreditsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -3,6 +3,143 @@ import supabase from '../lib/supabase';
 import { AuthRequest, AdStatus } from '../types';
 import { getPagination, createPaginationResponse } from '../utils/helpers';
 
+// Helper function to check and use credit
+// Helper function to check and use credit
+const checkAndUseCredit = async (userId: string, creditType: 'BID' | 'POST', resourceId: string) => {
+  try {
+    // Check if credit system is enabled
+    const { data: settings, error: settingsError } = await supabase
+      .from('CreditSettings')
+      .select('creditSystemEnabled')
+      .eq('id', 'default')
+      .single();
+
+    // If credit tables don't exist, allow the action (system not set up yet)
+    if (settingsError && settingsError.code === 'PGRST205') {
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (settingsError) {
+      console.error('Credit settings error:', settingsError);
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (!settings?.creditSystemEnabled) {
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    // Get user credits
+    const { data: userCredits, error: creditsError } = await supabase
+      .from('UserCredits')
+      .select('*')
+      .eq('userId', userId)
+      .single();
+
+    // If user credits table doesn't exist, allow the action
+    if (creditsError && creditsError.code === 'PGRST205') {
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (creditsError && creditsError.code === 'PGRST116') {
+      // User doesn't have credits record, create one
+      const { error: insertError } = await supabase
+        .from('UserCredits')
+        .insert({
+          userId,
+          bidCredits: 0,
+          postCredits: 0
+        });
+      
+      if (insertError) {
+        console.error('Failed to create user credits:', insertError);
+        return { success: true, creditSystemDisabled: true };
+      }
+      
+      return { 
+        success: false, 
+        error: `Insufficient ${creditType.toLowerCase()} credits`,
+        availableCredits: 0
+      };
+    }
+
+    if (creditsError) {
+      console.error('User credits error:', creditsError);
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (!userCredits) {
+      return { 
+        success: false, 
+        error: `Insufficient ${creditType.toLowerCase()} credits`,
+        availableCredits: 0
+      };
+    }
+
+    const availableCredits = creditType === 'BID' ? userCredits.bidCredits : userCredits.postCredits;
+
+    if (availableCredits < 1) {
+      return { 
+        success: false, 
+        error: `Insufficient ${creditType.toLowerCase()} credits`,
+        availableCredits
+      };
+    }
+
+    // Deduct credit
+    const newBidCredits = creditType === 'BID' ? userCredits.bidCredits - 1 : userCredits.bidCredits;
+    const newPostCredits = creditType === 'POST' ? userCredits.postCredits - 1 : userCredits.postCredits;
+    const newTotalUsed = creditType === 'BID'
+      ? userCredits.totalBidCreditsUsed + 1
+      : userCredits.totalPostCreditsUsed + 1;
+
+    const { error: updateError } = await supabase
+      .from('UserCredits')
+      .update({
+        bidCredits: newBidCredits,
+        postCredits: newPostCredits,
+        ...(creditType === 'BID' 
+          ? { totalBidCreditsUsed: newTotalUsed }
+          : { totalPostCreditsUsed: newTotalUsed }
+        ),
+        updatedAt: new Date().toISOString()
+      })
+      .eq('userId', userId);
+
+    if (updateError) {
+      console.error('Failed to update user credits:', updateError);
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    // Record transaction
+    const { error: transactionError } = await supabase
+      .from('CreditTransaction')
+      .insert({
+        userId,
+        transactionType: creditType === 'BID' ? 'USE_BID_CREDIT' : 'USE_POST_CREDIT',
+        creditType,
+        credits: -1,
+        balanceAfter: creditType === 'BID' ? newBidCredits : newPostCredits,
+        description: `Used ${creditType.toLowerCase()} credit`,
+        paymentStatus: 'COMPLETED',
+        metadata: { resourceId }
+      });
+
+    if (transactionError) {
+      console.error('Failed to record credit transaction:', transactionError);
+      // Don't fail the operation if transaction recording fails
+    }
+
+    return { 
+      success: true, 
+      creditsUsed: 1,
+      remainingCredits: creditType === 'BID' ? newBidCredits : newPostCredits
+    };
+  } catch (error) {
+    console.error('Credit check error:', error);
+    return { success: true, creditSystemDisabled: true };
+  }
+};
+
 export const getAdvertisements = async (req: Request, res: Response): Promise<void> => {
   try {
     const { page, limit, skip } = getPagination(req);
@@ -93,6 +230,19 @@ export const createAdvertisement = async (req: AuthRequest, res: Response): Prom
       return;
     }
 
+    // Check and use post credit
+    const creditResult = await checkAndUseCredit(req.user!.userId, 'POST', 'advertisement');
+    
+    if (!creditResult.success && !creditResult.creditSystemDisabled) {
+      res.status(400).json({
+        success: false,
+        error: creditResult.error,
+        availableCredits: creditResult.availableCredits,
+        requiresCredit: true
+      });
+      return;
+    }
+
     const { data: advertisement, error } = await supabase
       .from('Advertisement')
       .insert({
@@ -115,7 +265,42 @@ export const createAdvertisement = async (req: AuthRequest, res: Response): Prom
 
     if (error) throw error;
 
-    res.status(201).json({ success: true, data: advertisement });
+    // Log activity
+    await supabase
+      .from('UserActivity')
+      .insert({
+        userId: req.user!.userId,
+        action: 'ADVERTISEMENT_CREATED',
+        resource: 'ADVERTISEMENT',
+        resourceId: advertisement.id,
+        metadata: { 
+          title,
+          budgetMin: parseFloat(budgetMin),
+          budgetMax: parseFloat(budgetMax),
+          creditUsed: creditResult.creditsUsed || 0,
+          remainingCredits: creditResult.remainingCredits || 0,
+          creditSystemDisabled: creditResult.creditSystemDisabled || false
+        }
+      });
+
+    const responseMessage = creditResult.creditSystemDisabled 
+      ? 'Advertisement posted successfully!'
+      : creditResult.creditsUsed 
+        ? `Advertisement posted successfully! 1 post credit used. ${creditResult.remainingCredits} credits remaining.`
+        : 'Advertisement posted successfully!';
+
+    res.status(201).json({ 
+      success: true, 
+      data: {
+        ...advertisement,
+        creditInfo: {
+          creditUsed: creditResult.creditsUsed || 0,
+          remainingCredits: creditResult.remainingCredits || 0,
+          creditSystemDisabled: creditResult.creditSystemDisabled || false
+        }
+      },
+      message: responseMessage
+    });
   } catch (error) {
     console.error('Create advertisement error:', error);
     res.status(500).json({ success: false, error: 'Failed to create advertisement' });

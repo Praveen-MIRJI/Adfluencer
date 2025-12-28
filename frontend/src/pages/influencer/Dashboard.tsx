@@ -86,86 +86,86 @@ export default function InfluencerDashboard() {
   const completeness = profileCompleteness();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 w-full max-w-full overflow-x-hidden box-border">
       {/* Action Banner */}
       <ActionBanner />
 
       {/* Welcome Header Card */}
-      <div className="bg-gradient-to-r from-slate-800 via-slate-800 to-slate-700 rounded-2xl p-6 text-white">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
-              <Calendar className="w-4 h-4" />
-              {format(new Date(), 'EEEE, d MMMM yyyy')}
+      <div className="bg-gradient-to-r from-slate-800 via-slate-800 to-slate-700 rounded-2xl p-3 sm:p-4 lg:p-6 text-white overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4 lg:gap-6">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-slate-400 text-xs sm:text-sm mb-2">
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="truncate">{format(new Date(), 'EEEE, d MMMM yyyy')}</span>
             </div>
-            <h1 className="text-2xl lg:text-3xl font-bold mb-1">
+            <h1 className="text-lg sm:text-xl lg:text-3xl font-bold mb-1 truncate">
               {getGreeting()}, {displayName}! 👋
             </h1>
-            <p className="text-slate-300">Here's what's happening with your campaigns today.</p>
+            <p className="text-slate-300 text-xs sm:text-sm lg:text-base truncate">Here's what's happening with your campaigns today.</p>
           </div>
-          <div className="flex gap-4">
-            <div className="bg-slate-700/50 backdrop-blur rounded-xl px-6 py-4 text-center min-w-[120px]">
-              <p className="text-3xl font-bold">{stats?.activeBids || 0}</p>
-              <p className="text-slate-400 text-sm">Active Bids</p>
+          <div className="flex gap-2 sm:gap-3 lg:gap-4 flex-shrink-0">
+            <div className="bg-slate-700/50 backdrop-blur rounded-xl px-2 sm:px-3 lg:px-6 py-2 sm:py-3 lg:py-4 text-center flex-1 min-w-0">
+              <p className="text-lg sm:text-xl lg:text-3xl font-bold">{stats?.activeBids || 0}</p>
+              <p className="text-slate-400 text-[10px] sm:text-xs lg:text-sm truncate">Active Bids</p>
             </div>
-            <div className="bg-slate-700/50 backdrop-blur rounded-xl px-6 py-4 text-center min-w-[120px]">
-              <p className="text-3xl font-bold">{stats?.shortlistedBids || 0}</p>
-              <p className="text-slate-400 text-sm">Shortlisted</p>
+            <div className="bg-slate-700/50 backdrop-blur rounded-xl px-2 sm:px-3 lg:px-6 py-2 sm:py-3 lg:py-4 text-center flex-1 min-w-0">
+              <p className="text-lg sm:text-xl lg:text-3xl font-bold">{stats?.shortlistedBids || 0}</p>
+              <p className="text-slate-400 text-[10px] sm:text-xs lg:text-sm truncate">Shortlisted</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-slate-300" />
+          <CardContent className="p-2 sm:p-3 lg:p-4">
+            <div className="flex items-center gap-2 lg:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0">
+                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-slate-300" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-white">{stats?.totalBids || 0}</p>
-                <p className="text-sm text-slate-400">Total Bids</p>
+              <div className="min-w-0">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{stats?.totalBids || 0}</p>
+                <p className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Total Bids</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-blue-400" />
+          <CardContent className="p-2 sm:p-3 lg:p-4">
+            <div className="flex items-center gap-2 lg:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-blue-400" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-white">{stats?.activeBids || 0}</p>
-                <p className="text-sm text-slate-400">Active</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
-                <Star className="w-5 h-5 text-yellow-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">{stats?.shortlistedBids || 0}</p>
-                <p className="text-sm text-slate-400">Shortlisted</p>
+              <div className="min-w-0">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{stats?.activeBids || 0}</p>
+                <p className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Active</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-400" />
+          <CardContent className="p-2 sm:p-3 lg:p-4">
+            <div className="flex items-center gap-2 lg:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-yellow-400" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-white">{stats?.acceptedBids || 0}</p>
-                <p className="text-sm text-slate-400">Won</p>
+              <div className="min-w-0">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{stats?.shortlistedBids || 0}</p>
+                <p className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Shortlisted</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-2 sm:p-3 lg:p-4">
+            <div className="flex items-center gap-2 lg:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-green-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{stats?.acceptedBids || 0}</p>
+                <p className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Won</p>
               </div>
             </div>
           </CardContent>
@@ -173,13 +173,13 @@ export default function InfluencerDashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full min-w-0">
         {/* Recent Bids - Takes 2 columns */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
           {/* Profile Completeness Alert */}
           {completeness < 80 && (
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-amber-500/20 rounded-lg">
                     <User className="w-5 h-5 text-amber-400" />
@@ -192,8 +192,8 @@ export default function InfluencerDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-amber-200">{completeness}%</p>
+                  <div className="text-center sm:text-right">
+                    <p className="text-xl lg:text-2xl font-bold text-amber-200">{completeness}%</p>
                     <p className="text-xs text-amber-400">complete</p>
                   </div>
                   <Link to="/influencer/profile">
@@ -212,10 +212,10 @@ export default function InfluencerDashboard() {
 
           {/* Recent Bids */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Your Recent Bids</h2>
-              <Link to="/influencer/my-bids" className="text-sm text-slate-400 hover:text-white flex items-center gap-1">
-                View All <ArrowRight className="w-4 h-4" />
+            <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-white truncate">Your Recent Bids</h2>
+              <Link to="/influencer/my-bids" className="text-xs sm:text-sm text-slate-400 hover:text-white flex items-center gap-1 flex-shrink-0">
+                View All <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </Link>
             </CardHeader>
             <CardContent className="p-0">
@@ -232,31 +232,31 @@ export default function InfluencerDashboard() {
                   {recentBids.map((bid) => (
                     <div
                       key={bid.id}
-                      className="flex items-center justify-between p-4 hover:bg-slate-700/50 transition-colors"
+                      className="flex items-start justify-between p-4 hover:bg-slate-700/50 transition-colors gap-3"
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-2">
                           <p className="font-medium text-white truncate">
                             {bid.advertisement?.title || 'Campaign'}
                           </p>
                           {getBidStatusBadge(bid.status)}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-slate-400">
-                          <span className="flex items-center gap-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-slate-400">
+                          <span className="flex items-center gap-1 flex-shrink-0">
                             <DollarSign className="w-3 h-3" />
                             ${bid.proposedPrice}
                           </span>
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 flex-shrink-0">
                             <Calendar className="w-3 h-3" />
                             {bid.deliveryDays} days
                           </span>
-                          <span>
+                          <span className="truncate">
                             {bid.advertisement?.client?.clientProfile?.companyName || 'Client'}
                           </span>
                         </div>
                       </div>
                       <Link to={`/influencer/ads/${bid.advertisementId}`}>
-                        <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white">
+                        <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white flex-shrink-0">
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                       </Link>
@@ -269,17 +269,17 @@ export default function InfluencerDashboard() {
 
           {/* Recommended Campaigns */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Recommended for You</h2>
-              <Link to="/influencer/browse" className="text-sm text-slate-400 hover:text-white flex items-center gap-1">
-                Browse All <ArrowRight className="w-4 h-4" />
+            <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-white truncate">Recommended for You</h2>
+              <Link to="/influencer/browse" className="text-xs sm:text-sm text-slate-400 hover:text-white flex items-center gap-1 flex-shrink-0">
+                Browse All <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </Link>
             </CardHeader>
             <CardContent>
               {recommendedAds.length === 0 ? (
-                <p className="text-slate-400 text-center py-4">No campaigns available right now</p>
+                <p className="text-slate-400 text-center py-4 text-sm">No campaigns available right now</p>
               ) : (
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {recommendedAds.map((ad) => (
                     <Link
                       key={ad.id}
@@ -311,47 +311,47 @@ export default function InfluencerDashboard() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
           {/* Quick Actions */}
           <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
+            <CardHeader className="p-3 sm:p-4">
+              <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-white">Quick Actions</h2>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 p-3 sm:p-4 pt-0 sm:pt-0">
               <Link
                 to="/influencer/browse"
-                className="flex items-center gap-3 p-3 rounded-lg bg-rose-600 hover:bg-rose-500 transition-colors"
+                className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-rose-600 hover:bg-rose-500 transition-colors"
               >
-                <div className="p-2 bg-rose-500 rounded-lg">
-                  <Search className="h-4 w-4 text-white" />
+                <div className="p-1.5 sm:p-2 bg-rose-500 rounded-lg flex-shrink-0">
+                  <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <div>
-                  <p className="font-medium text-white">Find Work</p>
-                  <p className="text-xs text-rose-200">Browse campaigns</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-white text-xs sm:text-sm lg:text-base truncate">Find Work</p>
+                  <p className="text-[10px] sm:text-xs text-rose-200 truncate">Browse campaigns</p>
                 </div>
               </Link>
               <Link
                 to="/influencer/portfolio"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700 transition-colors"
+                className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg hover:bg-slate-700 transition-colors"
               >
-                <div className="p-2 bg-slate-700 rounded-lg">
-                  <Image className="h-4 w-4 text-slate-300" />
+                <div className="p-1.5 sm:p-2 bg-slate-700 rounded-lg flex-shrink-0">
+                  <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-300" />
                 </div>
-                <div>
-                  <p className="font-medium text-white">Portfolio</p>
-                  <p className="text-xs text-slate-400">Showcase work</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-white text-xs sm:text-sm lg:text-base truncate">Portfolio</p>
+                  <p className="text-[10px] sm:text-xs text-slate-400 truncate">Showcase work</p>
                 </div>
               </Link>
               <Link
                 to="/influencer/saved"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700 transition-colors"
+                className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg hover:bg-slate-700 transition-colors"
               >
-                <div className="p-2 bg-slate-700 rounded-lg">
-                  <Bookmark className="h-4 w-4 text-slate-300" />
+                <div className="p-1.5 sm:p-2 bg-slate-700 rounded-lg flex-shrink-0">
+                  <Bookmark className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-300" />
                 </div>
-                <div>
-                  <p className="font-medium text-white">Saved Ads</p>
-                  <p className="text-xs text-slate-400">View later</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-white text-xs sm:text-sm lg:text-base truncate">Saved Ads</p>
+                  <p className="text-[10px] sm:text-xs text-slate-400 truncate">View later</p>
                 </div>
               </Link>
             </CardContent>
@@ -359,63 +359,63 @@ export default function InfluencerDashboard() {
 
           {/* Your Stats */}
           <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-white">Your Profile Stats</h2>
+            <CardHeader className="p-3 sm:p-4">
+              <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-white">Your Profile Stats</h2>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-yellow-400" />
-                  <span className="text-sm text-slate-400">Rating</span>
+            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Rating</span>
                 </div>
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-white text-[10px] sm:text-xs lg:text-sm flex-shrink-0">
                   {profile?.averageRating?.toFixed(1) || '0.0'} ({profile?.totalReviews || 0})
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-slate-400">Completed</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Completed</span>
                 </div>
-                <span className="font-semibold text-white">{profile?.completedCampaigns || 0} campaigns</span>
+                <span className="font-semibold text-white text-[10px] sm:text-xs lg:text-sm flex-shrink-0">{profile?.completedCampaigns || 0} campaigns</span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm text-slate-400">Success Rate</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Success Rate</span>
                 </div>
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-white text-[10px] sm:text-xs lg:text-sm flex-shrink-0">
                   {stats?.totalBids ? Math.round((stats.acceptedBids / stats.totalBids) * 100) : 0}%
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-purple-400" />
-                  <span className="text-sm text-slate-400">Engagement</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs lg:text-sm text-slate-400 truncate">Engagement</span>
                 </div>
-                <span className="font-semibold text-white">{profile?.engagementRate?.toFixed(1) || '0'}%</span>
+                <span className="font-semibold text-white text-[10px] sm:text-xs lg:text-sm flex-shrink-0">{profile?.engagementRate?.toFixed(1) || '0'}%</span>
               </div>
             </CardContent>
           </Card>
 
           {/* Tips */}
           <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-white">Pro Tips</h2>
+            <CardHeader className="p-3 sm:p-4">
+              <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-white">Pro Tips</h2>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-slate-300">Write personalized proposals for each campaign</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="space-y-2 sm:space-y-3">
+                <div className="flex items-start gap-1.5 sm:gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-[10px] sm:text-xs lg:text-sm text-slate-300">Write personalized proposals for each campaign</p>
                 </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-slate-300">Keep your portfolio updated with recent work</p>
+                <div className="flex items-start gap-1.5 sm:gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-[10px] sm:text-xs lg:text-sm text-slate-300">Keep your portfolio updated with recent work</p>
                 </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-slate-300">Respond to messages within 24 hours</p>
+                <div className="flex items-start gap-1.5 sm:gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-[10px] sm:text-xs lg:text-sm text-slate-300">Respond to messages within 24 hours</p>
                 </div>
               </div>
             </CardContent>

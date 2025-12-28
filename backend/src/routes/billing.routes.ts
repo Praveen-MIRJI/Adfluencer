@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body, query } from 'express-validator';
 import * as billingController from '../controllers/billing.controller';
-import { authenticate, authorize } from '../middleware/auth.middleware';
+import { authenticate } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
 
 const router = Router();
@@ -9,31 +9,8 @@ const router = Router();
 // Subscription validation
 const subscriptionValidation = [
   body('planId')
-    .isUUID()
-    .withMessage('Invalid plan ID'),
-  body('paymentMethodId')
-    .isLength({ min: 5 })
-    .withMessage('Payment method ID is required')
-];
-
-// Wallet top-up validation
-const walletTopUpValidation = [
-  body('amount')
-    .isFloat({ min: 10, max: 50000 })
-    .withMessage('Amount must be between ₹10 and ₹50,000'),
-  body('paymentMethodId')
-    .isLength({ min: 5 })
-    .withMessage('Payment method ID is required')
-];
-
-// Action payment validation
-const actionPaymentValidation = [
-  body('actionType')
-    .isIn(['BID', 'ADVERTISEMENT'])
-    .withMessage('Action type must be BID or ADVERTISEMENT'),
-  body('resourceId')
-    .isUUID()
-    .withMessage('Invalid resource ID')
+    .notEmpty()
+    .withMessage('Plan ID is required')
 ];
 
 // Cancel subscription validation
@@ -68,9 +45,12 @@ router.post('/cancel-subscription', authenticate, validate(cancelSubscriptionVal
 router.get('/payments', authenticate, validate(paginationValidation), billingController.getPaymentHistory);
 
 // Wallet routes
-router.get('/wallet', authenticate, billingController.getWalletBalance);
-router.post('/wallet/add-money', authenticate, validate(walletTopUpValidation), billingController.addMoneyToWallet);
-router.post('/wallet/pay', authenticate, validate(actionPaymentValidation), billingController.processActionPayment);
+router.get('/wallet', authenticate, billingController.getUserWallet);
 router.get('/wallet/transactions', authenticate, validate(paginationValidation), billingController.getWalletTransactions);
+router.post('/wallet/create-order', authenticate, billingController.createWalletTopupOrder);
+router.post('/wallet/verify-payment', authenticate, billingController.verifyWalletTopup);
+
+// Subscription payment verification
+router.post('/verify-subscription-payment', authenticate, billingController.verifySubscriptionPayment);
 
 export default router;

@@ -2,15 +2,32 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../types';
 import supabase from '../lib/supabase';
 import { validationResult } from 'express-validator';
+import { createOrder, verifyPayment } from '../lib/razorpay';
 
-// Get all membership plans
+// Get all membership plans (optionally filtered by role)
 export const getMembershipPlans = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { data: plans, error } = await supabase
+    const { role } = req.query;
+
+    let query = supabase
       .from('MembershipPlan')
       .select('*')
       .eq('isActive', true)
       .order('price', { ascending: true });
+
+    // If role is provided, filter plans:
+    // - Show plans specifically for that role
+    // - Show plans for ALL
+    // - Exclude plans for the opposite role
+    if (role === 'CLIENT') {
+      // Clients see: CLIENT plans + ALL plans (exclude INFLUENCER-only plans)
+      query = query.in('targetRole', ['CLIENT', 'ALL']);
+    } else if (role === 'INFLUENCER') {
+      // Influencers see: INFLUENCER plans + ALL plans (exclude CLIENT-only plans)
+      query = query.in('targetRole', ['INFLUENCER', 'ALL']);
+    }
+
+    const { data: plans, error } = await query;
 
     if (error) throw error;
 
@@ -70,7 +87,7 @@ export const getUserSubscription = async (req: AuthRequest, res: Response): Prom
   }
 };
 
-// Subscribe to a membership plan
+// Subscribe to a membership plan (wallet-first, then Razorpay)
 export const subscribeToPlan = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
@@ -83,7 +100,8 @@ export const subscribeToPlan = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    const { planId, paymentMethodId } = req.body;
+    const { planId, useWallet = true } = req.body;
+    const userId = req.user!.userId;
 
     // Get the plan details
     const { data: plan, error: planError } = await supabase
@@ -105,7 +123,7 @@ export const subscribeToPlan = async (req: AuthRequest, res: Response): Promise<
     const { data: existingSubscription } = await supabase
       .from('UserSubscription')
       .select('id, status')
-      .eq('userId', req.user!.userId)
+      .eq('userId', userId)
       .eq('status', 'ACTIVE')
       .single();
 
@@ -117,102 +135,200 @@ export const subscribeToPlan = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    // Calculate subscription dates
-    const startDate = new Date();
-    const endDate = new Date();
-    
-    if (plan.billingCycle === 'MONTHLY') {
-      endDate.setMonth(endDate.getMonth() + 1);
-    } else if (plan.billingCycle === 'YEARLY') {
-      endDate.setFullYear(endDate.getFullYear() + 1);
-    }
+    const planPrice = Number(plan.price);
 
-    // In a real implementation, process payment here
-    // For now, we'll simulate successful payment
-    const paymentSuccessful = true;
+    // Check wallet balance if useWallet is true
+    if (useWallet && planPrice > 0) {
+      const { data: wallet } = await supabase
+        .from('UserWallet')
+        .select('*')
+        .eq('userId', userId)
+        .single();
 
-    if (!paymentSuccessful) {
-      res.status(400).json({
-        success: false,
-        error: 'Payment processing failed'
+      const walletBalance = wallet ? Number(wallet.balance) : 0;
+
+      // If wallet has sufficient balance, use wallet
+      if (walletBalance >= planPrice) {
+        // Deduct from wallet
+        const newWalletBalance = walletBalance - planPrice;
+        const { error: updateWalletError } = await supabase
+          .from('UserWallet')
+          .update({
+            balance: newWalletBalance,
+            lastTransactionAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          })
+          .eq('id', wallet.id);
+
+        if (updateWalletError) throw updateWalletError;
+
+        // Create wallet transaction record
+        await supabase
+          .from('WalletTransaction')
+          .insert({
+            walletId: wallet.id,
+            userId,
+            type: 'DEBIT',
+            amount: planPrice,
+            balanceBefore: walletBalance,
+            balanceAfter: newWalletBalance,
+            description: `Subscription to ${plan.name}`,
+            resourceType: 'SUBSCRIPTION',
+            metadata: { planId, planName: plan.name }
+          });
+
+        // Calculate subscription dates
+        const startDate = new Date();
+        const endDate = new Date();
+        
+        if (plan.billingCycle === 'MONTHLY') {
+          endDate.setMonth(endDate.getMonth() + 1);
+        } else if (plan.billingCycle === 'YEARLY') {
+          endDate.setFullYear(endDate.getFullYear() + 1);
+        } else if (plan.billingCycle === 'ONE_TIME' || plan.billingCycle === 'PER_ACTION') {
+          endDate.setFullYear(endDate.getFullYear() + 100); // Lifetime for one-time
+        }
+
+        // Create subscription record
+        const { data: subscription, error: subscriptionError } = await supabase
+          .from('UserSubscription')
+          .insert({
+            userId,
+            planId,
+            status: 'ACTIVE',
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            autoRenew: plan.billingCycle !== 'ONE_TIME' && plan.billingCycle !== 'PER_ACTION'
+          })
+          .select(`*, plan:MembershipPlan(*)`)
+          .single();
+
+        if (subscriptionError) throw subscriptionError;
+
+        // Create payment record
+        await supabase
+          .from('Payment')
+          .insert({
+            userId,
+            subscriptionId: subscription.id,
+            amount: planPrice,
+            currency: 'INR',
+            paymentMethod: 'WALLET',
+            status: 'COMPLETED',
+            transactionId: `txn_wlt_${Date.now()}`,
+            description: `Subscription to ${plan.name} (from wallet)`,
+            paidAt: new Date().toISOString()
+          });
+
+        // Create notification
+        await supabase
+          .from('Notification')
+          .insert({
+            userId,
+            title: 'Subscription Activated!',
+            message: `Your ${plan.name} subscription has been activated successfully.`,
+            type: 'SUBSCRIPTION_ACTIVATED',
+            link: '/billing/subscription'
+          });
+
+        res.status(201).json({
+          success: true,
+          data: {
+            subscription,
+            paymentMethod: 'WALLET',
+            walletBalance: newWalletBalance
+          },
+          message: 'Subscription activated successfully!'
+        });
+        return;
+      }
+
+      // Wallet insufficient - return info for Razorpay
+      res.json({
+        success: true,
+        data: {
+          requiresRazorpay: true,
+          walletBalance,
+          planPrice,
+          shortfall: planPrice - walletBalance,
+          plan
+        }
       });
       return;
     }
 
-    // Create subscription record
+    // If not using wallet or free plan, create Razorpay order
+    if (planPrice > 0) {
+      const shortUserId = userId.substring(0, 8);
+      const orderResult = await createOrder({
+        amount: planPrice,
+        currency: 'INR',
+        receipt: `sub_${shortUserId}_${Date.now()}`,
+        notes: {
+          userId,
+          planId,
+          planName: plan.name,
+          type: 'SUBSCRIPTION'
+        }
+      });
+
+      if (!orderResult.success || !orderResult.order) {
+        res.status(500).json({
+          success: false,
+          error: orderResult.error || 'Failed to create payment order'
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: {
+          requiresRazorpay: true,
+          razorpayOrder: {
+            id: orderResult.order.id,
+            amount: orderResult.order.amount,
+            currency: orderResult.order.currency
+          },
+          plan
+        }
+      });
+      return;
+    }
+
+    // Free plan - activate directly
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setFullYear(endDate.getFullYear() + 100);
+
     const { data: subscription, error: subscriptionError } = await supabase
       .from('UserSubscription')
       .insert({
-        userId: req.user!.userId,
+        userId,
         planId,
         status: 'ACTIVE',
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        autoRenew: true
+        autoRenew: false
       })
-      .select(`
-        *,
-        plan:MembershipPlan(*)
-      `)
+      .select(`*, plan:MembershipPlan(*)`)
       .single();
 
     if (subscriptionError) throw subscriptionError;
 
-    // Create payment record
-    await supabase
-      .from('Payment')
-      .insert({
-        userId: req.user!.userId,
-        subscriptionId: subscription.id,
-        amount: plan.price,
-        currency: 'INR',
-        paymentMethod: 'CARD',
-        paymentMethodId,
-        status: 'COMPLETED',
-        transactionId: `txn_${Date.now()}`, // In real implementation, use actual transaction ID
-        description: `Subscription to ${plan.name}`,
-        paidAt: new Date().toISOString()
-      });
-
-    // Update user's wallet if plan includes credits
-    if (plan.features.credits && plan.features.credits > 0) {
-      await supabase
-        .from('UserWallet')
-        .upsert({
-          userId: req.user!.userId,
-          balance: plan.features.credits,
-          currency: 'INR'
-        }, {
-          onConflict: 'userId'
-        });
-    }
-
-    // Create notification
     await supabase
       .from('Notification')
       .insert({
-        userId: req.user!.userId,
-        title: 'Subscription Activated!',
-        message: `Your ${plan.name} subscription has been activated successfully.`,
+        userId,
+        title: 'Free Plan Activated!',
+        message: `Your ${plan.name} has been activated successfully.`,
         type: 'SUBSCRIPTION_ACTIVATED',
         link: '/billing/subscription'
       });
 
-    // Log activity
-    await supabase
-      .from('UserActivity')
-      .insert({
-        userId: req.user!.userId,
-        action: 'SUBSCRIPTION_CREATED',
-        resource: 'SUBSCRIPTION',
-        resourceId: subscription.id,
-        metadata: { planName: plan.name, amount: plan.price }
-      });
-
     res.status(201).json({
       success: true,
-      data: subscription,
-      message: 'Subscription activated successfully!'
+      data: { subscription, paymentMethod: 'FREE' },
+      message: 'Free plan activated successfully!'
     });
 
   } catch (error) {
@@ -252,9 +368,7 @@ export const cancelSubscription = async (req: AuthRequest, res: Response): Promi
     const { data: canceledSubscription, error: cancelError } = await supabase
       .from('UserSubscription')
       .update({
-        status: 'CANCELED',
-        canceledAt: new Date().toISOString(),
-        cancelReason: reason,
+        status: 'CANCELLED',
         autoRenew: false
       })
       .eq('id', subscription.id)
@@ -269,20 +383,9 @@ export const cancelSubscription = async (req: AuthRequest, res: Response): Promi
       .insert({
         userId: req.user!.userId,
         title: 'Subscription Canceled',
-        message: `Your ${subscription.plan.name} subscription has been canceled. You can continue using premium features until ${new Date(subscription.endDate).toLocaleDateString()}.`,
+        message: `Your ${subscription.plan.name} subscription has been canceled.`,
         type: 'SUBSCRIPTION_CANCELED',
         link: '/billing/subscription'
-      });
-
-    // Log activity
-    await supabase
-      .from('UserActivity')
-      .insert({
-        userId: req.user!.userId,
-        action: 'SUBSCRIPTION_CANCELED',
-        resource: 'SUBSCRIPTION',
-        resourceId: subscription.id,
-        metadata: { reason, planName: subscription.plan.name }
       });
 
     res.json({
@@ -340,38 +443,35 @@ export const getPaymentHistory = async (req: AuthRequest, res: Response): Promis
   }
 };
 
-// Get user's wallet balance
-export const getWalletBalance = async (req: AuthRequest, res: Response): Promise<void> => {
+// Get user's wallet
+export const getUserWallet = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { data: wallet, error } = await supabase
+    const userId = req.user!.userId;
+
+    // Get or create wallet
+    let { data: wallet, error } = await supabase
       .from('UserWallet')
       .select('*')
-      .eq('userId', req.user!.userId)
+      .eq('userId', userId)
       .single();
 
-    if (error && error.code !== 'PGRST116') {
-      throw error;
-    }
-
-    if (!wallet) {
-      // Create wallet if it doesn't exist
+    if (error && error.code === 'PGRST116') {
+      // Create wallet if doesn't exist
       const { data: newWallet, error: createError } = await supabase
         .from('UserWallet')
         .insert({
-          userId: req.user!.userId,
+          userId,
           balance: 0,
+          lockedBalance: 0,
           currency: 'INR'
         })
         .select()
         .single();
 
       if (createError) throw createError;
-
-      res.json({
-        success: true,
-        data: newWallet
-      });
-      return;
+      wallet = newWallet;
+    } else if (error) {
+      throw error;
     }
 
     res.json({
@@ -380,263 +480,49 @@ export const getWalletBalance = async (req: AuthRequest, res: Response): Promise
     });
 
   } catch (error) {
-    console.error('Get wallet balance error:', error);
+    console.error('Get user wallet error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get wallet balance'
+      error: 'Failed to get wallet'
     });
   }
 };
 
-// Add money to wallet
-export const addMoneyToWallet = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({
-        success: false,
-        error: 'Validation failed',
-        details: errors.array()
-      });
-      return;
-    }
-
-    const { amount, paymentMethodId } = req.body;
-
-    if (amount < 10) {
-      res.status(400).json({
-        success: false,
-        error: 'Minimum amount to add is ₹10'
-      });
-      return;
-    }
-
-    // In a real implementation, process payment here
-    const paymentSuccessful = true;
-
-    if (!paymentSuccessful) {
-      res.status(400).json({
-        success: false,
-        error: 'Payment processing failed'
-      });
-      return;
-    }
-
-    // Get current wallet balance
-    const { data: wallet } = await supabase
-      .from('UserWallet')
-      .select('balance')
-      .eq('userId', req.user!.userId)
-      .single();
-
-    const currentBalance = wallet?.balance || 0;
-    const newBalance = currentBalance + amount;
-
-    // Update wallet balance
-    const { data: updatedWallet, error: walletError } = await supabase
-      .from('UserWallet')
-      .upsert({
-        userId: req.user!.userId,
-        balance: newBalance,
-        currency: 'INR',
-        updatedAt: new Date().toISOString()
-      }, {
-        onConflict: 'userId'
-      })
-      .select()
-      .single();
-
-    if (walletError) throw walletError;
-
-    // Create payment record
-    await supabase
-      .from('Payment')
-      .insert({
-        userId: req.user!.userId,
-        amount,
-        currency: 'INR',
-        paymentMethod: 'CARD',
-        paymentMethodId,
-        status: 'COMPLETED',
-        transactionId: `wallet_${Date.now()}`,
-        description: 'Wallet top-up',
-        paidAt: new Date().toISOString()
-      });
-
-    // Create wallet transaction record
-    await supabase
-      .from('WalletTransaction')
-      .insert({
-        userId: req.user!.userId,
-        type: 'CREDIT',
-        amount,
-        description: 'Wallet top-up',
-        balanceAfter: newBalance,
-        transactionId: `wallet_${Date.now()}`
-      });
-
-    // Create notification
-    await supabase
-      .from('Notification')
-      .insert({
-        userId: req.user!.userId,
-        title: 'Wallet Recharged',
-        message: `₹${amount} has been added to your wallet successfully.`,
-        type: 'WALLET_CREDITED',
-        link: '/billing/wallet'
-      });
-
-    // Log activity
-    await supabase
-      .from('UserActivity')
-      .insert({
-        userId: req.user!.userId,
-        action: 'WALLET_RECHARGED',
-        resource: 'WALLET',
-        resourceId: req.user!.userId,
-        metadata: { amount, newBalance }
-      });
-
-    res.json({
-      success: true,
-      data: updatedWallet,
-      message: `₹${amount} added to wallet successfully!`
-    });
-
-  } catch (error) {
-    console.error('Add money to wallet error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to add money to wallet'
-    });
-  }
-};
-
-// Process per-action payment (bid/advertisement)
-export const processActionPayment = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { actionType, resourceId } = req.body;
-
-    // Get pricing for the action
-    let actionPrice = 0;
-    let description = '';
-
-    switch (actionType) {
-      case 'BID':
-        actionPrice = 5; // ₹5 per bid
-        description = 'Bid submission fee';
-        break;
-      case 'ADVERTISEMENT':
-        actionPrice = 10; // ₹10 per advertisement
-        description = 'Advertisement posting fee';
-        break;
-      default:
-        res.status(400).json({
-          success: false,
-          error: 'Invalid action type'
-        });
-        return;
-    }
-
-    // Check if user has sufficient wallet balance
-    const { data: wallet } = await supabase
-      .from('UserWallet')
-      .select('balance')
-      .eq('userId', req.user!.userId)
-      .single();
-
-    const currentBalance = wallet?.balance || 0;
-
-    if (currentBalance < actionPrice) {
-      res.status(400).json({
-        success: false,
-        error: `Insufficient wallet balance. Required: ₹${actionPrice}, Available: ₹${currentBalance}`,
-        requiredAmount: actionPrice,
-        availableAmount: currentBalance
-      });
-      return;
-    }
-
-    // Deduct amount from wallet
-    const newBalance = currentBalance - actionPrice;
-
-    const { error: walletError } = await supabase
-      .from('UserWallet')
-      .update({
-        balance: newBalance,
-        updatedAt: new Date().toISOString()
-      })
-      .eq('userId', req.user!.userId);
-
-    if (walletError) throw walletError;
-
-    // Create wallet transaction record
-    await supabase
-      .from('WalletTransaction')
-      .insert({
-        userId: req.user!.userId,
-        type: 'DEBIT',
-        amount: actionPrice,
-        description,
-        balanceAfter: newBalance,
-        resourceType: actionType,
-        resourceId
-      });
-
-    // Log activity
-    await supabase
-      .from('UserActivity')
-      .insert({
-        userId: req.user!.userId,
-        action: `${actionType}_PAYMENT`,
-        resource: actionType,
-        resourceId,
-        metadata: { amount: actionPrice, newBalance }
-      });
-
-    res.json({
-      success: true,
-      data: {
-        amountDeducted: actionPrice,
-        newBalance,
-        description
-      },
-      message: `Payment of ₹${actionPrice} processed successfully`
-    });
-
-  } catch (error) {
-    console.error('Process action payment error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to process payment'
-    });
-  }
-};
-
-// Get wallet transaction history
+// Get wallet transactions
 export const getWalletTransactions = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { page = 1, limit = 20, type } = req.query;
+    const userId = req.user!.userId;
+    const { page = 1, limit = 20 } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
-    let query = supabase
-      .from('WalletTransaction')
-      .select('*', { count: 'exact' })
-      .eq('userId', req.user!.userId)
-      .order('createdAt', { ascending: false })
-      .range(offset, offset + Number(limit) - 1);
+    // Get user's wallet first
+    const { data: wallet, error: walletError } = await supabase
+      .from('UserWallet')
+      .select('id')
+      .eq('userId', userId)
+      .single();
 
-    if (type && ['CREDIT', 'DEBIT'].includes(type as string)) {
-      query = query.eq('type', type);
+    if (walletError) {
+      res.json({
+        success: true,
+        data: [],
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 0 }
+      });
+      return;
     }
 
-    const { data: transactions, count, error } = await query;
+    const { data: transactions, count, error } = await supabase
+      .from('WalletTransaction')
+      .select('*', { count: 'exact' })
+      .eq('walletId', wallet.id)
+      .order('createdAt', { ascending: false })
+      .range(offset, offset + Number(limit) - 1);
 
     if (error) throw error;
 
     res.json({
       success: true,
-      data: transactions,
+      data: transactions || [],
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -650,6 +536,320 @@ export const getWalletTransactions = async (req: AuthRequest, res: Response): Pr
     res.status(500).json({
       success: false,
       error: 'Failed to get wallet transactions'
+    });
+  }
+};
+
+// Create Razorpay order for wallet top-up
+export const createWalletTopupOrder = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { amount } = req.body;
+
+    console.log('Wallet topup request:', { userId, amount });
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+      return;
+    }
+
+    // Validate amount
+    const amountNum = Number(amount);
+    if (!amountNum || amountNum < 10 || amountNum > 50000) {
+      res.status(400).json({
+        success: false,
+        error: 'Amount must be between ₹10 and ₹50,000'
+      });
+      return;
+    }
+
+    // Create Razorpay order - receipt must be max 40 chars
+    console.log('Creating Razorpay order for wallet topup:', { amount: amountNum, userId });
+    
+    const shortUserId = userId.substring(0, 8);
+    const orderResult = await createOrder({
+      amount: amountNum,
+      currency: 'INR',
+      receipt: `wlt_${shortUserId}_${Date.now()}`,
+      notes: {
+        userId,
+        type: 'WALLET_TOPUP',
+        amount: amountNum.toString()
+      }
+    });
+
+    console.log('Razorpay order result:', orderResult);
+
+    if (!orderResult.success || !orderResult.order) {
+      res.status(500).json({
+        success: false,
+        error: orderResult.error || 'Failed to create payment order'
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        razorpayOrder: {
+          id: orderResult.order.id,
+          amount: orderResult.order.amount,
+          currency: orderResult.order.currency
+        },
+        amount: amountNum
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Create wallet topup order error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to create payment order'
+    });
+  }
+};
+
+// Verify wallet top-up payment
+export const verifyWalletTopup = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { orderId, paymentId, signature, amount } = req.body;
+
+    console.log('Verify wallet topup:', { userId, orderId, paymentId, amount });
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+      return;
+    }
+
+    // Verify Razorpay signature
+    const isValid = verifyPayment({ orderId, paymentId, signature });
+
+    if (!isValid) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid payment signature'
+      });
+      return;
+    }
+
+    // Get or create wallet
+    let { data: wallet, error: walletError } = await supabase
+      .from('UserWallet')
+      .select('*')
+      .eq('userId', userId)
+      .single();
+
+    if (walletError && walletError.code === 'PGRST116') {
+      const { data: newWallet, error: createError } = await supabase
+        .from('UserWallet')
+        .insert({
+          userId,
+          balance: 0,
+          lockedBalance: 0,
+          currency: 'INR'
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+      wallet = newWallet;
+    } else if (walletError) {
+      throw walletError;
+    }
+
+    const currentBalance = Number(wallet.balance) || 0;
+    const newBalance = currentBalance + Number(amount);
+
+    // Update wallet balance
+    const { error: updateError } = await supabase
+      .from('UserWallet')
+      .update({
+        balance: newBalance,
+        lastTransactionAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
+      .eq('id', wallet.id);
+
+    if (updateError) throw updateError;
+
+    // Create wallet transaction record
+    const { error: transactionError } = await supabase
+      .from('WalletTransaction')
+      .insert({
+        walletId: wallet.id,
+        userId,
+        type: 'CREDIT',
+        amount: Number(amount),
+        balanceBefore: currentBalance,
+        balanceAfter: newBalance,
+        description: `Wallet top-up via Razorpay`,
+        metadata: {
+          razorpayOrderId: orderId,
+          razorpayPaymentId: paymentId
+        }
+      });
+
+    if (transactionError) throw transactionError;
+
+    // Create notification
+    await supabase
+      .from('Notification')
+      .insert({
+        userId,
+        title: 'Wallet Top-up Successful',
+        message: `₹${amount} has been added to your wallet.`,
+        type: 'WALLET_TOPUP',
+        link: '/billing'
+      });
+
+    res.json({
+      success: true,
+      data: {
+        newBalance,
+        amountAdded: Number(amount)
+      },
+      message: `₹${amount} added to wallet successfully!`
+    });
+
+  } catch (error) {
+    console.error('Verify wallet topup error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to verify payment'
+    });
+  }
+};
+
+// Verify subscription payment via Razorpay
+export const verifySubscriptionPayment = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { orderId, paymentId, signature, planId } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+      return;
+    }
+
+    // Verify Razorpay signature
+    const isValid = verifyPayment({ orderId, paymentId, signature });
+
+    if (!isValid) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid payment signature'
+      });
+      return;
+    }
+
+    // Get the plan details
+    const { data: plan, error: planError } = await supabase
+      .from('MembershipPlan')
+      .select('*')
+      .eq('id', planId)
+      .eq('isActive', true)
+      .single();
+
+    if (planError || !plan) {
+      res.status(404).json({
+        success: false,
+        error: 'Membership plan not found'
+      });
+      return;
+    }
+
+    // Check if user already has an active subscription
+    const { data: existingSubscription } = await supabase
+      .from('UserSubscription')
+      .select('id')
+      .eq('userId', userId)
+      .eq('status', 'ACTIVE')
+      .single();
+
+    if (existingSubscription) {
+      res.status(400).json({
+        success: false,
+        error: 'You already have an active subscription'
+      });
+      return;
+    }
+
+    // Calculate subscription dates
+    const startDate = new Date();
+    const endDate = new Date();
+    
+    if (plan.billingCycle === 'MONTHLY') {
+      endDate.setMonth(endDate.getMonth() + 1);
+    } else if (plan.billingCycle === 'YEARLY') {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    } else {
+      endDate.setFullYear(endDate.getFullYear() + 100);
+    }
+
+    // Create subscription record
+    const { data: subscription, error: subscriptionError } = await supabase
+      .from('UserSubscription')
+      .insert({
+        userId,
+        planId,
+        status: 'ACTIVE',
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        autoRenew: plan.billingCycle !== 'ONE_TIME' && plan.billingCycle !== 'PER_ACTION'
+      })
+      .select(`*, plan:MembershipPlan(*)`)
+      .single();
+
+    if (subscriptionError) throw subscriptionError;
+
+    // Create payment record
+    await supabase
+      .from('Payment')
+      .insert({
+        userId,
+        subscriptionId: subscription.id,
+        amount: plan.price,
+        currency: 'INR',
+        paymentMethod: 'RAZORPAY',
+        status: 'COMPLETED',
+        transactionId: paymentId,
+        description: `Subscription to ${plan.name}`,
+        paidAt: new Date().toISOString(),
+        metadata: { razorpayOrderId: orderId }
+      });
+
+    // Create notification
+    await supabase
+      .from('Notification')
+      .insert({
+        userId,
+        title: 'Subscription Activated!',
+        message: `Your ${plan.name} subscription has been activated successfully.`,
+        type: 'SUBSCRIPTION_ACTIVATED',
+        link: '/billing/subscription'
+      });
+
+    res.json({
+      success: true,
+      data: { subscription },
+      message: 'Subscription activated successfully!'
+    });
+
+  } catch (error) {
+    console.error('Verify subscription payment error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to verify subscription payment'
     });
   }
 };

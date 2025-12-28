@@ -13,6 +13,7 @@ import Input from '../../components/ui/Input';
 import Textarea from '../../components/ui/Textarea';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { PageLoader } from '../../components/ui/Spinner';
+import CreditBalance from '../../components/CreditBalance';
 
 interface BidForm {
   proposedPrice: number;
@@ -42,7 +43,7 @@ export default function AdDetails() {
         ]);
         setAd(adResponse.data.data);
         setIsSaved(savedResponse.data.data?.isSaved || false);
-        
+
         // Check if user has already applied
         const userBid = adResponse.data.data.bids?.find(
           (bid: any) => bid.influencerId === user?.id
@@ -87,7 +88,11 @@ export default function AdDetails() {
       toast.success('Bid submitted successfully!');
       navigate('/influencer/my-bids');
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to submit bid');
+      if (error.response?.data?.requiresCredit) {
+        toast.error(`${error.response.data.error}. Please purchase bid credits to continue.`);
+      } else {
+        toast.error(error.response?.data?.error || 'Failed to submit bid');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -100,37 +105,36 @@ export default function AdDetails() {
   const canApply = ad.status === 'OPEN' && !isDeadlinePassed && !hasApplied;
 
   return (
-    <div>
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6">
+    <div className="w-full max-w-full overflow-x-hidden">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-white mb-4 sm:mb-6 text-sm sm:text-base">
         <ArrowLeft className="h-4 w-4" />
         Back to Browse
       </button>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 w-full min-w-0">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6 min-w-0">
           <Card>
-            <CardHeader className="flex flex-row items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
                   <Badge variant="info">{ad.platform}</Badge>
                   <Badge>{ad.contentType}</Badge>
                 </div>
-                <h1 className="text-xl font-bold text-white">{ad.title}</h1>
-                <p className="text-slate-400 mt-1">{ad.category?.name}</p>
+                <h1 className="text-lg sm:text-xl font-bold text-white break-words">{ad.title}</h1>
+                <p className="text-slate-400 mt-1 text-sm sm:text-base">{ad.category?.name}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={toggleSave}
                   disabled={savingAd}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isSaved 
-                      ? 'bg-rose-500/20 text-rose-400' 
+                  className={`p-2 rounded-lg transition-colors ${isSaved
+                      ? 'bg-rose-500/20 text-rose-400'
                       : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-                  }`}
+                    }`}
                   title={isSaved ? 'Remove from saved' : 'Save for later'}
                 >
-                  {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
+                  {isSaved ? <BookmarkCheck className="w-4 h-4 sm:w-5 sm:h-5" /> : <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
                 <Badge variant={ad.status === 'OPEN' ? 'success' : 'gray'}>
                   {ad.status}
@@ -138,33 +142,36 @@ export default function AdDetails() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-300 whitespace-pre-wrap">{ad.description}</p>
-              
+              <p className="text-slate-300 whitespace-pre-wrap text-sm sm:text-base break-words">{ad.description}</p>
+
               {ad.requirements && (
-                <div className="mt-6">
-                  <h3 className="font-medium text-white mb-2">Requirements</h3>
-                  <p className="text-slate-300">{ad.requirements}</p>
+                <div className="mt-4 sm:mt-6">
+                  <h3 className="font-medium text-white mb-2 text-sm sm:text-base">Requirements</h3>
+                  <p className="text-slate-300 text-sm sm:text-base break-words">{ad.requirements}</p>
                 </div>
               )}
 
               {ad.targetAudience && (
                 <div className="mt-4">
-                  <h3 className="font-medium text-white mb-2">Target Audience</h3>
-                  <p className="text-slate-300">{ad.targetAudience}</p>
+                  <h3 className="font-medium text-white mb-2 text-sm sm:text-base">Target Audience</h3>
+                  <p className="text-slate-300 text-sm sm:text-base break-words">{ad.targetAudience}</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
+          {/* Credit Balance */}
+          <CreditBalance />
+
           {/* Bid Form */}
           {canApply && (
             <Card>
               <CardHeader>
-                <h2 className="text-lg font-semibold text-white">Submit Your Bid</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-white">Submit Your Bid</h2>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid sm:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <Input
                       label="Proposed Price ($)"
                       type="number"
@@ -223,7 +230,7 @@ export default function AdDetails() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 min-w-0">
           <Card>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">

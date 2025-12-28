@@ -1,11 +1,148 @@
 import { Response } from 'express';
+import crypto from 'crypto';
 import supabase from '../lib/supabase';
 import { AuthRequest } from '../types';
 import { getPagination, createPaginationResponse } from '../utils/helpers';
-import { requireWalletBalance, deductWalletBalance } from '../middleware/subscription.middleware';
+
+// Helper function to check and use credit
+const checkAndUseCredit = async (userId: string, creditType: 'BID' | 'POST', resourceId: string) => {
+  try {
+    // Check if credit system is enabled
+    const { data: settings, error: settingsError } = await supabase
+      .from('CreditSettings')
+      .select('creditSystemEnabled')
+      .eq('id', 'default')
+      .single();
+
+    // If credit tables don't exist, allow the action (system not set up yet)
+    if (settingsError && settingsError.code === 'PGRST205') {
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (settingsError) {
+      console.error('Credit settings error:', settingsError);
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (!settings?.creditSystemEnabled) {
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    // Get user credits
+    const { data: userCredits, error: creditsError } = await supabase
+      .from('UserCredits')
+      .select('*')
+      .eq('userId', userId)
+      .single();
+
+    // If user credits table doesn't exist, allow the action
+    if (creditsError && creditsError.code === 'PGRST205') {
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (creditsError && creditsError.code === 'PGRST116') {
+      // User doesn't have credits record, create one
+      const { error: insertError } = await supabase
+        .from('UserCredits')
+        .insert({
+          userId,
+          bidCredits: 0,
+          postCredits: 0
+        });
+      
+      if (insertError) {
+        console.error('Failed to create user credits:', insertError);
+        return { success: true, creditSystemDisabled: true };
+      }
+      
+      return { 
+        success: false, 
+        error: `Insufficient ${creditType.toLowerCase()} credits`,
+        availableCredits: 0
+      };
+    }
+
+    if (creditsError) {
+      console.error('User credits error:', creditsError);
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    if (!userCredits) {
+      return { 
+        success: false, 
+        error: `Insufficient ${creditType.toLowerCase()} credits`,
+        availableCredits: 0
+      };
+    }
+
+    const availableCredits = creditType === 'BID' ? userCredits.bidCredits : userCredits.postCredits;
+
+    if (availableCredits < 1) {
+      return { 
+        success: false, 
+        error: `Insufficient ${creditType.toLowerCase()} credits`,
+        availableCredits
+      };
+    }
+
+    // Deduct credit
+    const newBidCredits = creditType === 'BID' ? userCredits.bidCredits - 1 : userCredits.bidCredits;
+    const newPostCredits = creditType === 'POST' ? userCredits.postCredits - 1 : userCredits.postCredits;
+    const newTotalUsed = creditType === 'BID'
+      ? userCredits.totalBidCreditsUsed + 1
+      : userCredits.totalPostCreditsUsed + 1;
+
+    const { error: updateError } = await supabase
+      .from('UserCredits')
+      .update({
+        bidCredits: newBidCredits,
+        postCredits: newPostCredits,
+        ...(creditType === 'BID' 
+          ? { totalBidCreditsUsed: newTotalUsed }
+          : { totalPostCreditsUsed: newTotalUsed }
+        ),
+        updatedAt: new Date().toISOString()
+      })
+      .eq('userId', userId);
+
+    if (updateError) {
+      console.error('Failed to update user credits:', updateError);
+      return { success: true, creditSystemDisabled: true };
+    }
+
+    // Record transaction
+    const { error: transactionError } = await supabase
+      .from('CreditTransaction')
+      .insert({
+        userId,
+        transactionType: creditType === 'BID' ? 'USE_BID_CREDIT' : 'USE_POST_CREDIT',
+        creditType,
+        credits: -1,
+        balanceAfter: creditType === 'BID' ? newBidCredits : newPostCredits,
+        description: `Used ${creditType.toLowerCase()} credit`,
+        paymentStatus: 'COMPLETED',
+        metadata: { resourceId }
+      });
+
+    if (transactionError) {
+      console.error('Failed to record credit transaction:', transactionError);
+      // Don't fail the operation if transaction recording fails
+    }
+
+    return { 
+      success: true, 
+      creditsUsed: 1,
+      remainingCredits: creditType === 'BID' ? newBidCredits : newPostCredits
+    };
+  } catch (error) {
+    console.error('Credit check error:', error);
+    return { success: false, error: 'Failed to process credit' };
+  }
+};
 
 export const createBid = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    console.log('Creating bid with data:', req.body);
     const { advertisementId, proposedPrice, proposal, deliveryDays } = req.body;
 
     const { data: advertisement } = await supabase
@@ -41,57 +178,114 @@ export const createBid = async (req: AuthRequest, res: Response): Promise<void> 
       return;
     }
 
+    // Check and use bid credit
+    console.log('Checking credit for user:', req.user!.userId);
+    const creditResult = await checkAndUseCredit(req.user!.userId, 'BID', advertisementId);
+    console.log('Credit check result:', creditResult);
+    
+    if (!creditResult.success && !creditResult.creditSystemDisabled) {
+      res.status(400).json({
+        success: false,
+        error: creditResult.error,
+        availableCredits: creditResult.availableCredits,
+        requiresCredit: true
+      });
+      return;
+    }
+
     // Create the bid
-    const { data: bid, error } = await supabase
+    console.log('Creating bid in database...');
+    
+    // Generate a UUID for the bid
+    const bidId = crypto.randomUUID();
+    
+    const { error: insertError } = await supabase
       .from('Bid')
       .insert({
+        id: bidId,
         advertisementId,
         influencerId: req.user!.userId,
         proposedPrice: parseFloat(proposedPrice),
         proposal,
         deliveryDays: parseInt(deliveryDays),
-      })
-      .select()
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+
+    if (insertError) {
+      console.error('Bid insert error:', insertError);
+      throw insertError;
+    }
+
+    // Fetch the created bid
+    const { data: bid, error: fetchError } = await supabase
+      .from('Bid')
+      .select('*')
+      .eq('id', bidId)
       .single();
 
-    if (error) throw error;
+    if (fetchError) {
+      console.error('Bid fetch error:', fetchError);
+      throw fetchError;
+    }
+    
+    console.log('Bid created successfully:', bid.id);
 
     // Create notification for client
-    await supabase.from('Notification').insert({
-      userId: advertisement.clientId,
-      title: 'New Bid Received',
-      message: `You received a new bid on "${advertisement.title}"`,
-      type: 'BID',
-      link: `/client/advertisements/${advertisementId}`,
-    });
+    try {
+      await supabase.from('Notification').insert({
+        userId: advertisement.clientId,
+        title: 'New Bid Received',
+        message: `You received a new bid on "${advertisement.title}"`,
+        type: 'BID',
+        link: `/client/advertisements/${advertisementId}`,
+      });
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+      // Don't fail the bid creation if notification fails
+    }
 
     // Log activity
-    await supabase
-      .from('UserActivity')
-      .insert({
-        userId: req.user!.userId,
-        action: 'BID_CREATED',
-        resource: 'BID',
-        resourceId: bid.id,
-        metadata: { 
-          advertisementId, 
-          proposedPrice: parseFloat(proposedPrice),
-          paymentDeducted: req.actionCost || 0,
-          newWalletBalance: req.walletBalance
-        }
-      });
+    try {
+      await supabase
+        .from('UserActivity')
+        .insert({
+          userId: req.user!.userId,
+          action: 'BID_CREATED',
+          resource: 'BID',
+          resourceId: bid.id,
+          metadata: { 
+            advertisementId, 
+            proposedPrice: parseFloat(proposedPrice),
+            creditUsed: creditResult.creditsUsed || 0,
+            remainingCredits: creditResult.remainingCredits || 0,
+            creditSystemDisabled: creditResult.creditSystemDisabled || false
+          }
+        });
+    } catch (activityError) {
+      console.error('Failed to log activity:', activityError);
+      // Don't fail the bid creation if activity logging fails
+    }
+
+    const responseMessage = creditResult.creditSystemDisabled 
+      ? 'Bid submitted successfully!'
+      : creditResult.creditsUsed 
+        ? `Bid submitted successfully! 1 bid credit used. ${creditResult.remainingCredits} credits remaining.`
+        : 'Bid submitted successfully!';
 
     res.status(201).json({ 
       success: true, 
       data: { 
         ...bid, 
         advertisement: { title: advertisement.title },
-        paymentInfo: {
-          amountDeducted: req.actionCost || 0,
-          newWalletBalance: req.walletBalance
+        creditInfo: {
+          creditUsed: creditResult.creditsUsed || 0,
+          remainingCredits: creditResult.remainingCredits || 0,
+          creditSystemDisabled: creditResult.creditSystemDisabled || false
         }
       },
-      message: req.actionCost ? `Bid submitted successfully! ₹${req.actionCost} deducted from wallet.` : 'Bid submitted successfully!'
+      message: responseMessage
     });
   } catch (error) {
     console.error('Create bid error:', error);

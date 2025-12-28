@@ -14,6 +14,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Textarea from '../../components/ui/Textarea';
 import { Card, CardContent } from '../../components/ui/Card';
+import CreditBalance from '../../components/CreditBalance';
 
 interface AdForm {
   title: string;
@@ -88,7 +89,11 @@ export default function PostAdvertisement() {
       toast.success('Campaign created successfully!');
       navigate('/client/my-ads');
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to create campaign');
+      if (error.response?.data?.requiresCredit) {
+        toast.error(`${error.response.data.error}. Please purchase post credits to continue.`);
+      } else {
+        toast.error(error.response?.data?.error || 'Failed to create campaign');
+      }
     } finally {
       setLoading(false);
     }
@@ -512,6 +517,11 @@ export default function PostAdvertisement() {
             </CardContent>
           </Card>
         )}
+
+        {/* Credit Balance Display */}
+        <div className="mt-6">
+          <CreditBalance />
+        </div>
 
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between mt-6">

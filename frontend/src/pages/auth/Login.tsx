@@ -63,7 +63,8 @@ export default function Login() {
       setAuth(user, token);
 
       toast.success(isRegister ? 'Account created successfully!' : 'Welcome back!');
-
+      
+      // Navigate to dashboard - spin wheel will be shown there if needed
       setTimeout(() => {
         switch (user.role) {
           case 'CLIENT':
@@ -136,7 +137,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex relative">
-
       {/* Social Login Modal */}
       <AnimatePresence>
         {socialModal.isOpen && (
@@ -313,18 +313,18 @@ export default function Login() {
           className="max-w-md w-full"
         >
           {/* Mobile Logo - Only visible when visual side is hidden */}
-          <div className="flex items-center justify-center gap-3 mb-8 lg:hidden">
+          <div className="flex items-center justify-center gap-3 mb-6 lg:mb-8 lg:hidden">
             <div className="p-3 bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl">
               <img src="/adfluencer-logo.png" alt="Adfluencer" className="w-8 h-8 object-contain" />
             </div>
             <span className="text-xl font-bold text-white tracking-tight">Adfluencer</span>
           </div>
 
-          <div className="mb-10 text-center lg:text-left">
-            <motion.h2 layout className="text-3xl font-bold text-white mb-2">
+          <div className="mb-8 lg:mb-10 text-center lg:text-left">
+            <motion.h2 layout className="text-2xl lg:text-3xl font-bold text-white mb-2">
               {isRegister ? 'Create Account' : 'Welcome Back'}
             </motion.h2>
-            <motion.p layout className="text-slate-400">
+            <motion.p layout className="text-slate-400 text-sm lg:text-base">
               {isRegister ? 'Join the leading marketplace for creators.' : 'Please enter your details to sign in.'}
             </motion.p>
           </div>
@@ -341,7 +341,7 @@ export default function Login() {
                   className="overflow-hidden"
                 >
                   <label className="block text-sm font-medium text-slate-300 mb-3">I am a...</label>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button
                       type="button"
                       onClick={() => setSelectedRole('CLIENT')}
@@ -452,7 +452,7 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => openSocialModal('google')}

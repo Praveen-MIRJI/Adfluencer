@@ -51,6 +51,7 @@ const testEmailValidation = [
 router.post('/register', validate(registerValidation), authController.register);
 router.post('/login', validate(loginValidation), authController.login);
 router.get('/me', authenticate, authController.getMe);
+router.get('/spin-wheel-status', authenticate, authController.getSpinWheelStatus);
 router.put('/change-password', authenticate, authController.changePassword);
 
 // Forgot Password Flow (Public Routes)

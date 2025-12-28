@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, Plus, ArrowUpRight, ArrowDownLeft, CreditCard, History, RefreshCw } from 'lucide-react';
+import { Wallet, Plus, ArrowUpRight, ArrowDownLeft, History, RefreshCw } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
+import api from '../lib/api';
 
 interface WalletData {
   id: string;
@@ -26,8 +27,18 @@ interface WalletTransaction {
   createdAt: string;
 }
 
-const WalletManagement: React.FC = () => {
-  const { user } = useAuthStore();
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+interface WalletManagementProps {
+  onBalanceUpdate?: () => void;
+}
+
+const WalletManagement: React.FC<WalletManagementProps> = ({ onBalanceUpdate }) => {
+  const { token } = useAuthStore();
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,15 +55,9 @@ const WalletManagement: React.FC = () => {
 
   const fetchWalletData = async () => {
     try {
-      const response = await fetch('/api/billing/wallet', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setWallet(data.data);
+      const response = await api.get('/billing/wallet');
+      if (response.data.success) {
+        setWallet(response.data.data);
       }
     } catch (error) {
       console.error('Error fetching wallet data:', error);
@@ -64,20 +69,14 @@ const WalletManagement: React.FC = () => {
 
   const fetchTransactions = async (pageNum = 1) => {
     try {
-      const response = await fetch(`/api/billing/wallet/transactions?page=${pageNum}&limit=20`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      
-      if (data.success) {
+      const response = await api.get(`/billing/wallet/transactions?page=${pageNum}&limit=20`);
+      if (response.data.success) {
         if (pageNum === 1) {
-          setTransactions(data.data);
+          setTransactions(response.data.data);
         } else {
-          setTransactions(prev => [...prev, ...data.data]);
+          setTransactions(prev => [...prev, ...response.data.data]);
         }
-        setHasMore(data.pagination.page < data.pagination.totalPages);
+        setHasMore(response.data.pagination.page < response.data.pagination.totalPages);
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -101,35 +100,83 @@ const WalletManagement: React.FC = () => {
     setAddingMoney(true);
 
     try {
-      // In a real implementation, integrate with payment gateway
-      const paymentMethodId = 'pm_test_' + Date.now();
-
-      const response = await fetch('/api/billing/wallet/add-money', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          amount: amountNum,
-          paymentMethodId
-        })
+      // Create Razorpay order
+      const response = await api.post('/billing/wallet/create-order', {
+        amount: amountNum
       });
 
-      const data = await response.json();
+      if (response.data.success) {
+        const { razorpayOrder } = response.data.data;
 
-      if (data.success) {
-        toast.success(`₹${amountNum} added to wallet successfully!`);
-        setAmount('');
-        setShowAddMoney(false);
-        fetchWalletData();
-        fetchTransactions(1);
+        // Initialize Razorpay
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: razorpayOrder.amount,
+          currency: razorpayOrder.currency,
+          name: 'Adfluencer',
+          description: `Add ₹${amountNum} to wallet`,
+          order_id: razorpayOrder.id,
+          handler: async (paymentResponse: any) => {
+            try {
+              // Verify payment
+              const verifyResponse = await api.post('/billing/wallet/verify-payment', {
+                orderId: paymentResponse.razorpay_order_id,
+                paymentId: paymentResponse.razorpay_payment_id,
+                signature: paymentResponse.razorpay_signature,
+                amount: amountNum
+              });
+
+              if (verifyResponse.data.success) {
+                // Update wallet balance immediately from response
+                const newBalance = verifyResponse.data.data.newBalance;
+                setWallet(prev => prev ? { ...prev, balance: newBalance } : null);
+                
+                toast.success(`₹${amountNum} added to wallet successfully!`);
+                setAmount('');
+                setShowAddMoney(false);
+                setAddingMoney(false);
+                
+                // Also refresh transactions
+                setPage(1);
+                fetchTransactions(1);
+                
+                // Notify parent to refresh stats
+                if (onBalanceUpdate) {
+                  onBalanceUpdate();
+                }
+              } else {
+                toast.error('Payment verification failed');
+                setAddingMoney(false);
+              }
+            } catch (error) {
+              console.error('Payment verification error:', error);
+              toast.error('Payment verification failed');
+              setAddingMoney(false);
+            }
+          },
+          prefill: {
+            name: 'User',
+            email: 'user@example.com'
+          },
+          theme: {
+            color: '#3B82F6'
+          },
+          modal: {
+            ondismiss: () => {
+              setAddingMoney(false);
+            }
+          }
+        };
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
       } else {
-        toast.error(data.error || 'Failed to add money to wallet');
+        toast.error(response.data.error || 'Failed to create payment order');
+        setAddingMoney(false);
       }
-    } catch (error) {
-      toast.error('Failed to process payment');
-    } finally {
+    } catch (error: any) {
+      console.error('Add money error:', error);
+      toast.error(error.response?.data?.error || 'Failed to process payment');
       setAddingMoney(false);
     }
   };
@@ -201,7 +248,7 @@ const WalletManagement: React.FC = () => {
       </motion.div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10">
           <div className="flex items-center space-x-3 mb-3">
             <div className="p-2 bg-green-900/30 rounded-lg">
@@ -215,19 +262,6 @@ const WalletManagement: React.FC = () => {
             className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
             Add Funds
-          </button>
-        </div>
-
-        <div className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl p-6 shadow-lg shadow-black/10">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-blue-900/30 rounded-lg">
-              <CreditCard className="w-5 h-5 text-blue-400" />
-            </div>
-            <h3 className="font-semibold text-white">Payment Methods</h3>
-          </div>
-          <p className="text-slate-400 text-sm mb-4">Manage your payment methods</p>
-          <button className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Manage Cards
           </button>
         </div>
 
@@ -254,7 +288,7 @@ const WalletManagement: React.FC = () => {
         <div className="p-6 border-b border-slate-600/50">
           <h3 className="text-xl font-bold text-white">Recent Transactions</h3>
         </div>
-        
+
         <div className="divide-y divide-slate-600/50">
           {transactions.length === 0 ? (
             <div className="p-8 text-center">
@@ -315,7 +349,7 @@ const WalletManagement: React.FC = () => {
             className="bg-slate-800 border border-slate-600/50 rounded-2xl p-8 max-w-md w-full mx-4"
           >
             <h3 className="text-2xl font-bold text-white mb-6">Add Money to Wallet</h3>
-            
+
             <form onSubmit={handleAddMoney}>
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -344,7 +378,11 @@ const WalletManagement: React.FC = () => {
                     key={quickAmount}
                     type="button"
                     onClick={() => setAmount(quickAmount.toString())}
-                    className="py-2 px-3 text-sm border border-slate-600 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
+                    className={`py-2 px-3 text-sm border rounded-lg transition-colors ${
+                      amount === quickAmount.toString()
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-slate-600 bg-slate-700 text-white hover:bg-slate-600'
+                    }`}
                   >
                     ₹{quickAmount}
                   </button>

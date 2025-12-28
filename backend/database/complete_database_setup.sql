@@ -25,7 +25,76 @@ CREATE TABLE IF NOT EXISTS "User" (
 );
 
 -- =====================================================
--- PART 2: PAYMENT & ESCROW SYSTEM (PRODUCTION-GRADE)
+-- PART 2: CREDIT SYSTEM & ADMIN CONTROLS
+-- =====================================================
+
+-- Platform Credit Settings (Admin Configurable)
+CREATE TABLE IF NOT EXISTS "CreditSettings" (
+    "id" TEXT PRIMARY KEY DEFAULT 'default',
+    "creditSystemEnabled" BOOLEAN DEFAULT false,
+    "bidCreditPrice" NUMERIC(10,2) DEFAULT 5.00,      -- ₹5 per bid credit
+    "postCreditPrice" NUMERIC(10,2) DEFAULT 10.00,    -- ₹10 per post credit
+    "freeBidsPerMonth" INTEGER DEFAULT 0,              -- Free bids for new users
+    "freePostsPerMonth" INTEGER DEFAULT 0,             -- Free posts for new users
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedBy" TEXT
+);
+
+INSERT INTO "CreditSettings" ("id") VALUES ('default') ON CONFLICT DO NOTHING;
+
+-- User Credit Balance
+CREATE TABLE IF NOT EXISTS "UserCredits" (
+    "id" TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "userId" TEXT NOT NULL UNIQUE,
+    "bidCredits" INTEGER DEFAULT 0,                    -- Available bid credits
+    "postCredits" INTEGER DEFAULT 0,                   -- Available post credits
+    "totalBidCreditsUsed" INTEGER DEFAULT 0,           -- Lifetime bid credits used
+    "totalPostCreditsUsed" INTEGER DEFAULT 0,          -- Lifetime post credits used
+    "totalBidCreditsPurchased" INTEGER DEFAULT 0,      -- Lifetime bid credits purchased
+    "totalPostCreditsPurchased" INTEGER DEFAULT 0,     -- Lifetime post credits purchased
+    "lastFreeCreditsGiven" TIMESTAMP,                  -- Last time free credits were given
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE
+);
+
+-- Credit Purchase Transactions
+CREATE TABLE IF NOT EXISTS "CreditTransaction" (
+    "id" TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    "userId" TEXT NOT NULL,
+    "transactionType" TEXT NOT NULL CHECK ("transactionType" IN (
+        'PURCHASE_BID_CREDITS',
+        'PURCHASE_POST_CREDITS', 
+        'USE_BID_CREDIT',
+        'USE_POST_CREDIT',
+        'REFUND_BID_CREDIT',
+        'REFUND_POST_CREDIT',
+        'ADMIN_ADJUSTMENT',
+        'FREE_CREDITS_GIVEN'
+    )),
+    "creditType" TEXT NOT NULL CHECK ("creditType" IN ('BID', 'POST')),
+    "amount" NUMERIC(10,2) DEFAULT 0,                  -- Amount paid (for purchases)
+    "credits" INTEGER NOT NULL,                        -- Number of credits involved
+    "balanceAfter" INTEGER NOT NULL,                   -- Credit balance after transaction
+    "description" TEXT,
+    "metadata" JSONB DEFAULT '{}',                     -- Store additional info (bid ID, post ID, etc.)
+    
+    -- Payment Details (for purchases)
+    "razorpayOrderId" TEXT,
+    "razorpayPaymentId" TEXT,
+    "paymentStatus" TEXT DEFAULT 'PENDING' CHECK ("paymentStatus" IN (
+        'PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'
+    )),
+    
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE
+);
+
+-- =====================================================
+-- PART 3: PAYMENT & ESCROW SYSTEM (PRODUCTION-GRADE)
 -- =====================================================
 
 -- Platform Settings

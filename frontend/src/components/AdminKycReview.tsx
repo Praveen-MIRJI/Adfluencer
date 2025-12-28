@@ -219,35 +219,35 @@ const AdminKycReview: React.FC = () => {
       {/* Verifications List */}
       <div className="bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-xl shadow-lg shadow-black/10">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[640px]">
             <thead className="bg-slate-900/50 border-b border-slate-600/50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">User</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Document</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Submitted</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Actions</th>
+                <th className="px-3 lg:px-6 py-4 text-left text-xs lg:text-sm font-medium text-slate-300">User</th>
+                <th className="px-3 lg:px-6 py-4 text-left text-xs lg:text-sm font-medium text-slate-300 hidden sm:table-cell">Document</th>
+                <th className="px-3 lg:px-6 py-4 text-left text-xs lg:text-sm font-medium text-slate-300">Status</th>
+                <th className="px-3 lg:px-6 py-4 text-left text-xs lg:text-sm font-medium text-slate-300 hidden md:table-cell">Submitted</th>
+                <th className="px-3 lg:px-6 py-4 text-left text-xs lg:text-sm font-medium text-slate-300">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-600/50">
               {filteredVerifications.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={5} className="px-3 lg:px-6 py-12 text-center">
                     <FileText className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">No verifications found</h3>
-                    <p className="text-slate-400">No KYC verifications match your current filters</p>
+                    <h3 className="text-base lg:text-lg font-medium text-white mb-2">No verifications found</h3>
+                    <p className="text-slate-400 text-sm">No KYC verifications match your current filters</p>
                   </td>
                 </tr>
               ) : (
                 filteredVerifications.map((verification) => (
                   <tr key={verification.id} className="hover:bg-slate-700/50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-slate-300" />
+                    <td className="px-3 lg:px-6 py-4">
+                      <div className="flex items-center space-x-2 lg:space-x-3">
+                        <div className="w-8 h-8 lg:w-10 lg:h-10 bg-slate-700 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 lg:w-5 lg:h-5 text-slate-300" />
                         </div>
-                        <div>
-                          <div className="font-medium text-white">{verification.fullName}</div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm lg:text-base truncate">{verification.fullName}</div>
                           <div className="text-sm text-slate-400">{verification.user.email}</div>
                           <div className="text-xs text-slate-500">
                             {verification.user.role} • {

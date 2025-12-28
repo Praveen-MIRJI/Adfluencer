@@ -26,7 +26,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user
+    // Create user with spinWheelClaimed = false
     const { data: user, error: userError } = await supabase
       .from('User')
       .insert({
@@ -34,8 +34,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         password: hashedPassword,
         role: role as Role,
         status: 'ACTIVE',
+        spinWheelClaimed: false,
       })
-      .select('id, email, role, status, createdAt')
+      .select('id, email, role, status, createdAt, spinWheelClaimed')
       .single();
 
     if (userError || !user) {
@@ -52,6 +53,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       });
     }
 
+    // Create UserCredits record with 0 credits (will be added after spin)
+    await supabase.from('UserCredits').insert({
+      userId: user.id,
+      bidCredits: 0,
+      postCredits: 0,
+      totalBidCreditsPurchased: 0,
+      totalPostCreditsPurchased: 0,
+      totalBidCreditsUsed: 0,
+      totalPostCreditsUsed: 0,
+    });
+
     // Generate token
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role } as JwtPayload,
@@ -61,7 +73,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     res.status(201).json({
       success: true,
-      data: { user, token },
+      data: { 
+        user, 
+        token,
+        showSpinWheel: true // New user always shows spin wheel
+      },
       message: 'Registration successful',
     });
   } catch (error) {
@@ -121,9 +137,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       influencerProfile: Array.isArray(userWithoutPassword.influencerProfile) ? userWithoutPassword.influencerProfile[0] : userWithoutPassword.influencerProfile,
     };
 
+    // Check if user needs to see spin wheel (hasn't claimed yet)
+    const showSpinWheel = user.spinWheelClaimed === false;
+
     res.json({
       success: true,
-      data: { user: formattedUser, token },
+      data: { 
+        user: formattedUser, 
+        token,
+        showSpinWheel
+      },
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -155,6 +178,31 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   } catch (error) {
     console.error('GetMe error:', error);
     res.status(500).json({ success: false, error: 'Failed to get user' });
+  }
+};
+
+export const getSpinWheelStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { data: user, error } = await supabase
+      .from('User')
+      .select('id, spinWheelClaimed')
+      .eq('id', req.user!.userId)
+      .single();
+
+    if (error || !user) {
+      res.status(404).json({ success: false, error: 'User not found' });
+      return;
+    }
+
+    res.json({ 
+      success: true, 
+      data: { 
+        showSpinWheel: user.spinWheelClaimed === false 
+      } 
+    });
+  } catch (error) {
+    console.error('GetSpinWheelStatus error:', error);
+    res.status(500).json({ success: false, error: 'Failed to get spin wheel status' });
   }
 };
 

@@ -40,12 +40,14 @@ import AdminBids from './pages/admin/Bids';
 import AdminCategories from './pages/admin/Categories';
 import AdminReviews from './pages/admin/Reviews';
 import KycReviewPage from './pages/admin/KycReview';
+import CreditManagement from './pages/admin/CreditManagement';
 
 // Common pages
 import Messages from './pages/Messages';
 import Contracts from './pages/Contracts';
 import KycVerificationPage from './pages/KycVerification';
 import BillingPage from './pages/Billing';
+import CreditHistory from './pages/CreditHistory';
 
 function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles?: string[] }) {
   const { isAuthenticated, user } = useAuthStore();
@@ -99,6 +101,7 @@ function App() {
         <Route path="/client/messages" element={<Messages />} />
         <Route path="/client/kyc" element={<KycVerificationPage />} />
         <Route path="/client/billing" element={<BillingPage />} />
+        <Route path="/client/credits" element={<CreditHistory />} />
       </Route>
 
       {/* Influencer routes */}
@@ -115,6 +118,7 @@ function App() {
         <Route path="/influencer/messages" element={<Messages />} />
         <Route path="/influencer/kyc" element={<KycVerificationPage />} />
         <Route path="/influencer/billing" element={<BillingPage />} />
+        <Route path="/influencer/credits" element={<CreditHistory />} />
       </Route>
 
       {/* Admin routes */}
@@ -127,6 +131,7 @@ function App() {
         <Route path="/admin/categories" element={<AdminCategories />} />
         <Route path="/admin/reviews" element={<AdminReviews />} />
         <Route path="/admin/kyc" element={<KycReviewPage />} />
+        <Route path="/admin/credits" element={<CreditManagement />} />
       </Route>
 
       {/* Catch all */}

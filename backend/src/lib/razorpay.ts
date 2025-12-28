@@ -1,5 +1,12 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+
+// Ensure environment variables are loaded
+dotenv.config();
+
+console.log('Razorpay initialization - Key ID present:', !!process.env.RAZORPAY_KEY_ID);
+console.log('Razorpay initialization - Key Secret present:', !!process.env.RAZORPAY_KEY_SECRET);
 
 // Initialize Razorpay instance
 const razorpay = new Razorpay({
@@ -24,6 +31,12 @@ export interface VerifyPaymentParams {
 export const createOrder = async (params: CreateOrderParams) => {
   const { amount, currency = 'INR', receipt, notes = {} } = params;
   
+  // Validate credentials
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    console.error('Razorpay credentials not configured');
+    return { success: false, error: 'Payment gateway not configured' };
+  }
+
   const options = {
     amount: Math.round(amount * 100), // Convert to paise
     currency,
@@ -32,11 +45,13 @@ export const createOrder = async (params: CreateOrderParams) => {
   };
 
   try {
+    console.log('Creating Razorpay order with options:', { ...options, notes: '...' });
     const order = await razorpay.orders.create(options);
+    console.log('Razorpay order created:', order.id);
     return { success: true, order };
   } catch (error: any) {
     console.error('Razorpay create order error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error.message || 'Failed to create payment order' };
   }
 };
 

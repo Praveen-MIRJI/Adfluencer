@@ -265,10 +265,10 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="relative min-h-[100vh] flex items-center pt-32 pb-20 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
 
             {/* Left Content */}
-            <motion.div style={{ opacity, scale }} className="space-y-8 text-center lg:text-left">
+            <motion.div style={{ opacity, scale }} className="space-y-6 lg:space-y-8 text-center lg:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -280,7 +280,7 @@ export default function Landing() {
               </motion.div>
 
               <div className="relative">
-                <h1 className="text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1] text-white">
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1] text-white">
                   <ScrambleText text="Amplify" className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-400" /> Your <br />
                   Digital <span className="relative inline-block">
                     Impact
@@ -295,7 +295,7 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light"
+                className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light"
               >
                 Stop chasing partnerships. Start closing them. We connect elite brands with verified creators to build campaigns that actually convert.
               </motion.p>
@@ -321,14 +321,14 @@ export default function Landing() {
                 </Link>
               </motion.div>
 
-              <div className="pt-8 flex items-center justify-center lg:justify-start gap-8 border-t border-slate-800/50 mt-8">
-                <div>
-                  <div className="text-3xl font-bold text-white">{data?.stats.totalInfluencers}+</div>
+              <div className="pt-6 lg:pt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 lg:gap-8 border-t border-slate-800/50 mt-6 lg:mt-8">
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl lg:text-3xl font-bold text-white">{data?.stats.totalInfluencers}+</div>
                   <div className="text-sm text-slate-500">Active Creators</div>
                 </div>
-                <div className="w-px h-10 bg-slate-800" />
-                <div>
-                  <div className="text-3xl font-bold text-white">${((data?.stats.totalRevenue || 0) / 1000000).toFixed(1)}M+</div>
+                <div className="w-px h-10 bg-slate-800 hidden sm:block" />
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl lg:text-3xl font-bold text-white">${((data?.stats.totalRevenue || 0) / 1000000).toFixed(1)}M+</div>
                   <div className="text-sm text-slate-500">Creator Earnings</div>
                 </div>
               </div>
@@ -437,7 +437,7 @@ export default function Landing() {
       {/* Engage Section */}
       <section className="py-24 relative z-10 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
             {/* ROI Calculator */}
             <div className="order-2 lg:order-1">
@@ -446,8 +446,8 @@ export default function Landing() {
 
             {/* Content */}
             <div className="order-1 lg:order-2">
-              <h2 className="text-4xl font-bold text-white mb-6">Maximize Your Potential</h2>
-              <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 lg:mb-6">Maximize Your Potential</h2>
+              <p className="text-slate-400 text-base lg:text-lg mb-6 lg:mb-8 leading-relaxed">
                 Whether you're a micro-influencer or a mega-star, Adfluencer provides the tools to monetize your audience effectively. Our AI-driven engine matches you with brands that align with your values.
               </p>
 
@@ -492,13 +492,13 @@ export default function Landing() {
               <Sparkles className="w-3 h-3" />
               <span>Curated Collections</span>
             </motion.div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Discover Your Niche</h2>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 lg:mb-6">Discover Your Niche</h2>
+            <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto font-light">
               Explore our most popular categories and find the perfect creators for your brand's unique voice.
             </p>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-2 h-[800px] lg:h-[500px] w-full">
+          <div className="flex flex-col gap-2 h-[600px] sm:h-[700px] lg:flex-row lg:h-[500px] w-full">
             {/* We'll use a fixed set of high-performing categories for this display to ensure quality */}
             {[
               { id: 'tech', name: 'Technology', desc: 'Gadgets, Software, & AI', image: 'photo-1519389950473-47ba0277781c', color: 'from-blue-500/80 to-indigo-500/80' },
@@ -513,7 +513,7 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group relative flex-1 min-h-[100px] lg:min-w-[100px] hover:grow-[3] hover:flex-[3] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] rounded-3xl overflow-hidden cursor-pointer border border-slate-800 hover:border-slate-600 shadow-2xl"
+                className="group relative flex-1 min-h-[80px] lg:min-w-[100px] hover:grow-[3] hover:flex-[3] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer border border-slate-800 hover:border-slate-600 shadow-2xl"
               >
                 {/* Background Image */}
                 <div className="absolute inset-0">
@@ -528,33 +528,33 @@ export default function Landing() {
                 </div>
 
                 {/* Vertical Text (Default State) */}
-                <div className="absolute inset-0 flex items-center justify-center lg:opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
-                  <h3 className="text-2xl font-bold text-white tracking-[0.2em] uppercase lg:-rotate-90 whitespace-nowrap drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                <div className="absolute inset-0 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white tracking-[0.2em] uppercase lg:-rotate-90 whitespace-nowrap drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
                     {cat.name}
                   </h3>
                 </div>
 
                 {/* Expanded Content (Hover State) */}
-                <div className="absolute inset-x-0 bottom-0 p-8 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100 flex flex-col justify-end h-full">
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 lg:p-8 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100 flex flex-col justify-end h-full">
                   <div className="transform translate-y-0 transition-transform duration-500">
-                    <span className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-white/20 backdrop-blur-md rounded-full border border-white/10">
+                    <span className="inline-block px-2 sm:px-3 py-1 mb-2 sm:mb-3 text-xs font-bold text-white bg-white/20 backdrop-blur-md rounded-full border border-white/10">
                       Top Category
                     </span>
-                    <h3 className="text-5xl font-black text-white mb-2 tracking-tight">{cat.name}</h3>
-                    <p className="text-slate-200 text-lg mb-8 font-medium max-w-md">{cat.desc}</p>
+                    <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-1 sm:mb-2 tracking-tight">{cat.name}</h3>
+                    <p className="text-slate-200 text-sm sm:text-base lg:text-lg mb-4 sm:mb-6 lg:mb-8 font-medium max-w-md">{cat.desc}</p>
 
-                    <div className="flex items-center gap-4">
-                      <Button className="h-12 rounded-full px-8 bg-white text-slate-950 hover:bg-white/90 transition-colors border-none font-bold">
-                        Explore <ArrowRight className="ml-2 w-4 h-4" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                      <Button className="h-10 sm:h-12 rounded-full px-4 sm:px-6 lg:px-8 bg-white text-slate-950 hover:bg-white/90 transition-colors border-none font-bold text-sm sm:text-base">
+                        Explore <ArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
-                      <div className="flex -space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                      <div className="flex -space-x-2 sm:-space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
                         {[1, 2, 3, 4].map(k => (
-                          <div key={k} className="w-10 h-10 rounded-full border-2 border-slate-950 bg-slate-800 overflow-hidden shadow-lg">
+                          <div key={k} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-slate-950 bg-slate-800 overflow-hidden shadow-lg">
                             <img src={`https://i.pravatar.cc/100?img=${k + (i * 5)}`} className="w-full h-full object-cover" />
                           </div>
                         ))}
                       </div>
-                      <span className="text-sm font-medium text-white/80 ml-2 animate-pulse">+200 New</span>
+                      <span className="text-xs sm:text-sm font-medium text-white/80 animate-pulse">+200 New</span>
                     </div>
                   </div>
                 </div>
@@ -705,11 +705,11 @@ export default function Landing() {
                 </div>
                 <span className="text-slate-400 text-sm font-medium">+12k Creators Joined</span>
               </div>
-              <h2 className="text-5xl font-black text-white mb-6 leading-tight">
+              <h2 className="text-4xl sm:text-5xl font-black text-white mb-4 lg:mb-6 leading-tight">
                 Global Scale,<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-500">Local Impact.</span>
               </h2>
-              <p className="text-slate-400 text-lg mb-8 leading-relaxed max-w-lg">
+              <p className="text-base sm:text-lg lg:text-xl text-slate-400 mb-6 lg:mb-8 leading-relaxed max-w-lg">
                 Connect with creators in over 45 countries. From Tokyo fashion weeks to NYC tech launches, our network spans every major cultural hub.
               </p>
 

@@ -206,7 +206,7 @@ const EscrowPayment: React.FC<EscrowPaymentProps> = ({
       {/* Status Flow */}
       {escrow && (
         <div className="mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
             {statusFlow.map((status, index) => {
               const Icon = status.icon;
               const isActive = index <= currentStatusIndex;
@@ -214,7 +214,7 @@ const EscrowPayment: React.FC<EscrowPaymentProps> = ({
 
               return (
                 <React.Fragment key={status.key}>
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center w-full sm:w-auto">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                       isActive 
                         ? isCurrent 
@@ -224,12 +224,12 @@ const EscrowPayment: React.FC<EscrowPaymentProps> = ({
                     }`}>
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className={`text-xs mt-2 text-center ${isActive ? 'text-white' : 'text-slate-500'}`}>
+                    <span className={`text-xs mt-2 text-center max-w-[80px] ${isActive ? 'text-white' : 'text-slate-500'}`}>
                       {status.label}
                     </span>
                   </div>
                   {index < statusFlow.length - 1 && (
-                    <div className={`flex-1 h-0.5 mx-2 ${
+                    <div className={`flex-1 h-0.5 mx-2 hidden sm:block ${
                       index < currentStatusIndex ? 'bg-green-600' : 'bg-slate-700'
                     }`} />
                   )}
@@ -248,23 +248,23 @@ const EscrowPayment: React.FC<EscrowPaymentProps> = ({
             Payment Breakdown
           </h4>
           <div className="space-y-2">
-            <div className="flex justify-between text-slate-300">
+            <div className="flex flex-col sm:flex-row sm:justify-between text-slate-300 gap-1 sm:gap-0">
               <span>Total Amount</span>
               <span className="font-medium">₹{fees.grossAmount?.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-slate-400 text-sm">
+            <div className="flex flex-col sm:flex-row sm:justify-between text-slate-400 text-sm gap-1 sm:gap-0">
               <span className="flex items-center gap-1">
                 Payment Gateway Fee
                 <Info className="w-3 h-3" title="Razorpay: 2% + 18% GST" />
               </span>
               <span>-₹{fees.razorpayFee?.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-slate-400 text-sm">
+            <div className="flex flex-col sm:flex-row sm:justify-between text-slate-400 text-sm gap-1 sm:gap-0">
               <span>Platform Service Fee (10%)</span>
               <span>-₹{fees.platformFee?.toLocaleString()}</span>
             </div>
             <div className="border-t border-slate-700 pt-2 mt-2">
-              <div className="flex justify-between text-white font-medium">
+              <div className="flex flex-col sm:flex-row sm:justify-between text-white font-medium gap-1 sm:gap-0">
                 <span>{providerName} receives</span>
                 <span className="text-green-400">₹{fees.providerPayout?.toLocaleString()}</span>
               </div>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  Clock, 
-  Mail, 
-  Phone, 
-  FileText, 
+import {
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Mail,
+  Phone,
+  FileText,
   Shield,
   ArrowRight,
   X
@@ -28,12 +28,12 @@ interface VerificationStatusProps {
   compact?: boolean;
 }
 
-const VerificationStatus: React.FC<VerificationStatusProps> = ({ 
-  showModal = false, 
+const VerificationStatus: React.FC<VerificationStatusProps> = ({
+  showModal = false,
   onClose,
-  compact = false 
+  compact = false
 }) => {
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const [verificationData, setVerificationData] = useState<VerificationStatusData>({
     kycStatus: 'NOT_SUBMITTED',
     emailVerified: false,
@@ -50,10 +50,10 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
     try {
       const [kycResponse, userResponse] = await Promise.all([
         fetch('/api/kyc/status', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         }),
         fetch('/api/users/profile', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
 
@@ -144,7 +144,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
           className="h-full bg-gradient-to-r from-blue-500 to-green-500"
         />
       </div>
-      
+
       <div className="text-center text-sm text-gray-600">
         {progress.completed} of {progress.total} steps completed ({Math.round(progress.percentage)}%)
       </div>
@@ -215,7 +215,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
               )}
             </div>
           </div>
-          
+
           {verificationData.kycStatus === 'REJECTED' && verificationData.rejectionReason && (
             <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-700">
@@ -237,7 +237,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
               Verify Email
             </button>
           )}
-          
+
           {!verificationData.phoneVerified && (
             <button
               onClick={() => window.location.href = '/profile/verification'}
@@ -246,7 +246,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
               Verify Phone
             </button>
           )}
-          
+
           {(verificationData.kycStatus === 'NOT_SUBMITTED' || verificationData.kycStatus === 'REJECTED') && (
             <button
               onClick={() => window.location.href = '/profile/kyc'}

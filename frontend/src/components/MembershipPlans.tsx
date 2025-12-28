@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Crown, Zap, Star, CreditCard, MessageCircle, Target, Shield } from 'lucide-react';
+import { Check, Crown, Zap, Star, CreditCard, MessageCircle, Target, Shield, Wallet } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
+import api from '../lib/api';
 
 interface MembershipPlan {
   id: string;
   name: string;
   description: string;
   price: number;
-  billingCycle: 'MONTHLY' | 'YEARLY' | 'PER_ACTION';
-  features: {
-    messaging: boolean;
-    prioritySupport: boolean;
-    verifiedBadge: boolean;
-    credits: number;
-    bidsPerMonth: number;
-    adsPerMonth: number;
-    customFeatures: string[];
+  billingCycle: 'MONTHLY' | 'YEARLY' | 'PER_ACTION' | 'ONE_TIME';
+  features: string[];
+  limitations: {
+    adsPerMonth?: number;
+    bidsPerMonth?: number;
+    profileViews?: number;
+    messagesPerMonth?: number;
+    featuredListings?: number;
   };
-  isPopular: boolean;
+  targetRole: 'CLIENT' | 'INFLUENCER' | 'ALL';
+  isPopular?: boolean;
   isActive: boolean;
 }
 
@@ -32,32 +33,44 @@ interface UserSubscription {
   plan: MembershipPlan;
 }
 
-const MembershipPlans: React.FC = () => {
+interface MembershipPlansProps {
+  onSubscriptionChange?: () => void;
+}
+
+const MembershipPlans: React.FC<MembershipPlansProps> = ({ onSubscriptionChange }) => {
   const { user } = useAuthStore();
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [currentSubscription, setCurrentSubscription] = useState<UserSubscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState<string | null>(null);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   useEffect(() => {
     fetchPlans();
     fetchCurrentSubscription();
+    fetchWalletBalance();
   }, []);
+
+  const fetchWalletBalance = async () => {
+    try {
+      const response = await api.get('/billing/wallet');
+      if (response.data.success) {
+        setWalletBalance(response.data.data?.balance || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching wallet:', error);
+    }
+  };
 
   const fetchPlans = async () => {
     try {
-      const response = await fetch('/api/billing/plans');
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && Array.isArray(data.data)) {
-          setPlans(data.data);
-        } else {
-          console.warn('Invalid plans data received:', data);
-          setPlans([]);
-        }
+      // Fetch plans filtered by user role
+      const response = await api.get(`/billing/plans?role=${user?.role || ''}`);
+
+      if (response.data.success && Array.isArray(response.data.data)) {
+        setPlans(response.data.data);
       } else {
-        console.warn('Failed to fetch plans:', response.status);
+        console.warn('Invalid plans data received:', response.data);
         setPlans([]);
       }
     } catch (error) {
@@ -69,15 +82,10 @@ const MembershipPlans: React.FC = () => {
 
   const fetchCurrentSubscription = async () => {
     try {
-      const response = await fetch('/api/billing/subscription', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      
-      if (data.success && data.data.status !== 'NO_SUBSCRIPTION') {
-        setCurrentSubscription(data.data);
+      const response = await api.get('/billing/subscription');
+
+      if (response.data.success && response.data.data.status !== 'NO_SUBSCRIPTION') {
+        setCurrentSubscription(response.data.data);
       }
     } catch (error) {
       console.error('Error fetching subscription:', error);
@@ -86,63 +94,123 @@ const MembershipPlans: React.FC = () => {
     }
   };
 
-  const handleSubscribe = async (planId: string) => {
-    setSubscribing(planId);
+  const handleSubscribe = async (plan: MembershipPlan) => {
+    setSubscribing(plan.id);
 
     try {
-      // In a real implementation, you would integrate with a payment gateway
-      // For now, we'll simulate the payment process
-      const paymentMethodId = 'pm_test_' + Date.now();
-
-      const response = await fetch('/api/billing/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          planId,
-          paymentMethodId
-        })
+      // Try to subscribe (backend will use wallet if sufficient balance)
+      const response = await api.post('/billing/subscribe', {
+        planId: plan.id,
+        useWallet: true
       });
 
-      const data = await response.json();
+      if (response.data.success) {
+        const { paymentMethod, requiresRazorpay, razorpayOrder, walletBalance: newWalletBalance } = response.data.data;
 
-      if (data.success) {
-        toast.success('Subscription activated successfully!');
-        fetchCurrentSubscription();
+        // If paid with wallet, we're done
+        if (paymentMethod === 'WALLET' || paymentMethod === 'FREE') {
+          toast.success(`${plan.name} activated successfully!`);
+          setWalletBalance(newWalletBalance || walletBalance);
+          fetchCurrentSubscription();
+          fetchWalletBalance();
+          onSubscriptionChange?.();
+          setSubscribing(null);
+          return;
+        }
+
+        // If requires Razorpay (insufficient wallet balance)
+        if (requiresRazorpay) {
+          if (razorpayOrder) {
+            // Razorpay order already created
+            openRazorpay(razorpayOrder, plan);
+          } else {
+            // Need to create Razorpay order
+            const razorpayResponse = await api.post('/billing/subscribe', {
+              planId: plan.id,
+              useWallet: false
+            });
+
+            if (razorpayResponse.data.success && razorpayResponse.data.data.razorpayOrder) {
+              openRazorpay(razorpayResponse.data.data.razorpayOrder, plan);
+            } else {
+              toast.error('Failed to create payment order');
+              setSubscribing(null);
+            }
+          }
+          return;
+        }
       } else {
-        toast.error(data.error || 'Failed to activate subscription');
+        toast.error(response.data.error || 'Failed to activate subscription');
+        setSubscribing(null);
       }
-    } catch (error) {
-      toast.error('Failed to process subscription');
-    } finally {
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Failed to process subscription');
       setSubscribing(null);
     }
+  };
+
+  const openRazorpay = (razorpayOrder: any, plan: MembershipPlan) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      name: 'Adfluencer',
+      description: `Subscribe to ${plan.name}`,
+      order_id: razorpayOrder.id,
+      handler: async (response: any) => {
+        try {
+          const verifyResponse = await api.post('/billing/verify-subscription-payment', {
+            orderId: response.razorpay_order_id,
+            paymentId: response.razorpay_payment_id,
+            signature: response.razorpay_signature,
+            planId: plan.id
+          });
+
+          if (verifyResponse.data.success) {
+            toast.success(`${plan.name} activated successfully!`);
+            fetchCurrentSubscription();
+            onSubscriptionChange?.();
+          } else {
+            toast.error('Payment verification failed');
+          }
+        } catch (error) {
+          console.error('Payment verification error:', error);
+          toast.error('Payment verification failed');
+        } finally {
+          setSubscribing(null);
+        }
+      },
+      prefill: {
+        email: user?.email || ''
+      },
+      theme: {
+        color: '#3B82F6'
+      },
+      modal: {
+        ondismiss: () => {
+          setSubscribing(null);
+        }
+      }
+    };
+
+    const razorpay = new (window as any).Razorpay(options);
+    razorpay.open();
   };
 
   const handleCancelSubscription = async () => {
     if (!currentSubscription) return;
 
     try {
-      const response = await fetch('/api/billing/cancel-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          reason: 'User requested cancellation'
-        })
+      const response = await api.post('/billing/cancel-subscription', {
+        reason: 'User requested cancellation'
       });
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         toast.success('Subscription canceled successfully');
         fetchCurrentSubscription();
+        onSubscriptionChange?.();
       } else {
-        toast.error(data.error || 'Failed to cancel subscription');
+        toast.error(response.data.error || 'Failed to cancel subscription');
       }
     } catch (error) {
       toast.error('Failed to cancel subscription');
@@ -150,21 +218,23 @@ const MembershipPlans: React.FC = () => {
   };
 
   const getPlanIcon = (planName: string) => {
-    switch (planName.toLowerCase()) {
-      case 'basic': return <Zap className="w-8 h-8 text-blue-400" />;
-      case 'premium': return <Crown className="w-8 h-8 text-purple-400" />;
-      case 'pay-per-bid': return <Target className="w-8 h-8 text-green-400" />;
-      case 'pay-per-ad': return <MessageCircle className="w-8 h-8 text-orange-400" />;
-      default: return <Star className="w-8 h-8 text-slate-400" />;
-    }
+    const name = planName.toLowerCase();
+    if (name.includes('free')) return <Star className="w-8 h-8 text-slate-400" />;
+    if (name.includes('basic')) return <Zap className="w-8 h-8 text-blue-400" />;
+    if (name.includes('premium')) return <Crown className="w-8 h-8 text-purple-400" />;
+    if (name.includes('bid')) return <Target className="w-8 h-8 text-green-400" />;
+    if (name.includes('ad')) return <MessageCircle className="w-8 h-8 text-orange-400" />;
+    return <Star className="w-8 h-8 text-slate-400" />;
   };
 
   const formatPrice = (price: number, billingCycle: string) => {
-    if (billingCycle === 'PER_ACTION') {
-      return `₹${price}`;
-    }
+    if (price === 0) return 'Free';
+    if (billingCycle === 'PER_ACTION') return `₹${price}/action`;
+    if (billingCycle === 'ONE_TIME') return `₹${price}`;
     return `₹${price}/${billingCycle === 'MONTHLY' ? 'month' : 'year'}`;
   };
+
+  const canPayWithWallet = (price: number) => walletBalance >= price;
 
   if (loading) {
     return (
@@ -176,26 +246,35 @@ const MembershipPlans: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-white mb-4">Choose Your Plan</h1>
-        <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-          Unlock the full potential of Adfluencer with our flexible membership plans. 
-          From pay-per-use to unlimited access, we have the perfect plan for your needs.
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-white mb-3">Choose Your Plan</h1>
+        <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+          {user?.role === 'CLIENT' 
+            ? 'Plans designed for advertisers and brands'
+            : 'Plans designed for influencers and creators'
+          }
         </p>
+      </div>
+
+      {/* Wallet Balance Info */}
+      <div className="flex items-center justify-center gap-3 p-4 bg-slate-800/50 rounded-lg mb-8 max-w-md mx-auto">
+        <Wallet className="w-5 h-5 text-blue-400" />
+        <span className="text-slate-300">Wallet Balance:</span>
+        <span className="text-xl font-semibold text-white">₹{walletBalance.toLocaleString('en-IN')}</span>
       </div>
 
       {/* Current Subscription Status */}
       {currentSubscription && (
-        <div className="mb-8 p-6 bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl border border-slate-600/50">
+        <div className="mb-8 p-6 bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl border border-slate-600/50 max-w-2xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-slate-700/50 rounded-full">
-                <Shield className="w-6 h-6 text-slate-300" />
+                <Shield className="w-6 h-6 text-green-400" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">Current Plan: {currentSubscription.plan.name}</h3>
                 <p className="text-slate-400">
-                  {currentSubscription.status === 'ACTIVE' 
+                  {currentSubscription.status === 'ACTIVE'
                     ? `Active until ${new Date(currentSubscription.endDate).toLocaleDateString()}`
                     : `Status: ${currentSubscription.status}`
                   }
@@ -207,7 +286,7 @@ const MembershipPlans: React.FC = () => {
                 onClick={handleCancelSubscription}
                 className="px-4 py-2 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-500/10 transition-colors"
               >
-                Cancel Subscription
+                Cancel
               </button>
             )}
           </div>
@@ -215,167 +294,139 @@ const MembershipPlans: React.FC = () => {
       )}
 
       {/* Membership Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {plans.map((plan) => (
-          <motion.div
-            key={plan.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`relative bg-slate-800/50 border border-slate-600/50 backdrop-blur-sm rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${
-              plan.isPopular 
-                ? 'border-purple-500/50 ring-2 ring-purple-500/20' 
-                : 'border-slate-600/50 hover:border-slate-500/50'
-            }`}
-          >
-            {plan.isPopular && (
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                  Most Popular
-                </span>
-              </div>
-            )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {plans.map((plan) => {
+          const price = Number(plan.price);
+          const isCurrentPlan = currentSubscription?.plan.id === plan.id;
+          const walletSufficient = canPayWithWallet(price);
 
-            <div className="p-8">
-              {/* Plan Header */}
-              <div className="text-center mb-6">
-                <div className="flex justify-center mb-4">
-                  {getPlanIcon(plan.name)}
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <p className="text-slate-400 mb-4">{plan.description}</p>
-                <div className="text-4xl font-bold text-white">
-                  {formatPrice(plan.price, plan.billingCycle)}
-                </div>
-                {plan.billingCycle === 'YEARLY' && (
-                  <p className="text-sm text-green-400 mt-1">Save 58% annually</p>
-                )}
-              </div>
-
-              {/* Features List */}
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center space-x-3">
-                  <Check className={`w-5 h-5 ${plan.features.messaging ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={plan.features.messaging ? 'text-white' : 'text-slate-500'}>
-                    {plan.features.messaging ? 'Unlimited Messaging' : 'Pay-per-message'}
+          return (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`relative bg-slate-800/50 border backdrop-blur-sm rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${
+                plan.isPopular
+                  ? 'border-purple-500/50 ring-2 ring-purple-500/20'
+                  : 'border-slate-600/50 hover:border-slate-500/50'
+              }`}
+            >
+              {plan.isPopular && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Popular
                   </span>
                 </div>
+              )}
 
-                <div className="flex items-center space-x-3">
-                  <Check className={`w-5 h-5 ${plan.features.prioritySupport ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={plan.features.prioritySupport ? 'text-white' : 'text-slate-500'}>
-                    {plan.features.prioritySupport ? 'Priority Support' : 'Standard Support'}
-                  </span>
+              <div className="p-6">
+                {/* Plan Header */}
+                <div className="text-center mb-5">
+                  <div className="flex justify-center mb-3">
+                    {getPlanIcon(plan.name)}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
+                  <p className="text-sm text-slate-400 mb-3">{plan.description}</p>
+                  <div className="text-3xl font-bold text-white">
+                    {formatPrice(price, plan.billingCycle)}
+                  </div>
+                  {plan.billingCycle === 'YEARLY' && (
+                    <p className="text-xs text-green-400 mt-1">Save with annual billing</p>
+                  )}
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <Check className={`w-5 h-5 ${plan.features.verifiedBadge ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={plan.features.verifiedBadge ? 'text-white' : 'text-slate-500'}>
-                    Verified Badge
-                  </span>
+                {/* Payment Method Indicator */}
+                {price > 0 && !isCurrentPlan && (
+                  <div className={`flex items-center justify-center gap-2 p-2 rounded-lg mb-4 text-xs ${
+                    walletSufficient 
+                      ? 'bg-green-500/10 text-green-400' 
+                      : 'bg-amber-500/10 text-amber-400'
+                  }`}>
+                    {walletSufficient ? (
+                      <>
+                        <Wallet className="w-3 h-3" />
+                        <span>Pay from wallet</span>
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="w-3 h-3" />
+                        <span>Pay via Razorpay</span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Features List */}
+                <div className="space-y-2 mb-6">
+                  {plan.features?.slice(0, 5).map((feature, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                      <span className="text-sm text-slate-300">{feature}</span>
+                    </div>
+                  ))}
+                  {plan.limitations?.bidsPerMonth !== undefined && plan.limitations.bidsPerMonth > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                      <span className="text-sm text-slate-300">
+                        {plan.limitations.bidsPerMonth === -1 ? 'Unlimited' : plan.limitations.bidsPerMonth} bids/month
+                      </span>
+                    </div>
+                  )}
+                  {plan.limitations?.adsPerMonth !== undefined && plan.limitations.adsPerMonth > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                      <span className="text-sm text-slate-300">
+                        {plan.limitations.adsPerMonth === -1 ? 'Unlimited' : plan.limitations.adsPerMonth} ads/month
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {plan.features.bidsPerMonth > 0 && (
-                  <div className="flex items-center space-x-3">
-                    <Check className="w-5 h-5 text-green-400" />
-                    <span className="text-white">
-                      {plan.features.bidsPerMonth === 999 ? 'Unlimited' : plan.features.bidsPerMonth} Bids/month
-                    </span>
-                  </div>
-                )}
-
-                {plan.features.adsPerMonth > 0 && (
-                  <div className="flex items-center space-x-3">
-                    <Check className="w-5 h-5 text-green-400" />
-                    <span className="text-white">
-                      {plan.features.adsPerMonth === 999 ? 'Unlimited' : plan.features.adsPerMonth} Ads/month
-                    </span>
-                  </div>
-                )}
-
-                {plan.features.credits > 0 && (
-                  <div className="flex items-center space-x-3">
-                    <Check className="w-5 h-5 text-green-400" />
-                    <span className="text-white">₹{plan.features.credits} Wallet Credits</span>
-                  </div>
-                )}
-
-                {plan.features.customFeatures?.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <Check className="w-5 h-5 text-green-400" />
-                    <span className="text-white">{feature}</span>
-                  </div>
-                )) || []}
+                {/* Subscribe Button */}
+                <button
+                  onClick={() => handleSubscribe(plan)}
+                  disabled={subscribing === plan.id || isCurrentPlan}
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                    isCurrentPlan
+                      ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                      : plan.isPopular
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
+                        : 'bg-slate-700 text-white hover:bg-slate-600'
+                  } ${subscribing === plan.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {subscribing === plan.id ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Processing...</span>
+                    </>
+                  ) : isCurrentPlan ? (
+                    'Current Plan'
+                  ) : price === 0 ? (
+                    'Activate Free Plan'
+                  ) : walletSufficient ? (
+                    <>
+                      <Wallet className="w-4 h-4" />
+                      <span>Pay from Wallet</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4" />
+                      <span>Subscribe ₹{price}</span>
+                    </>
+                  )}
+                </button>
               </div>
-
-              {/* Subscribe Button */}
-              <button
-                onClick={() => handleSubscribe(plan.id)}
-                disabled={
-                  subscribing === plan.id || 
-                  (currentSubscription?.status === 'ACTIVE' && currentSubscription.plan.id === plan.id)
-                }
-                className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-                  currentSubscription?.plan.id === plan.id
-                    ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                    : plan.isPopular
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
-                    : 'bg-slate-700 text-white hover:bg-slate-600'
-                } ${subscribing === plan.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {subscribing === plan.id ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Processing...</span>
-                  </div>
-                ) : currentSubscription?.plan.id === plan.id ? (
-                  'Current Plan'
-                ) : plan.billingCycle === 'PER_ACTION' ? (
-                  'Pay Per Use'
-                ) : (
-                  'Subscribe Now'
-                )}
-              </button>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Additional Information */}
-      <div className="mt-16 text-center">
-        <h2 className="text-2xl font-bold text-white mb-8">Why Choose Adfluencer Premium?</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-6">
-            <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-8 h-8 text-slate-300" />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Verified Network</h3>
-            <p className="text-slate-400">
-              Connect with verified influencers and brands for secure, trustworthy collaborations.
-            </p>
-          </div>
-
-          <div className="p-6">
-            <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CreditCard className="w-8 h-8 text-slate-300" />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Secure Payments</h3>
-            <p className="text-slate-400">
-              Safe and secure payment processing with multiple payment options and wallet system.
-            </p>
-          </div>
-
-          <div className="p-6">
-            <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Star className="w-8 h-8 text-slate-300" />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Premium Support</h3>
-            <p className="text-slate-400">
-              Get priority customer support and dedicated account management for your campaigns.
-            </p>
-          </div>
+      {plans.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-slate-400">No plans available for your account type.</p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -12,7 +12,7 @@ export function Card({ className = '', variant = 'default', children, ...props }
   };
 
   return (
-    <div className={`rounded-xl border shadow-lg shadow-black/10 ${variants[variant]} ${className}`} {...props}>
+    <div className={`rounded-xl border shadow-lg shadow-black/10 overflow-hidden min-w-0 ${variants[variant]} ${className}`} {...props}>
       {children}
     </div>
   );
@@ -20,7 +20,7 @@ export function Card({ className = '', variant = 'default', children, ...props }
 
 export function CardHeader({ className = '', children, ...props }: Omit<CardProps, 'variant'>) {
   return (
-    <div className={`px-6 py-4 border-b border-slate-600/50 ${className}`} {...props}>
+    <div className={`px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-slate-600/50 ${className}`} {...props}>
       {children}
     </div>
   );
@@ -28,7 +28,7 @@ export function CardHeader({ className = '', children, ...props }: Omit<CardProp
 
 export function CardContent({ className = '', children, ...props }: Omit<CardProps, 'variant'>) {
   return (
-    <div className={`px-6 py-4 ${className}`} {...props}>
+    <div className={`px-3 sm:px-4 lg:px-6 py-3 sm:py-4 ${className}`} {...props}>
       {children}
     </div>
   );

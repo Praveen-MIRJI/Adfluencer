@@ -19,9 +19,10 @@ router.post('/',
   authenticate, 
   authorize('INFLUENCER'), 
   requireVerification,
-  requireWalletBalance('BID'),
+  // Note: Wallet deduction removed - using credit system instead
+  // requireWalletBalance('BID'),
   validate(createBidValidation), 
-  deductWalletBalance,
+  // deductWalletBalance,
   bidController.createBid
 );
 router.get('/my-bids', authenticate, authorize('INFLUENCER'), bidController.getMyBids);

@@ -3,12 +3,14 @@ import { useAuthStore } from '../store/authStore';
 import {
   Megaphone, LayoutDashboard, FileText, Search, User, MessageSquare,
   LogOut, Menu, X, Users, Bookmark, Star, Image, FileCheck,
-  ChevronDown, Settings, Shield, CreditCard
+  ChevronDown, Settings, Shield, CreditCard, Coins
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { NotificationBell } from '../components/Notifications';
 import HelpCenter from '../components/HelpCenter';
 import VerificationBadge from '../components/VerificationBadge';
+import SpinWheel from '../components/SpinWheel';
 import api from '../lib/api';
 
 const clientNav = [
@@ -44,6 +46,7 @@ const adminNav = [
   { name: 'Categories', href: '/admin/categories', icon: Settings },
   { name: 'Reviews', href: '/admin/reviews', icon: Star },
   { name: 'KYC Review', href: '/admin/kyc', icon: Shield },
+  { name: 'Credit System', href: '/admin/credits', icon: Coins },
 ];
 
 export default function DashboardLayout() {
@@ -52,9 +55,11 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [spinWheelChecked, setSpinWheelChecked] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // Fetch latest user data including profile on mount
+  // Fetch latest user data including profile on mount and check spin wheel status
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -62,6 +67,11 @@ export default function DashboardLayout() {
         if (res.data.success && res.data.data && token) {
           // Use setAuth to fully replace user data with fresh data from server
           setAuth(res.data.data, token);
+          
+          // Check if user needs to see spin wheel (only for CLIENT and INFLUENCER)
+          if (!spinWheelChecked && (res.data.data.role === 'CLIENT' || res.data.data.role === 'INFLUENCER')) {
+            checkSpinWheelStatus();
+          }
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error);
@@ -69,6 +79,26 @@ export default function DashboardLayout() {
     };
     fetchUserData();
   }, [setAuth, token]);
+
+  // Check if user has claimed spin wheel bonus
+  const checkSpinWheelStatus = async () => {
+    try {
+      const res = await api.get('/auth/spin-wheel-status');
+      if (res.data.success && res.data.data.showSpinWheel) {
+        setShowSpinWheel(true);
+      }
+      setSpinWheelChecked(true);
+    } catch (error) {
+      console.error('Failed to check spin wheel status:', error);
+      setSpinWheelChecked(true);
+    }
+  };
+
+  // Handle spin wheel close
+  const handleSpinWheelClose = (credits: number) => {
+    setShowSpinWheel(false);
+    toast.success(`🎉 You won ${credits} free ${user?.role === 'CLIENT' ? 'post' : 'bid'} credits!`);
+  };
 
   const navItems = user?.role === 'CLIENT' ? clientNav
     : user?.role === 'INFLUENCER' ? influencerNav
@@ -108,6 +138,15 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-slate-900">
+      {/* Spin Wheel Modal */}
+      {(user?.role === 'CLIENT' || user?.role === 'INFLUENCER') && (
+        <SpinWheel
+          isOpen={showSpinWheel}
+          onClose={handleSpinWheelClose}
+          userRole={user.role as 'CLIENT' | 'INFLUENCER'}
+        />
+      )}
+
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -182,7 +221,7 @@ export default function DashboardLayout() {
               {(user?.role === 'CLIENT' || user?.role === 'INFLUENCER') && (
                 <VerificationBadge />
               )}
-              
+
               <NotificationBell />
 
               {/* Profile Dropdown */}
@@ -258,8 +297,10 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page content */}
-        <main className="p-4 sm:p-6 lg:p-8">
-          <Outlet />
+        <main className="p-4 sm:p-6 lg:p-8 overflow-x-hidden w-full max-w-full">
+          <div className="w-full max-w-full overflow-x-hidden">
+            <Outlet />
+          </div>
         </main>
       </div>
 

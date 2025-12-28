@@ -29,18 +29,20 @@ const ActionBanner: React.FC = () => {
 
   const fetchBannerData = async () => {
     try {
-      const [kycResponse, walletResponse] = await Promise.all([
+      const [kycResponse, creditsResponse] = await Promise.all([
         api.get('/kyc/status'),
-        api.get('/billing/wallet')
+        api.get('/credits/balance')
       ]);
 
       const kycData = kycResponse.data;
-      const walletData = walletResponse.data;
+      const creditsData = creditsResponse.data;
 
       setBannerData({
         kycStatus: kycData.success ? kycData.data.status || 'NOT_SUBMITTED' : 'NOT_SUBMITTED',
         isVerified: kycData.success ? kycData.data.isVerified || false : false,
-        walletBalance: walletData.success ? walletData.data.balance || 0 : 0
+        walletBalance: creditsData.success 
+          ? (creditsData.data.bidCredits || 0) + (creditsData.data.postCredits || 0) 
+          : 0
       });
     } catch (error) {
       console.error('Error fetching banner data:', error);
@@ -76,16 +78,16 @@ const ActionBanner: React.FC = () => {
     });
   }
 
-  // Low Wallet Balance Banner
-  if (bannerData.walletBalance < 50 && !dismissed.includes('low-balance')) {
+  // Low Credits Banner
+  if (bannerData.walletBalance < 5 && !dismissed.includes('low-balance')) {
     banners.push({
       id: 'low-balance',
       type: 'info',
       icon: Wallet,
-      title: 'Low Wallet Balance',
-      message: `Your wallet balance is ₹${bannerData.walletBalance}. Add money to continue using premium features.`,
-      action: 'Add Money',
-      link: `${basePath}/billing`,
+      title: 'Low Credits',
+      message: `You have ${bannerData.walletBalance} credits remaining. Purchase more to continue posting ads or bidding.`,
+      action: 'Buy Credits',
+      link: `${basePath}/credits`,
       color: 'bg-blue-50 border-blue-200 text-blue-800'
     });
   }
