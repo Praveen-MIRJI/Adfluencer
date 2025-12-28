@@ -57,7 +57,6 @@ export const uploadKycDocument = async (
       console.error('Supabase upload error:', error);
       console.error('Error details:', {
         message: error.message,
-        statusCode: error.statusCode,
         name: error.name
       });
 
