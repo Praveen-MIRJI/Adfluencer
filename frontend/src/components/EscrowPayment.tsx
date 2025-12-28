@@ -215,13 +215,12 @@ const EscrowPayment: React.FC<EscrowPaymentProps> = ({
               return (
                 <React.Fragment key={status.key}>
                   <div className="flex flex-col items-center w-full sm:w-auto">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      isActive 
-                        ? isCurrent 
-                          ? 'bg-indigo-600 text-white' 
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isActive
+                        ? isCurrent
+                          ? 'bg-indigo-600 text-white'
                           : 'bg-green-600 text-white'
                         : 'bg-slate-700 text-slate-400'
-                    }`}>
+                      }`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <span className={`text-xs mt-2 text-center max-w-[80px] ${isActive ? 'text-white' : 'text-slate-500'}`}>
@@ -229,9 +228,8 @@ const EscrowPayment: React.FC<EscrowPaymentProps> = ({
                     </span>
                   </div>
                   {index < statusFlow.length - 1 && (
-                    <div className={`flex-1 h-0.5 mx-2 hidden sm:block ${
-                      index < currentStatusIndex ? 'bg-green-600' : 'bg-slate-700'
-                    }`} />
+                    <div className={`flex-1 h-0.5 mx-2 hidden sm:block ${index < currentStatusIndex ? 'bg-green-600' : 'bg-slate-700'
+                      }`} />
                   )}
                 </React.Fragment>
               );
@@ -255,7 +253,7 @@ const EscrowPayment: React.FC<EscrowPaymentProps> = ({
             <div className="flex flex-col sm:flex-row sm:justify-between text-slate-400 text-sm gap-1 sm:gap-0">
               <span className="flex items-center gap-1">
                 Payment Gateway Fee
-                <Info className="w-3 h-3" title="Razorpay: 2% + 18% GST" />
+                <Info className="w-3 h-3" />
               </span>
               <span>-₹{fees.razorpayFee?.toLocaleString()}</span>
             </div>
